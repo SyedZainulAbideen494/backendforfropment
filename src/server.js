@@ -11,7 +11,7 @@ const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const { verify } = require("crypto");
 const path = require("path");
-const PORT = process.env.PORT || 8080;
+const PORT = 8080;
 app.use(express.urlencoded({ extended: true }));
 
 const storage = multer.diskStorage({
@@ -56,10 +56,10 @@ app.use(
 app.use(express.static("public"));
 
 const connection = mysql.createConnection({
-  host: "bsgjag7lfmgt0v0dn5jd-mysql.services.clever-cloud.com",
-  user: "u2k6ckipnomefs5n",
-  password: "tXzreCTZ2h73XiG2H6gG",
-  database: "bsgjag7lfmgt0v0dn5jd",
+  host: "localhost",
+  user: "root",
+  password: "zain",
+  database: "dropment",
 });
 
 connection.connect((err) => {
@@ -196,53 +196,57 @@ app.post("/addShops", (req, res) => {
 });
 
 app.post("/addUser", (req, res) => {
-  const phoneno = req.body.phoneno;
-  const email = req.body.email;
-  const password = req.body.password;
-  const first_name = req.body.first_name;
-  const last_name = req.body.last_name;
-  const streetadrs = req.body.streetadrs;
-  const city = req.body.city;
-  const state = req.body.state;
-  const zipcode = req.body.zipcode;
-  const country = req.body.country;
-  const occupation = req.body.occupation;
-  const age = req.body.age;
-  const unique_id = req.body.unique_id;
+  const {
+    phoneno,
+    email,
+    password,
+    first_name,
+    last_name,
+    streetadrs,
+    city,
+    state,
+    zipcode,
+    country,
+    occupation,
+    age,
+    unique_id,
+  } = req.body;
 
+  // Hash the password
   bcrypt.hash(password, saltRounds, (err, hash) => {
     if (err) {
-      console.log(err);
-    }
-    const Addquerry =
-      "insert into users(first_name, last_name, email, password, unique_id, occupation, age, phoneno, streetadrs, city, state, zipcode, country)  values(?,?,?,?,?,?,?,?,?,?,?,?,?)";
+      console.error("Error hashing password: ", err);
+      res.status(500).json({ error: "Internal server error" });
+    } else {
+      // Insert the user into the database
+      const query =
+        "INSERT INTO users (first_name, last_name, email, password, unique_id, occupation, age, phoneno, streetadrs, city, state, zipcode, country) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+      const values = [
+        first_name,
+        last_name,
+        email,
+        hash,
+        unique_id,
+        occupation,
+        age,
+        phoneno,
+        streetadrs,
+        city,
+        state,
+        zipcode,
+        country,
+      ];
 
-    return new Promise((resolve, reject) => {
-      connection.query(
-        Addquerry,
-        [
-          first_name,
-          last_name,
-          email,
-          hash,
-          unique_id,
-          occupation,
-          age,
-          phoneno,
-          streetadrs,
-          city,
-          state,
-          zipcode,
-          country,
-        ],
-        (err, res) => {
-          if (err) reject(err);
-          else resolve(res);
+      connection.query(query, values, (error, results) => {
+        if (error) {
+          console.error("Error inserting user: ", error);
+          res.status(500).json({ error: "Internal server error" });
+        } else {
+          console.log("User registration successful!");
+          res.sendStatus(200);
         }
-      );
-    })
-      .then((res) => console.log(res))
-      .catch((err) => console.log(err));
+      });
+    }
   });
 });
 
@@ -766,7 +770,6 @@ app.get("/user/orders", (req, res) => {
       console.error(err);
     });
 });
-
 app.post("/addShops/template3", (req, res) => {
   const shop_name = req.body.shop_name;
   const shop_owner = req.body.shop_owner;
@@ -1107,6 +1110,43 @@ app.get("/user/id/editbtnstoredisplay2", (req, res) => {
     }
   });
 });
+
+app.get("/imgprods", (req, res) => {
+  const id = req.headers.authorization;
+  const selectQuery = `SELECT images FROM products WHERE id = '${id}' `;
+  const insertQuery = "SELECT * FROM products where id = ?";
+
+  // Execute the first query to fetch users
+  const fetchUsersPromise = new Promise((resolve, reject) => {
+    connection.query(selectQuery, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+
+  // Chain the promises to insert the shop details after fetching the users
+  fetchUsersPromise
+    .then((rows) => {
+      // Assuming you have a specific user in mind to retrieve the userId
+      const id = rows[0].id;
+
+      return new Promise((resolve, reject) => {
+        const shopsquary = `select * from orders where shop_id = '${id}'`;
+        connection.query(shopsquary, (err, result) => {
+          if (err) reject(err);
+          else resolve;
+          res.send({ img: result });
+        });
+      });
+    })
+    .then((result) => {
+      res.send({ img: result });
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+});
+
 app.listen(PORT, () => {
   console.log("Server started on port 8080");
 });

@@ -1,4 +1,0 @@
-version: 2
-env: node
-buildScript: npm ci
-startScript: node server.js

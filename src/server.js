@@ -55,14 +55,15 @@ app.use(
 
 app.use(express.static("public"));
 
-const connection = mysql.createConnection({
+const connection = mysql.createPool({
+  connectionLimit: 10, // Maximum number of connections in the pool
   host: "localhost",
   user: "root",
-  password: "zain@123",
+  password: "Englishps#4",
   database: "dropment",
 });
 
-connection.connect((err) => {
+connection.getConnection((err) => {
   if (err) {
     console.error("Error connecting to MySQL database: ", err);
   } else {
@@ -1113,7 +1114,7 @@ app.get("/user/id/editbtnstoredisplay2", (req, res) => {
 
 app.get("/imgprods", (req, res) => {
   const id = req.headers.authorization;
-  const selectQuery = `SELECT images FROM products WHERE id = '${id}' `;
+  const selectQuery = `SELECT id FROM products WHERE id = '${id}' `;
   const insertQuery = "SELECT * FROM products where id = ?";
 
   // Execute the first query to fetch users
@@ -1131,7 +1132,7 @@ app.get("/imgprods", (req, res) => {
       const id = rows[0].id;
 
       return new Promise((resolve, reject) => {
-        const shopsquary = `select * from orders where shop_id = '${id}'`;
+        const shopsquary = `select images from products where id = '${id}'`;
         connection.query(shopsquary, (err, result) => {
           if (err) reject(err);
           else resolve;

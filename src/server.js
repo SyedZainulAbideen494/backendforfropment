@@ -63,13 +63,12 @@ const connection = mysql.createPool({
   database: "dropment"
 });
 
-connection.connect((err) => {
+pool.getConnection((err, connection) => {
   if (err) {
-    console.error("Error connecting to MySQL database: ", err);
-  } else {
-    console.log("Connected to MySQL database");
+    // Handle error
+    console.error('Error getting database connection:', err);
+    return;
   }
-});
 
 app.get("/", (req, res) => {
   res.send("error!!");

@@ -59,17 +59,24 @@ const connection = mysql.createPool({
   connectionLimit: 10, // Maximum number of connections in the pool
   host: "localhost",
   user: "root",
+<<<<<<< HEAD
   password: "Englishps#4",
   database: "dropment",
 });
 
 connection.getConnection((err) => {
-  if (err) {
-    console.error("Error connecting to MySQL database: ", err);
-  } else {
-    console.log("Connected to MySQL database");
-  }
+=======
+  password: "zain@123",
+  database: "dropment"
 });
+
+pool.getConnection((err, connection) => {
+>>>>>>> dd99806007df928c38794357e11ad7a807c2734b
+  if (err) {
+    // Handle error
+    console.error('Error getting database connection:', err);
+    return;
+  }
 
 app.get("/", (req, res) => {
   res.send("error!!");

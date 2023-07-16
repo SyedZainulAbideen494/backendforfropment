@@ -59,13 +59,11 @@ const connection = mysql.createPool({
   connectionLimit: 10, // Maximum number of connections in the pool
   host: "localhost",
   user: "root",
-<<<<<<< HEAD
   password: "Englishps#4",
   database: "dropment",
 });
 
 connection.getConnection((err) => {
-=======
   password: "zain@123",
   database: "dropment"
 });

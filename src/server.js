@@ -63,13 +63,7 @@ const connection = mysql.createPool({
   database: "dropment",
 });
 
-connection.getConnection((err) => {
-  password: "zain@123",
-  database: "dropment"
-});
-
 pool.getConnection((err, connection) => {
->>>>>>> dd99806007df928c38794357e11ad7a807c2734b
   if (err) {
     // Handle error
     console.error('Error getting database connection:', err);

@@ -107,7 +107,7 @@ app.post("/addProduct", upload.single("image"), (req, res) => {
   const title = req.body.title;
   const price = req.body.price;
   const amount = req.body.amount;
-  const payment = req.body.payment
+  const payment = req.body.payment;
   const token = req.headers.authorization;
   const image = req.file.filename;
 
@@ -522,7 +522,7 @@ app.post("/orders", (req, res) => {
   const id = req.body.id;
   const product = req.body.product;
   const shop_id = req.body.shop_id;
-  const product_id = req.body.product_id
+  const product_id = req.body.product_id;
   const token = req.headers.authorization;
   const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
   const insertQuery =
@@ -558,7 +558,7 @@ app.post("/orders", (req, res) => {
             product,
             sender_id,
             shop_id,
-            product_id
+            product_id,
           ],
           (err, result) => {
             if (err) reject(err);
@@ -1621,7 +1621,6 @@ app.post("/addshopimg2", upload.single("image"), (req, res) => {
   });
 });
 
-
 app.post("/addshopimg3", upload.single("image"), (req, res) => {
   const images3 = req.file.filename;
   const shop_id = req.headers.authorization; // Access the Authorization header correctly
@@ -1642,7 +1641,6 @@ app.post("/addshopimg3", upload.single("image"), (req, res) => {
     return res.status(200).send("Shop image updated successfully!");
   });
 });
-
 
 app.post("/addshopimg4", upload.single("image"), (req, res) => {
   const images4 = req.file.filename;
@@ -1665,7 +1663,6 @@ app.post("/addshopimg4", upload.single("image"), (req, res) => {
   });
 });
 
-
 app.post("/addshopimg5", upload.single("image"), (req, res) => {
   const images5 = req.file.filename;
   const shop_id = req.headers.authorization; // Access the Authorization header correctly
@@ -1686,7 +1683,6 @@ app.post("/addshopimg5", upload.single("image"), (req, res) => {
     return res.status(200).send("Shop image updated successfully!");
   });
 });
-
 
 app.post("/addshopimg6", upload.single("image"), (req, res) => {
   const images6 = req.file.filename;
@@ -1709,7 +1705,6 @@ app.post("/addshopimg6", upload.single("image"), (req, res) => {
   });
 });
 
-
 app.post("/addshopimg7", upload.single("image"), (req, res) => {
   const images7 = req.file.filename;
   const shop_id = req.headers.authorization; // Access the Authorization header correctly
@@ -1730,7 +1725,6 @@ app.post("/addshopimg7", upload.single("image"), (req, res) => {
     return res.status(200).send("Shop image updated successfully!");
   });
 });
-
 
 app.post("/addshopimg8", upload.single("image"), (req, res) => {
   const images8 = req.file.filename;
@@ -1753,7 +1747,6 @@ app.post("/addshopimg8", upload.single("image"), (req, res) => {
   });
 });
 
-
 app.post("/addshopimg9", upload.single("image"), (req, res) => {
   const images9 = req.file.filename;
   const shop_id = req.headers.authorization; // Access the Authorization header correctly
@@ -1774,7 +1767,6 @@ app.post("/addshopimg9", upload.single("image"), (req, res) => {
     return res.status(200).send("Shop image updated successfully!");
   });
 });
-
 
 app.post("/addshopimg10", upload.single("image"), (req, res) => {
   const images10 = req.file.filename;
@@ -1797,7 +1789,6 @@ app.post("/addshopimg10", upload.single("image"), (req, res) => {
   });
 });
 
-
 app.post("/addshopimg11", upload.single("image"), (req, res) => {
   const images11 = req.file.filename;
   const shop_id = req.headers.authorization; // Access the Authorization header correctly
@@ -1818,7 +1809,6 @@ app.post("/addshopimg11", upload.single("image"), (req, res) => {
     return res.status(200).send("Shop image updated successfully!");
   });
 });
-
 
 app.post("/addshopimg12", upload.single("image"), (req, res) => {
   const images12 = req.file.filename;
@@ -1841,7 +1831,6 @@ app.post("/addshopimg12", upload.single("image"), (req, res) => {
   });
 });
 
-
 app.post("/addshopimg13", upload.single("image"), (req, res) => {
   const images13 = req.file.filename;
   const shop_id = req.headers.authorization; // Access the Authorization header correctly
@@ -1863,7 +1852,6 @@ app.post("/addshopimg13", upload.single("image"), (req, res) => {
   });
 });
 
-
 app.post("/addshopimg14", upload.single("image"), (req, res) => {
   const images14 = req.file.filename;
   const shop_id = req.headers.authorization; // Access the Authorization header correctly
@@ -1884,7 +1872,6 @@ app.post("/addshopimg14", upload.single("image"), (req, res) => {
     return res.status(200).send("Shop image updated successfully!");
   });
 });
-
 
 app.post("/addshopimg15", upload.single("image"), (req, res) => {
   const images15 = req.file.filename;
@@ -1908,41 +1895,40 @@ app.post("/addshopimg15", upload.single("image"), (req, res) => {
 });
 
 app.get("/custom/img/shop", (req, res) => {
- const id = req.headers.authorization;
- const selectQuery = `SELECT shop_id FROM shops WHERE shop_id = '${id}' `;
- const insertQuery = "SELECT * FROM products where id = ?";
+  const id = req.headers.authorization;
+  const selectQuery = `SELECT shop_id FROM shops WHERE shop_id = '${id}' `;
+  const insertQuery = "SELECT * FROM products where id = ?";
 
- // Execute the first query to fetch users
- const fetchUsersPromise = new Promise((resolve, reject) => {
-   connection.query(selectQuery, (err, rows) => {
-     if (err) reject(err);
-     else resolve(rows);
-   });
- });
+  // Execute the first query to fetch users
+  const fetchUsersPromise = new Promise((resolve, reject) => {
+    connection.query(selectQuery, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
 
- // Chain the promises to insert the shop details after fetching the users
- fetchUsersPromise
-   .then((rows) => {
-     // Assuming you have a specific user in mind to retrieve the userId
-     const id = rows[0].shop_id;
+  // Chain the promises to insert the shop details after fetching the users
+  fetchUsersPromise
+    .then((rows) => {
+      // Assuming you have a specific user in mind to retrieve the userId
+      const id = rows[0].shop_id;
 
-     return new Promise((resolve, reject) => {
-       const shopsquary = `select * from shops where shop_id = '${id}'`;
-       connection.query(shopsquary, (err, result) => {
-         if (err) reject(err);
-         else resolve;
-         res.send({ img: result });
-       });
-     });
-   })
-   .then((result) => {
-     res.send({ img: result });
-   })
-   .catch((err) => {
-     console.error(err);
-   });
+      return new Promise((resolve, reject) => {
+        const shopsquary = `select * from shops where shop_id = '${id}'`;
+        connection.query(shopsquary, (err, result) => {
+          if (err) reject(err);
+          else resolve;
+          res.send({ img: result });
+        });
+      });
+    })
+    .then((result) => {
+      res.send({ img: result });
+    })
+    .catch((err) => {
+      console.error(err);
+    });
 });
-
 
 app.listen(PORT, () => {
   console.log("Server started on port 8080");

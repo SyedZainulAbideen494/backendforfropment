@@ -12,11 +12,12 @@
     "mysql2": "^3.3.2",
     "node": "^20.2.0",
     "nodemon": "^2.0.22",
+    "stripe": "^12.13.0",
     "yarn": "^1.22.19"
   },
   "scripts": {
     "start": "node src/server.js",
-    "dev":"nodemon src/server.js"
+    "dev": "nodemon src/server.js"
   },
   "name": "backend-api",
   "version": "1.0.0",

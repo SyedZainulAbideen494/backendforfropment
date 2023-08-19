@@ -156,10 +156,9 @@ app.post("/addShops", upload.single("image"), (req, res) => {
   const shop_prods = req.body.shop_prods;
   const temp1 = req.body.temp1;
   const token = req.headers.authorization;
-  const images = req.file.filename;
   const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
   const insertQuery =
-    "INSERT INTO shops(shop_name, temp1, shop_owner, shop_about, shop_prods, user_id, images) VALUES (?, ?, ?, ?, ? ,?,?)";
+    "INSERT INTO shops(shop_name, temp1, shop_owner, shop_about, shop_prods, user_id) VALUES (?, ?, ?, ?, ?, ?)";
 
   // Execute the first query to fetch users
   const fetchUsersPromise = new Promise((resolve, reject) => {
@@ -180,12 +179,11 @@ app.post("/addShops", upload.single("image"), (req, res) => {
           insertQuery,
           [
             shop_name,
+            temp1,
             shop_owner,
             shop_about,
             shop_prods,
-            temp1,
-            user_id,
-            images,
+            user_id
           ],
           (err, result) => {
             if (err) reject(err);
@@ -203,7 +201,6 @@ app.post("/addShops", upload.single("image"), (req, res) => {
       res.status(500).send("Error adding shop.");
     });
 });
-
 app.post("/addUser", (req, res) => {
   const {
     phoneno,
@@ -333,8 +330,7 @@ app.get("/use/shops/products", (req, res) => {
 
 app.get("/users/profile/shops", (req, res) => {
   const token = req.headers.authorization;
-  const sqlget = `SELECT * FROM shops where user_id = '${token}'`;
-
+  const sqlget = `SELECT * FROM shops`
   connection.query(sqlget, (err, results) => {
     if (err) {
       console.error("Error fetching data from MySQL: ", err);
@@ -736,125 +732,7 @@ app.get("/user/orders", (req, res) => {
       console.error(err);
     });
 });
-app.post("/addShops/template3", upload.single("image"), (req, res) => {
-  const shop_name = req.body.shop_name;
-  const shop_owner = req.body.shop_owner;
-  const shop_tagline = req.body.shop_tagline;
-  const shop_blockhead1 = req.body.shop_blockhead1;
-  const shop_block1 = req.body.shop_block1;
-  const shop_blockhead2 = req.body.shop_blockhead2;
-  const shop_block2 = req.body.shop_block2;
-  const shop_blockhead3 = req.body.shop_blockhead3;
-  const shop_block3 = req.body.shop_block3;
-  const shop_keyhead1 = req.body.shop_keyhead1;
-  const shop_key1 = req.body.shop_key1;
-  const shop_keyhead2 = req.body.shop_keyhead2;
-  const shop_key2 = req.body.shop_key2;
-  const shop_keyhead3 = req.body.shop_keyhead3;
-  const shop_key3 = req.body.shop_key3;
-  const shop_email = req.body.shop_email;
-  const shop_phone = req.body.shop_phone;
-  const insta = req.body.insta;
-  const temp3 = req.body.temp3;
-  const images = req.file.filename;
-  const token = req.headers.authorization;
-  const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
-  const insertQuery =
-    "INSERT INTO shops(shop_name,images, temp3, shop_tagline, shop_keyhead1, shop_key1, shop_keyhead2, shop_key2, shop_keyhead3, shop_key3, shop_blockhead1, shop_block1, shop_blockhead2, shop_block2, shop_blockhead3, shop_block3, shop_email, shop_phone, user_id, shop_owner, insta) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-  // Execute the first query to fetch users
-  const fetchUsersPromise = new Promise((resolve, reject) => {
-    connection.query(selectQuery, (err, rows) => {
-      if (err) reject(err);
-      else resolve(rows);
-    });
-  });
-  console.log(selectQuery);
-  // Chain the promises to insert the shop details after fetching the users
-  fetchUsersPromise
-    .then((rows) => {
-      console.log(rows);
-      // Assuming you have a specific user in mind to retrieve the userId
-      const user_id = rows[0].user_id;
-      // Execute the second query to insert shop details
-      return new Promise((resolve, reject) => {
-        connection.query(
-          insertQuery,
-          [
-            shop_name,
-            images,
-            temp3,
-            shop_tagline,
-            shop_keyhead1,
-            shop_key1,
-            shop_keyhead2,
-            shop_key2,
-            shop_keyhead3,
-            shop_key3,
-            shop_blockhead1,
-            shop_block1,
-            shop_blockhead2,
-            shop_block2,
-            shop_blockhead3,
-            shop_block3,
-            shop_email,
-            shop_phone,
-            user_id,
-            shop_owner,
-            insta,
-          ],
-          (err, result) => {
-            if (err) reject(err);
-            else resolve(result);
-          }
-        );
-      });
-    })
-    .then((result) => {
-      console.log(result);
-      res.status(200).send("Shop added successfully!");
-    })
-    .catch((err) => {
-      console.error(err);
-      res.status(500).send("Error adding shop.");
-    });
-});
-
-app.get("/user/shops/template3", (req, res) => {
-  const token = req.headers.authorization;
-  const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
-  const insertQuery = "SELECT * FROM shops where user_id = ?";
-
-  // Execute the first query to fetch users
-  const fetchUsersPromise = new Promise((resolve, reject) => {
-    connection.query(selectQuery, (err, rows) => {
-      if (err) reject(err);
-      else resolve(rows);
-    });
-  });
-
-  // Chain the promises to insert the shop details after fetching the users
-  fetchUsersPromise
-    .then((rows) => {
-      // Assuming you have a specific user in mind to retrieve the userId
-      const user_id = rows[0].user_id;
-
-      return new Promise((resolve, reject) => {
-        const shopsquary = `select * from shops where user_id = '${user_id}'`;
-        connection.query(shopsquary, (err, result) => {
-          if (err) reject(err);
-          else resolve;
-          res.send({ shops: result });
-        });
-      });
-    })
-    .then((result) => {
-      res.send({ shops: result });
-    })
-    .catch((err) => {
-      console.error(err);
-    });
-});
 
 app.get("/user/id/editbtndiaplay1", (req, res) => {
   const token = req.headers.authorization;
@@ -1145,20 +1023,19 @@ app.post("/addShops/template4", (req, res) => {
     shop_blockhead2,
     shop_keyhead1,
     shop_key1,
-    shop_keyhead2,
-    shop_key2,
-    shop_keyhead3,
-    shop_key3,
     shop_email,
     shop_phone,
     insta,
-    salestext,
     temp4,
+    shop_blockhead3,
+    shop_block1,
+    shop_block2,
+    shop_block3
   } = req.body;
   const token = req.headers.authorization;
   const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
   const insertQuery =
-    "INSERT INTO shops(shop_name, insta, salestext, temp4, shop_keyhead1, shop_key1, shop_keyhead2, shop_key2, shop_keyhead3, shop_key3, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    "INSERT INTO shops(shop_name, insta, temp4, shop_keyhead1, shop_key1, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_block3, shop_blockhead3) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
   connection.query(selectQuery, (err, rows) => {
     if (err) {
@@ -1177,20 +1054,19 @@ app.post("/addShops/template4", (req, res) => {
       [
         shop_name,
         insta,
-        salestext,
         temp4,
         shop_keyhead1,
         shop_key1,
-        shop_keyhead2,
-        shop_key2,
-        shop_keyhead3,
-        shop_key3,
         shop_blockhead1,
         shop_blockhead2,
         shop_email,
         shop_phone,
         user_id,
         shop_owner,
+        shop_block1,
+        shop_block2,
+        shop_block3,
+        shop_blockhead3
       ],
       (err, result) => {
         if (err) {
@@ -1253,20 +1129,15 @@ app.post("/addShops/template5", (req, res) => {
     shop_block3,
     shop_keyhead1,
     shop_key1,
-    shop_keyhead2,
-    shop_key2,
-    shop_keyhead3,
-    shop_key3,
     shop_email,
     shop_phone,
     insta,
-    salestext,
     temp5,
   } = req.body;
   const token = req.headers.authorization;
   const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
   const insertQuery =
-    "INSERT INTO shops(shop_name, insta, salestext, temp5, shop_keyhead1, shop_key1, shop_keyhead2, shop_key2, shop_keyhead3, shop_key3, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    "INSERT INTO shops(shop_name, shop_email, insta, shop_keyhead1, shop_blockhead3, shop_blockhead1, shop_key1, shop_blockhead2, shop_phone, user_id, shop_owner, shop_block1, shop_block2, temp5, shop_block3) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
   connection.query(selectQuery, (err, rows) => {
     if (err) {
@@ -1284,24 +1155,20 @@ app.post("/addShops/template5", (req, res) => {
       insertQuery,
       [
         shop_name,
-        shop_owner,
-        shop_blockhead1,
-        shop_block1,
-        shop_blockhead2,
-        shop_block2,
-        shop_blockhead3,
-        shop_block3,
-        shop_keyhead1,
-        shop_key1,
-        shop_keyhead2,
-        shop_key2,
-        shop_keyhead3,
-        shop_key3,
         shop_email,
+        insta,   
+        shop_keyhead1,
+        shop_blockhead3,
+        shop_blockhead1,
+        shop_key1,
+        shop_blockhead2,
         shop_phone,
-        insta,
-        salestext,
+        user_id,
+        shop_owner,
+        shop_block1,
+        shop_block2,
         temp5,
+        shop_block3, 
       ],
       (err, result) => {
         if (err) {
@@ -1370,11 +1237,12 @@ app.post("/addShops/template6", (req, res) => {
     insta,
     salestext,
     temp6,
+    shop_tagline
   } = req.body;
   const token = req.headers.authorization;
   const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
   const insertQuery =
-    "INSERT INTO shops(shop_name, insta, salestext, temp6, shop_keyhead1, shop_key1, shop_keyhead2, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    "INSERT INTO shops(shop_name, insta, salestext, temp6, shop_keyhead1, shop_key1, shop_keyhead2, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
   connection.query(selectQuery, (err, rows) => {
     if (err) {
@@ -1392,22 +1260,24 @@ app.post("/addShops/template6", (req, res) => {
       insertQuery,
       [
         shop_name,
-        shop_owner,
-        shop_blockhead1,
-        shop_block1,
-        shop_blockhead2,
-        shop_block2,
-        shop_blockhead3,
-        shop_block3,
+        insta,
+        salestext,
+        temp6,
         shop_keyhead1,
         shop_key1,
         shop_keyhead2,
         shop_key2,
+        shop_blockhead1,
+        shop_blockhead2,
         shop_email,
         shop_phone,
-        insta,
-        salestext,
-        temp6,
+        user_id,
+        shop_owner,
+        shop_block1,
+        shop_block2,
+        shop_blockhead3,
+        shop_block3,
+        shop_tagline
       ],
       (err, result) => {
         if (err) {
@@ -1494,31 +1364,334 @@ app.get("/user/shops/template6", (req, res) => {
     });
 });
 
-const stripe = require("stripe")(
-  "sk_test_51LoS3iSGyKMMAZwstPlmLCEi1eBUy7MsjYxiKsD1lT31LQwvPZYPvqCdfgH9xl8KgeJoVn6EVPMgnMRsFInhnnnb00WhKhMOq7"
-);
+app.post("/addShops/template1", (req, res) => {
+  const {
+    shop_name,
+    shop_owner,
+    shop_blockhead1,
+    shop_block1,
+    shop_blockhead2,
+    shop_block2,
+    shop_blockhead3,
+    shop_block3,
+    shop_keyhead1,
+    shop_key1,
+    shop_keyhead2,
+    shop_key2,
+    shop_email,
+    shop_phone,
+    insta,
+    salestext,
+    temp1,
+    shop_tagline
+  } = req.body;
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
+  const insertQuery =
+    "INSERT INTO shops(shop_name, insta, salestext, temp1, shop_keyhead1, shop_key1, shop_keyhead2, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-app.post("/create-payment-intent", async (req, res) => {
-  const { amount, currency } = req.body;
+  connection.query(selectQuery, (err, rows) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Error fetching user.");
+    }
 
-  try {
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount,
-      currency,
+    if (rows.length === 0) {
+      return res.status(401).send("Unauthorized user.");
+    }
+
+    const user_id = rows[0].user_id;
+
+    connection.query(
+      insertQuery,
+      [
+        shop_name,
+        insta,
+        salestext,
+        temp1,
+        shop_keyhead1,
+        shop_key1,
+        shop_keyhead2,
+        shop_key2,
+        shop_blockhead1,
+        shop_blockhead2,
+        shop_email,
+        shop_phone,
+        user_id,
+        shop_owner,
+        shop_block1,
+        shop_block2,
+        shop_blockhead3,
+        shop_block3,
+        shop_tagline
+      ],
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send("Error adding shop.");
+        }
+
+        console.log(result);
+        return res.status(200).send("Shop added successfully!");
+      }
+    );
+  });
+});
+
+app.get("/user/shops/template1", (req, res) => {
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
+  const insertQuery = "SELECT * FROM shops where user_id = ?";
+
+  // Execute the first query to fetch users
+  const fetchUsersPromise = new Promise((resolve, reject) => {
+    connection.query(selectQuery, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
     });
+  });
 
-    res.json({ clientSecret: paymentIntent.client_secret });
-  } catch (error) {
-    res.status(500).json({ error: "Failed to create payment intent" });
-  }
+  // Chain the promises to insert the shop details after fetching the users
+  fetchUsersPromise
+    .then((rows) => {
+      // Assuming you have a specific user in mind to retrieve the userId
+      const user_id = rows[0].user_id;
+
+      return new Promise((resolve, reject) => {
+        const shopsquary = `select * from shops where user_id = '${user_id}'`;
+        connection.query(shopsquary, (err, result) => {
+          if (err) reject(err);
+          else resolve;
+          res.send({ shops: result });
+        });
+      });
+    })
+    .then((result) => {
+      res.send({ shops: result });
+    })
+    .catch((err) => {
+      console.error(err);
+    });
 });
 
-// Route to handle webhook events
-app.post("/webhook", async (req, res) => {
-  const event = req.body;
-  // Handle Stripe webhook events here
-  res.sendStatus(200);
+app.post("/addShops/template2", (req, res) => {
+  const {
+    shop_name,
+    shop_owner,
+    shop_blockhead1,
+    shop_block1,
+    shop_blockhead2,
+    shop_block2,
+    shop_blockhead3,
+    shop_block3,
+    shop_keyhead1,
+    shop_key1,
+    shop_keyhead2,
+    shop_key2,
+    shop_email,
+    shop_phone,
+    insta,
+    salestext,
+    temp2,
+    shop_tagline
+  } = req.body;
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
+  const insertQuery =
+    "INSERT INTO shops(shop_name, insta, salestext, temp2, shop_keyhead1, shop_key1, shop_keyhead2, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
+  connection.query(selectQuery, (err, rows) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Error fetching user.");
+    }
+
+    if (rows.length === 0) {
+      return res.status(401).send("Unauthorized user.");
+    }
+
+    const user_id = rows[0].user_id;
+
+    connection.query(
+      insertQuery,
+      [
+        shop_name,
+        insta,
+        salestext,
+        temp2,
+        shop_keyhead1,
+        shop_key1,
+        shop_keyhead2,
+        shop_key2,
+        shop_blockhead1,
+        shop_blockhead2,
+        shop_email,
+        shop_phone,
+        user_id,
+        shop_owner,
+        shop_block1,
+        shop_block2,
+        shop_blockhead3,
+        shop_block3,
+        shop_tagline
+      ],
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send("Error adding shop.");
+        }
+
+        console.log(result);
+        return res.status(200).send("Shop added successfully!");
+      }
+    );
+  });
 });
+
+app.get("/user/shops/template2", (req, res) => {
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
+  const insertQuery = "SELECT * FROM shops where user_id = ?";
+
+  // Execute the first query to fetch users
+  const fetchUsersPromise = new Promise((resolve, reject) => {
+    connection.query(selectQuery, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+
+  // Chain the promises to insert the shop details after fetching the users
+  fetchUsersPromise
+    .then((rows) => {
+      // Assuming you have a specific user in mind to retrieve the userId
+      const user_id = rows[0].user_id;
+
+      return new Promise((resolve, reject) => {
+        const shopsquary = `select * from shops where user_id = '${user_id}'`;
+        connection.query(shopsquary, (err, result) => {
+          if (err) reject(err);
+          else resolve;
+          res.send({ shops: result });
+        });
+      });
+    })
+    .then((result) => {
+      res.send({ shops: result });
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+});
+
+app.post("/addShops/template3", (req, res) => {
+  const {
+    shop_name,
+    shop_owner,
+    shop_blockhead1,
+    shop_block1,
+    shop_blockhead2,
+    shop_block2,
+    shop_blockhead3,
+    shop_block3,
+    shop_keyhead1,
+    shop_key1,
+    shop_keyhead2,
+    shop_key2,
+    shop_email,
+    shop_phone,
+    insta,
+    salestext,
+    temp3,
+    shop_tagline
+  } = req.body;
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
+  const insertQuery =
+    "INSERT INTO shops(shop_name, insta, salestext, temp3, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
+  connection.query(selectQuery, (err, rows) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Error fetching user.");
+    }
+
+    if (rows.length === 0) {
+      return res.status(401).send("Unauthorized user.");
+    }
+
+    const user_id = rows[0].user_id;
+
+    connection.query(
+      insertQuery,
+      [
+        shop_name,
+        insta,
+        salestext,
+        temp3,
+        shop_key2,
+        shop_blockhead1,
+        shop_blockhead2,
+        shop_email,
+        shop_phone,
+        user_id,
+        shop_owner,
+        shop_block1,
+        shop_block2,
+        shop_blockhead3,
+        shop_block3,
+        shop_tagline
+      ],
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send("Error adding shop.");
+        }
+
+        console.log(result);
+        return res.status(200).send("Shop added successfully!");
+      }
+    );
+  });
+});
+
+app.get("/user/shops/template3", (req, res) => {
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
+  const insertQuery = "SELECT * FROM shops where user_id = ?";
+
+  // Execute the first query to fetch users
+  const fetchUsersPromise = new Promise((resolve, reject) => {
+    connection.query(selectQuery, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+
+  // Chain the promises to insert the shop details after fetching the users
+  fetchUsersPromise
+    .then((rows) => {
+      // Assuming you have a specific user in mind to retrieve the userId
+      const user_id = rows[0].user_id;
+
+      return new Promise((resolve, reject) => {
+        const shopsquary = `select * from shops where user_id = '${user_id}'`;
+        connection.query(shopsquary, (err, result) => {
+          if (err) reject(err);
+          else resolve;
+          res.send({ shops: result });
+        });
+      });
+    })
+    .then((result) => {
+      res.send({ shops: result });
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+});
+
+
 
 app.post("/addShops/Fashion", upload.single("image"), (req, res) => {
   const {

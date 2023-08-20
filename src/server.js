@@ -951,7 +951,7 @@ app.get("/imgprods", (req, res) => {
       const id = rows[0].id;
 
       return new Promise((resolve, reject) => {
-        const shopsquary = `select images from products where id = '${id}'`;
+        const shopsquary = `select * from products where id = '${id}'`;
         connection.query(shopsquary, (err, result) => {
           if (err) reject(err);
           else resolve;
@@ -1594,9 +1594,8 @@ app.post("/addShops/template3", (req, res) => {
     shop_block2,
     shop_blockhead3,
     shop_block3,
-    shop_keyhead1,
-    shop_key1,
-    shop_keyhead2,
+    shop_key3,
+    shop_keyhead3,
     shop_key2,
     shop_email,
     shop_phone,
@@ -1608,7 +1607,7 @@ app.post("/addShops/template3", (req, res) => {
   const token = req.headers.authorization;
   const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
   const insertQuery =
-    "INSERT INTO shops(shop_name, insta, salestext, temp3, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    "INSERT INTO shops(shop_name, insta, salestext, temp3, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline, shop_key3, shop_keyhead3) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
   connection.query(selectQuery, (err, rows) => {
     if (err) {
@@ -1640,7 +1639,9 @@ app.post("/addShops/template3", (req, res) => {
         shop_block2,
         shop_blockhead3,
         shop_block3,
-        shop_tagline
+        shop_tagline,
+        shop_key3,
+    shop_keyhead3,
       ],
       (err, result) => {
         if (err) {
@@ -2102,6 +2103,149 @@ app.get("/custom/img/shop", (req, res) => {
       console.error(err);
     });
 });
+
+
+app.post("/addprodsimg2", upload.single("image"), (req, res) => {
+  const images2 = req.file.filename;
+  const shop_id = req.headers.authorization; // Access the Authorization header correctly
+
+  const updateQuery = "UPDATE products SET images2 = ? WHERE id = ?";
+
+  connection.query(updateQuery, [images2, shop_id], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Error updating shop image.");
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).send("Shop not found or no changes made.");
+    }
+
+    console.log(result);
+    return res.status(200).send("Shop image updated successfully!");
+  });
+});
+
+app.post("/addprodsimg3", upload.single("image"), (req, res) => {
+  const images3 = req.file.filename;
+  const shop_id = req.headers.authorization; // Access the Authorization header correctly
+
+  const updateQuery = "UPDATE products SET images3 = ? WHERE id = ?";
+
+  connection.query(updateQuery, [images3, shop_id], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Error updating shop image.");
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).send("Shop not found or no changes made.");
+    }
+
+    console.log(result);
+    return res.status(200).send("Shop image updated successfully!");
+  });
+});
+
+app.post("/addprodsimg4", upload.single("image"), (req, res) => {
+  const images4 = req.file.filename;
+  const shop_id = req.headers.authorization; // Access the Authorization header correctly
+
+  const updateQuery = "UPDATE products SET images4 = ? WHERE id = ?";
+
+  connection.query(updateQuery, [images4, shop_id], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Error updating shop image.");
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).send("Shop not found or no changes made.");
+    }
+
+    console.log(result);
+    return res.status(200).send("Shop image updated successfully!");
+  });
+});
+
+app.post("/addprodsimg5", upload.single("image"), (req, res) => {
+  const images5 = req.file.filename;
+  const shop_id = req.headers.authorization; // Access the Authorization header correctly
+
+  const updateQuery = "UPDATE products SET images5 = ? WHERE id = ?";
+
+  connection.query(updateQuery, [images5, shop_id], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Error updating shop image.");
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).send("Shop not found or no changes made.");
+    }
+
+    console.log(result);
+    return res.status(200).send("Shop image updated successfully!");
+  });
+});
+
+app.post("/addprodsimg6", upload.single("image"), (req, res) => {
+  const images6 = req.file.filename;
+  const shop_id = req.headers.authorization; // Access the Authorization header correctly
+
+  const updateQuery = "UPDATE products SET images6 = ? WHERE id = ?";
+
+  connection.query(updateQuery, [images6, shop_id], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Error updating shop image.");
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).send("Shop not found or no changes made.");
+    }
+
+    console.log(result);
+    return res.status(200).send("Shop image updated successfully!");
+  });
+});
+
+app.get("/custom/img/prods", (req, res) => {
+  const id = req.headers.authorization;
+  const selectQuery = `SELECT id FROM products WHERE id = '${id}' `;
+  const insertQuery = "SELECT * FROM products where id = ?";
+
+  // Execute the first query to fetch users
+  const fetchUsersPromise = new Promise((resolve, reject) => {
+    connection.query(selectQuery, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+
+  // Chain the promises to insert the shop details after fetching the users
+  fetchUsersPromise
+    .then((rows) => {
+      // Assuming you have a specific user in mind to retrieve the userId
+      const id = rows[0].id;
+
+      return new Promise((resolve, reject) => {
+        const shopsquary = `select * from products where id = '${id}'`;
+        connection.query(shopsquary, (err, result) => {
+          if (err) reject(err);
+          else resolve;
+          res.send({ img: result });
+        });
+      });
+    })
+    .then((result) => {
+      res.send({ img: result });
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+});
+
 
 app.listen(PORT, () => {
   console.log("Server started on port 8080");

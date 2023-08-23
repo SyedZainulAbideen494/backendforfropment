@@ -2189,7 +2189,7 @@ app.post("/addprodsimg5", upload.single("image"), (req, res) => {
   });
 });
 
-app.post("/addprodsimg6", upload.single("image"), (req, res) => {
+app.post("/addprodskmjimg6", upload.single("image"), (req, res) => {
   const images6 = req.file.filename;
   const shop_id = req.headers.authorization; // Access the Authorization header correctly
 

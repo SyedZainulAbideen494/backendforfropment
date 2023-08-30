@@ -1,6 +1,7 @@
 const express = require("express");
 const mysql = require("mysql2");
 const app = express();
+const stripe = require('stripe')('sk_test_51LoS3iSGyKMMAZwstPlmLCEi1eBUy7MsjYxiKsD1lT31LQwvPZYPvqCdfgH9xl8KgeJoVn6EVPMgnMRsFInhnnnb00WhKhMOq7');
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
@@ -1750,7 +1751,79 @@ app.post("/addShops/template3", (req, res) => {
   });
 });
 
-app.get("/user/shops/template3", (req, res) => {
+app.post("/addShops/template7", (req, res) => {
+  const {
+    shop_name,
+    shop_owner,
+    shop_blockhead1,
+    shop_block1,
+    shop_blockhead2,
+    shop_block2,
+    shop_blockhead3,
+    shop_block3,
+    shop_key3,
+    shop_keyhead3,
+    shop_key2,
+    shop_email,
+    shop_phone,
+    insta,
+    salestext,
+    temp7,
+    shop_tagline
+  } = req.body;
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
+  const insertQuery =
+    "INSERT INTO shops(shop_name, insta, salestext, temp7, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline, shop_key3, shop_keyhead3) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
+  connection.query(selectQuery, (err, rows) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Error fetching user.");
+    }
+
+    if (rows.length === 0) {
+      return res.status(401).send("Unauthorized user.");
+    }
+
+    const user_id = rows[0].user_id;
+
+    connection.query(
+      insertQuery,
+      [
+        shop_name,
+        insta,
+        salestext,
+        temp7,
+        shop_key2,
+        shop_blockhead1,
+        shop_blockhead2,
+        shop_email,
+        shop_phone,
+        user_id,
+        shop_owner,
+        shop_block1,
+        shop_block2,
+        shop_blockhead3,
+        shop_block3,
+        shop_tagline,
+        shop_key3,
+    shop_keyhead3,
+      ],
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send("Error adding shop.");
+        }
+
+        console.log(result);
+        return res.status(200).send("Shop added successfully!");
+      }
+    );
+  });
+});
+
+app.get("/user/shops/template7", (req, res) => {
   const token = req.headers.authorization;
   const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
   const insertQuery = "SELECT * FROM shops where user_id = ?";
@@ -1785,6 +1858,153 @@ app.get("/user/shops/template3", (req, res) => {
       console.error(err);
     });
 });
+
+
+app.post("/addShops/template8", (req, res) => {
+  const {
+    shop_name,
+    shop_owner,
+    shop_blockhead1,
+    shop_block1,
+    shop_blockhead2,
+    shop_block2,
+    shop_blockhead3,
+    shop_block3,
+    shop_key3,
+    shop_keyhead3,
+    shop_key2,
+    shop_email,
+    shop_phone,
+    insta,
+    salestext,
+    temp8,
+    shop_tagline
+  } = req.body;
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
+  const insertQuery =
+    "INSERT INTO shops(shop_name, insta, salestext, temp8, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline, shop_key3, shop_keyhead3) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
+  connection.query(selectQuery, (err, rows) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Error fetching user.");
+    }
+
+    if (rows.length === 0) {
+      return res.status(401).send("Unauthorized user.");
+    }
+
+    const user_id = rows[0].user_id;
+
+    connection.query(
+      insertQuery,
+      [
+        shop_name,
+        insta,
+        salestext,
+        temp8,
+        shop_key2,
+        shop_blockhead1,
+        shop_blockhead2,
+        shop_email,
+        shop_phone,
+        user_id,
+        shop_owner,
+        shop_block1,
+        shop_block2,
+        shop_blockhead3,
+        shop_block3,
+        shop_tagline,
+        shop_key3,
+    shop_keyhead3,
+      ],
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send("Error adding shop.");
+        }
+
+        console.log(result);
+        return res.status(200).send("Shop added successfully!");
+      }
+    );
+  });
+});
+
+app.get("/user/shops/template7", (req, res) => {
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
+  const insertQuery = "SELECT * FROM shops where user_id = ?";
+
+  // Execute the first query to fetch users
+  const fetchUsersPromise = new Promise((resolve, reject) => {
+    connection.query(selectQuery, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+
+  // Chain the promises to insert the shop details after fetching the users
+  fetchUsersPromise
+    .then((rows) => {
+      // Assuming you have a specific user in mind to retrieve the userId
+      const user_id = rows[0].user_id;
+
+      return new Promise((resolve, reject) => {
+        const shopsquary = `select * from shops where user_id = '${user_id}'`;
+        connection.query(shopsquary, (err, result) => {
+          if (err) reject(err);
+          else resolve;
+          res.send({ shops: result });
+        });
+      });
+    })
+    .then((result) => {
+      res.send({ shops: result });
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+});
+
+app.get("/user/shops/template8", (req, res) => {
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
+  const insertQuery = "SELECT * FROM shops where user_id = ?";
+
+  // Execute the first query to fetch users
+  const fetchUsersPromise = new Promise((resolve, reject) => {
+    connection.query(selectQuery, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+
+  // Chain the promises to insert the shop details after fetching the users
+  fetchUsersPromise
+    .then((rows) => {
+      // Assuming you have a specific user in mind to retrieve the userId
+      const user_id = rows[0].user_id;
+
+      return new Promise((resolve, reject) => {
+        const shopsquary = `select * from shops where user_id = '${user_id}'`;
+        connection.query(shopsquary, (err, result) => {
+          if (err) reject(err);
+          else resolve;
+          res.send({ shops: result });
+        });
+      });
+    })
+    .then((result) => {
+      res.send({ shops: result });
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+});
+
+
 
 app.get("/user/shops/data", (req, res) => {
   const token = req.headers.authorization;
@@ -2413,6 +2633,122 @@ app.get("/order/details", (req, res) => {
     });
 });
 
+app.post('/create-checkout-session', async (req, res) => {
+  const { token } = req.body;
+
+  try {
+    // Create a Stripe customer
+    const customer = await stripe.customers.create();
+
+    // Create a Stripe Checkout session
+    const session = await stripe.checkout.sessions.create({
+      customer: customer.id,
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price: 'price_1NkkrNSGyKMMAZwstGhqLLfH', // Replace with your Stripe Price ID
+          quantity: 1,
+        },
+      ],
+      mode: 'subscription',
+      success_url: 'http://localhost:3000/', // Redirect URL after successful payment
+      cancel_url: 'http://localhost:3000/Plans',   // Redirect URL if user cancels payment
+    });
+
+    // Update MySQL user's premium status
+    const updateUserQuery = `UPDATE users SET premium = 1 WHERE jwt = ?`;
+
+    connection.query(updateUserQuery, [token], (err, result) => {
+      if (err) {
+        console.error('Error updating user premium status: ', err);
+        res.status(500).send('Internal Server Error');
+      } else {
+        res.json({ url: session.url }); // Return the Stripe Checkout URL
+      }
+    });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.post('/create-checkout-session2', async (req, res) => {
+  const { token } = req.body;
+
+  try {
+    // Create a Stripe customer
+    const customer = await stripe.customers.create();
+
+    // Create a Stripe Checkout session
+    const session = await stripe.checkout.sessions.create({
+      customer: customer.id,
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price: 'price_1NkktJSGyKMMAZws4qrb6Orp', // Replace with your Stripe Price ID
+          quantity: 1,
+        },
+      ],
+      mode: 'subscription',
+      success_url: 'http://localhost:3000/', // Redirect URL after successful payment
+      cancel_url: 'http://localhost:3000/Plans',   // Redirect URL if user cancels payment
+    });
+
+    // Update MySQL user's premium status
+    const updateUserQuery = `UPDATE users SET premium = 2 WHERE jwt = ?`;
+
+    connection.query(updateUserQuery, [token], (err, result) => {
+      if (err) {
+        console.error('Error updating user premium status: ', err);
+        res.status(500).send('Internal Server Error');
+      } else {
+        res.json({ url: session.url }); // Return the Stripe Checkout URL
+      }
+    });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.post('/create-checkout-session3', async (req, res) => {
+  const { token } = req.body;
+
+  try {
+    // Create a Stripe customer
+    const customer = await stripe.customers.create();
+
+    // Create a Stripe Checkout session
+    const session = await stripe.checkout.sessions.create({
+      customer: customer.id,
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price: 'price_1NkktqSGyKMMAZwsAeagJKfD', // Replace with your Stripe Price ID
+          quantity: 1,
+        },
+      ],
+      mode: 'subscription',
+      success_url: 'http://localhost:3000/', // Redirect URL after successful payment
+      cancel_url: 'http://localhost:3000/Plans',   // Redirect URL if user cancels payment
+    });
+
+    // Update MySQL user's premium status
+    const updateUserQuery = `UPDATE users SET premium = 3 WHERE jwt = ?`;
+
+    connection.query(updateUserQuery, [token], (err, result) => {
+      if (err) {
+        console.error('Error updating user premium status: ', err);
+        res.status(500).send('Internal Server Error');
+      } else {
+        res.json({ url: session.url }); // Return the Stripe Checkout URL
+      }
+    });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 app.listen(PORT, () => {
   console.log("Server started on port 8080");

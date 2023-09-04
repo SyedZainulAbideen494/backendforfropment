@@ -1400,6 +1400,8 @@ app.post("/addShops/template1", (req, res) => {
     shop_email,
     shop_phone,
     insta,
+    shop_keyhead3,
+    shop_key3,
     salestext,
     temp1,
     shop_tagline
@@ -1407,7 +1409,7 @@ app.post("/addShops/template1", (req, res) => {
   const token = req.headers.authorization;
   const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
   const insertQuery =
-    "INSERT INTO shops(shop_name, insta, salestext, temp1, shop_keyhead1, shop_key1, shop_keyhead2, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    "INSERT INTO shops(shop_name,shop_keyhead3, shop_key3, insta, salestext, temp1, shop_keyhead1, shop_key1, shop_keyhead2, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
   connection.query(selectQuery, (err, rows) => {
     if (err) {
@@ -1425,6 +1427,8 @@ app.post("/addShops/template1", (req, res) => {
       insertQuery,
       [
         shop_name,
+        shop_keyhead3,
+        shop_key3,
         insta,
         salestext,
         temp1,
@@ -2646,7 +2650,7 @@ app.post('/create-checkout-session', async (req, res) => {
       payment_method_types: ['card'],
       line_items: [
         {
-          price: 'price_1NkkrNSGyKMMAZwstGhqLLfH', // Replace with your Stripe Price ID
+          price: 'price_1NkrkYSGyKMMAZwsXbXR6K2x', // Replace with your Stripe Price ID
           quantity: 1,
         },
       ],
@@ -2685,7 +2689,7 @@ app.post('/create-checkout-session2', async (req, res) => {
       payment_method_types: ['card'],
       line_items: [
         {
-          price: 'price_1NkktJSGyKMMAZws4qrb6Orp', // Replace with your Stripe Price ID
+          price: 'price_1NkrlCSGyKMMAZwsqYLRItgR', // Replace with your Stripe Price ID
           quantity: 1,
         },
       ],
@@ -2724,7 +2728,7 @@ app.post('/create-checkout-session3', async (req, res) => {
       payment_method_types: ['card'],
       line_items: [
         {
-          price: 'price_1NkktqSGyKMMAZwsAeagJKfD', // Replace with your Stripe Price ID
+          price: 'price_1NkrliSGyKMMAZwsvglP94Bk', // Replace with your Stripe Price ID
           quantity: 1,
         },
       ],
@@ -2749,6 +2753,8 @@ app.post('/create-checkout-session3', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+// This endpoint receives the Stripe webhook event when a payment is successful
+
 
 app.listen(PORT, () => {
   console.log("Server started on port 8080");

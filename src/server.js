@@ -237,6 +237,7 @@ app.post("/addUser", (req, res) => {
     occupation,
     age,
     unique_id,
+    bio
   } = req.body;
 
   // Hash the password
@@ -247,7 +248,7 @@ app.post("/addUser", (req, res) => {
     } else {
       // Insert the user into the database
       const query =
-        "INSERT INTO users (first_name, last_name, email, password, unique_id, occupation, age, phoneno, streetadrs, city, state, zipcode, country) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        "INSERT INTO users (first_name, last_name, email, password, unique_id, occupation, age, phoneno, streetadrs, city, state, zipcode, country, bio) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
       const values = [
         first_name,
         last_name,
@@ -262,6 +263,7 @@ app.post("/addUser", (req, res) => {
         state,
         zipcode,
         country,
+        bio
       ];
 
       connection.query(query, values, (error, results) => {
@@ -920,7 +922,7 @@ app.get("/user/id/editbtnstoredisplay1", (req, res) => {
   });
 });
 
-app.get("/user/id/editbtnstoredisplay2", (req, res) => {
+app.get("/user/id/editbtndiaplay2", (req, res) => {
   const token = req.headers.authorization;
   const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}'`;
 
@@ -934,22 +936,21 @@ app.get("/user/id/editbtnstoredisplay2", (req, res) => {
         res.status(404).send("User not found");
       } else {
         const user_id = rows[0].user_id;
-        const usersQuery = `SELECT user_id FROM users WHERE user_id = '${user_id}'`;
+        const shopsQuery = `SELECT * FROM users WHERE user_id = '${user_id}'`;
 
         // Execute the query to fetch the user details
-        connection.query(usersQuery, (err, result) => {
+        connection.query(shopsQuery, (err, result) => {
           if (err) {
             console.error(err);
             res.status(500).send("Internal Server Error");
           } else {
-            res.send({ users: result });
+            res.send({ user: result });
           }
         });
       }
     }
   });
 });
-
 app.get("/imgprods", (req, res) => {
   const id = req.headers.authorization;
   const selectQuery = `SELECT id FROM products WHERE id = '${id}' `;
@@ -1136,6 +1137,42 @@ app.get("/user/shops/template4", (req, res) => {
     });
 });
 
+app.get("/user/template4", (req, res) => {
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM users WHERE user_id = '${token}' `;
+  const insertQuery = "SELECT * FROM shops where user_id = ?";
+
+  // Execute the first query to fetch users
+  const fetchUsersPromise = new Promise((resolve, reject) => {
+    connection.query(selectQuery, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+
+  // Chain the promises to insert the shop details after fetching the users
+  fetchUsersPromise
+    .then((rows) => {
+      // Assuming you have a specific user in mind to retrieve the userId
+      const user_id = rows[0].user_id;
+
+      return new Promise((resolve, reject) => {
+        const shopsquary = `select * from shops where user_id = '${user_id}'`;
+        connection.query(shopsquary, (err, result) => {
+          if (err) reject(err);
+          else resolve;
+          res.send({ shops: result });
+        });
+      });
+    })
+    .then((result) => {
+      res.send({ shops: result });
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+});
+
 app.post("/addShops/template5", (req, res) => {
   const {
     shop_name,
@@ -1237,6 +1274,43 @@ app.get("/user/shops/template5", (req, res) => {
       console.error(err);
     });
 });
+
+app.get("/user/template5", (req, res) => {
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM users WHERE user_id = '${token}' `;
+  const insertQuery = "SELECT * FROM shops where user_id = ?";
+
+  // Execute the first query to fetch users
+  const fetchUsersPromise = new Promise((resolve, reject) => {
+    connection.query(selectQuery, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+
+  // Chain the promises to insert the shop details after fetching the users
+  fetchUsersPromise
+    .then((rows) => {
+      // Assuming you have a specific user in mind to retrieve the userId
+      const user_id = rows[0].user_id;
+
+      return new Promise((resolve, reject) => {
+        const shopsquary = `select * from shops where user_id = '${user_id}'`;
+        connection.query(shopsquary, (err, result) => {
+          if (err) reject(err);
+          else resolve;
+          res.send({ shops: result });
+        });
+      });
+    })
+    .then((result) => {
+      res.send({ shops: result });
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+});
+
 app.post("/addShops/template6", (req, res) => {
   const {
     shop_name,
@@ -1381,7 +1455,80 @@ app.get("/user/shops/template6", (req, res) => {
     .catch((err) => {
       console.error(err);
     });
+  });
+
+  app.get("/user/shops/template6", (req, res) => {
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
+  const insertQuery = "SELECT * FROM shops where user_id = ?";
+
+  // Execute the first query to fetch users
+  const fetchUsersPromise = new Promise((resolve, reject) => {
+    connection.query(selectQuery, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+
+  // Chain the promises to insert the shop details after fetching the users
+  fetchUsersPromise
+    .then((rows) => {
+      // Assuming you have a specific user in mind to retrieve the userId
+      const user_id = rows[0].user_id;
+
+      return new Promise((resolve, reject) => {
+        const shopsquary = `select * from shops where user_id = '${user_id}'`;
+        connection.query(shopsquary, (err, result) => {
+          if (err) reject(err);
+          else resolve;
+          res.send({ shops: result });
+        });
+      });
+    })
+    .then((result) => {
+      res.send({ shops: result });
+    })
+    .catch((err) => {
+      console.error(err);
+    });
 });
+
+app.get("/user/template6", (req, res) => {
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM users WHERE user_id = '${token}' `;
+  const insertQuery = "SELECT * FROM shops where user_id = ?";
+
+  // Execute the first query to fetch users
+  const fetchUsersPromise = new Promise((resolve, reject) => {
+    connection.query(selectQuery, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+
+  // Chain the promises to insert the shop details after fetching the users
+  fetchUsersPromise
+    .then((rows) => {
+      // Assuming you have a specific user in mind to retrieve the userId
+      const user_id = rows[0].user_id;
+
+      return new Promise((resolve, reject) => {
+        const shopsquary = `select * from shops where user_id = '${user_id}'`;
+        connection.query(shopsquary, (err, result) => {
+          if (err) reject(err);
+          else resolve;
+          res.send({ shops: result });
+        });
+      });
+    })
+    .then((result) => {
+      res.send({ shops: result });
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+});
+
 
 app.post("/addShops/template1", (req, res) => {
   const {
@@ -1464,6 +1611,42 @@ app.post("/addShops/template1", (req, res) => {
 app.get("/user/shops/template1", (req, res) => {
   const token = req.headers.authorization;
   const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
+  const insertQuery = "SELECT * FROM shops where user_id = ?";
+
+  // Execute the first query to fetch users
+  const fetchUsersPromise = new Promise((resolve, reject) => {
+    connection.query(selectQuery, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+
+  // Chain the promises to insert the shop details after fetching the users
+  fetchUsersPromise
+    .then((rows) => {
+      // Assuming you have a specific user in mind to retrieve the userId
+      const user_id = rows[0].user_id;
+
+      return new Promise((resolve, reject) => {
+        const shopsquary = `select * from shops where user_id = '${user_id}'`;
+        connection.query(shopsquary, (err, result) => {
+          if (err) reject(err);
+          else resolve;
+          res.send({ shops: result });
+        });
+      });
+    })
+    .then((result) => {
+      res.send({ shops: result });
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+});
+
+app.get("/user/template1", (req, res) => {
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM users WHERE user_id = '${token}' `;
   const insertQuery = "SELECT * FROM shops where user_id = ?";
 
   // Execute the first query to fetch users
@@ -1683,6 +1866,43 @@ app.get("/user/shops/template2", (req, res) => {
     });
 });
 
+app.get("/user/template2", (req, res) => {
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM users WHERE user_id = '${token}' `;
+  const insertQuery = "SELECT * FROM shops where user_id = ?";
+
+  // Execute the first query to fetch users
+  const fetchUsersPromise = new Promise((resolve, reject) => {
+    connection.query(selectQuery, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+
+  // Chain the promises to insert the shop details after fetching the users
+  fetchUsersPromise
+    .then((rows) => {
+      // Assuming you have a specific user in mind to retrieve the userId
+      const user_id = rows[0].user_id;
+
+      return new Promise((resolve, reject) => {
+        const shopsquary = `select * from shops where user_id = '${user_id}'`;
+        connection.query(shopsquary, (err, result) => {
+          if (err) reject(err);
+          else resolve;
+          res.send({ shops: result });
+        });
+      });
+    })
+    .then((result) => {
+      res.send({ shops: result });
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+});
+
+
 app.post("/addShops/template3", (req, res) => {
   const {
     shop_name,
@@ -1863,6 +2083,42 @@ app.get("/user/shops/template7", (req, res) => {
     });
 });
 
+app.get("/user/template7", (req, res) => {
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM users WHERE user_id = '${token}' `;
+  const insertQuery = "SELECT * FROM shops where user_id = ?";
+
+  // Execute the first query to fetch users
+  const fetchUsersPromise = new Promise((resolve, reject) => {
+    connection.query(selectQuery, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+
+  // Chain the promises to insert the shop details after fetching the users
+  fetchUsersPromise
+    .then((rows) => {
+      // Assuming you have a specific user in mind to retrieve the userId
+      const user_id = rows[0].user_id;
+
+      return new Promise((resolve, reject) => {
+        const shopsquary = `select * from shops where user_id = '${user_id}'`;
+        connection.query(shopsquary, (err, result) => {
+          if (err) reject(err);
+          else resolve;
+          res.send({ shops: result });
+        });
+      });
+    })
+    .then((result) => {
+      res.send({ shops: result });
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+});
+
 
 app.post("/addShops/template8", (req, res) => {
   const {
@@ -1972,9 +2228,81 @@ app.get("/user/shops/template7", (req, res) => {
     });
 });
 
+app.get("/user/template7", (req, res) => {
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM users WHERE user_id = '${token}' `;
+  const insertQuery = "SELECT * FROM shops where user_id = ?";
+
+  // Execute the first query to fetch users
+  const fetchUsersPromise = new Promise((resolve, reject) => {
+    connection.query(selectQuery, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+
+  // Chain the promises to insert the shop details after fetching the users
+  fetchUsersPromise
+    .then((rows) => {
+      // Assuming you have a specific user in mind to retrieve the userId
+      const user_id = rows[0].user_id;
+
+      return new Promise((resolve, reject) => {
+        const shopsquary = `select * from shops where user_id = '${user_id}'`;
+        connection.query(shopsquary, (err, result) => {
+          if (err) reject(err);
+          else resolve;
+          res.send({ shops: result });
+        });
+      });
+    })
+    .then((result) => {
+      res.send({ shops: result });
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+});
+
 app.get("/user/shops/template8", (req, res) => {
   const token = req.headers.authorization;
   const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
+  const insertQuery = "SELECT * FROM shops where user_id = ?";
+
+  // Execute the first query to fetch users
+  const fetchUsersPromise = new Promise((resolve, reject) => {
+    connection.query(selectQuery, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+
+  // Chain the promises to insert the shop details after fetching the users
+  fetchUsersPromise
+    .then((rows) => {
+      // Assuming you have a specific user in mind to retrieve the userId
+      const user_id = rows[0].user_id;
+
+      return new Promise((resolve, reject) => {
+        const shopsquary = `select * from shops where user_id = '${user_id}'`;
+        connection.query(shopsquary, (err, result) => {
+          if (err) reject(err);
+          else resolve;
+          res.send({ shops: result });
+        });
+      });
+    })
+    .then((result) => {
+      res.send({ shops: result });
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+});
+
+app.get("/user/template8", (req, res) => {
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM users WHERE user_id = '${token}' `;
   const insertQuery = "SELECT * FROM shops where user_id = ?";
 
   // Execute the first query to fetch users
@@ -2755,6 +3083,180 @@ app.post('/create-checkout-session3', async (req, res) => {
 });
 // This endpoint receives the Stripe webhook event when a payment is successful
 
+app.get("/all/users", (req, res) => {
+  const id = req.headers.authorization;
+  const selectQuery = `SELECT * FROM users`;
+  const insertQuery = "SELECT * FROM products where id = ?";
+
+  // Execute the first query to fetch users
+  const fetchUsersPromise = new Promise((resolve, reject) => {
+    connection.query(selectQuery, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+
+  // Chain the promises to insert the shop details after fetching the users
+  fetchUsersPromise
+    .then((rows) => {
+      // Assuming you have a specific user in mind to retrieve the userId
+      const id = rows[0].orders_id;
+
+      return new Promise((resolve, reject) => {
+        const shopsquary = `select * from users`;
+        connection.query(shopsquary, (err, result) => {
+          if (err) reject(err);
+          else resolve;
+          res.send({ order: result });
+        });
+      });
+    })
+    .then((result) => {
+      res.send({ order: result });
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+});
+
+app.get("/user/profile/details", (req, res) => {
+  const id = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM users WHERE user_id = '${id}' `;
+  const insertQuery = "SELECT * FROM products where id = ?";
+
+  // Execute the first query to fetch users
+  const fetchUsersPromise = new Promise((resolve, reject) => {
+    connection.query(selectQuery, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+
+  // Chain the promises to insert the shop details after fetching the users
+  fetchUsersPromise
+    .then((rows) => {
+      // Assuming you have a specific user in mind to retrieve the userId
+      const id = rows[0].user_id;
+
+      return new Promise((resolve, reject) => {
+        const shopsquary = `select * from users where user_id = '${id}'`;
+        connection.query(shopsquary, (err, result) => {
+          if (err) reject(err);
+          else resolve;
+          res.send({ order: result });
+        });
+      });
+    })
+    .then((result) => {
+      res.send({ order: result });
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+});
+
+app.post("/follow", (req, res) => {
+  const { id } = req.body;
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
+  const insertQuery = "INSERT INTO follows(follower_id, following_id) VALUES (?,?)";
+
+  connection.query(selectQuery, (err, rows) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Error fetching user.");
+    }
+
+    if (rows.length === 0) {
+      return res.status(401).send("Unauthorized user.");
+    }
+
+    const user_id = rows[0].user_id;
+
+    connection.query(
+      insertQuery,
+      [user_id, id],
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send("Error following user.");
+        }
+
+        console.log(result);
+        return res.status(200).send("User followed successfully!");
+      }
+    );
+  });
+});
+
+app.get('/check-follow/:followerId/:followedId', (req, res) => {
+  const { followerId, followedId } = req.params;
+
+  // Query the database to check if the follower is following the followed user
+  const query = `SELECT COUNT(*) AS count FROM follows WHERE follower_id = ? AND following_id = ?`;
+
+  connection.query(query, [followerId, followedId], (err, results) => {
+    if (err) {
+      res.status(500).json({ error: 'Database error' });
+      return;
+    }
+
+    const isFollowing = results[0].count > 0;
+    res.json({ isFollowing });
+  });
+});
+
+// Unfollow a user
+app.post("/unfollow", (req, res) => {
+  const { id } = req.body;
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
+  const insertQuery = "DELETE FROM follows WHERE follower_id = ? AND following_id = ?";
+
+  connection.query(selectQuery, (err, rows) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Error fetching user.");
+    }
+
+    if (rows.length === 0) {
+      return res.status(401).send("Unauthorized user.");
+    }
+
+    const user_id = rows[0].user_id;
+
+    connection.query(
+      insertQuery,
+      [user_id, id],
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send("Error following user.");
+        }
+
+        console.log(result);
+        return res.status(200).send("User followed successfully!");
+      }
+    );
+  });
+});
+
+app.get('/follower-count/:userId', (req, res) => {
+  const { userId } = req.params;
+
+  // Query the database to count the number of followers for the given user
+  const query = `SELECT COUNT(*) AS followerCount FROM follows WHERE following_id = ?`;
+
+  connection.query(query, [userId], (err, results) => {
+    if (err) {
+      res.status(500).json({ error: 'Database error' });
+      return;
+    }
+
+    const followerCount = results[0].followerCount;
+    res.json({ followerCount });
+  });
+});
 
 app.listen(PORT, () => {
   console.log("Server started on port 8080");

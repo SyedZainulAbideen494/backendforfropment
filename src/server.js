@@ -2751,6 +2751,27 @@ app.post("/addshopimg15", upload.single("image"), (req, res) => {
   });
 });
 
+app.post("/add/shop/logo5", upload.single("image"), (req, res) => {
+  const images15 = req.file.filename;
+  const shop_id = req.headers.authorization; // Access the Authorization header correctly
+
+  const updateQuery = "UPDATE shops SET logo = ? WHERE shop_id = ?";
+
+  connection.query(updateQuery, [images15, shop_id], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Error updating shop image.");
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).send("Shop not found or no changes made.");
+    }
+
+    console.log(result);
+    return res.status(200).send("Shop image updated successfully!");
+  });
+});
+
 app.get("/custom/img/shop", (req, res) => {
   const id = req.headers.authorization;
   const selectQuery = `SELECT shop_id FROM shops WHERE shop_id = '${id}' `;
@@ -2872,7 +2893,7 @@ app.post("/addprodsimg5", upload.single("image"), (req, res) => {
   });
 });
 
-app.post("/addprodskmjimg6", upload.single("image"), (req, res) => {
+app.post("/addprodsimg6", upload.single("image"), (req, res) => {
   const images6 = req.file.filename;
   const shop_id = req.headers.authorization; // Access the Authorization header correctly
 
@@ -3255,6 +3276,506 @@ app.get('/follower-count/:userId', (req, res) => {
 
     const followerCount = results[0].followerCount;
     res.json({ followerCount });
+  });
+});
+
+app.post("/addprofilepic", upload.single("image"), (req, res) => {
+  const images5 = req.file.filename;
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
+  const insertQuery =
+    "UPDATE users SET porfilepic = ? WHERE user_id = ?";
+
+  connection.query(selectQuery, (err, rows) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Error fetching user.");
+    }
+
+    if (rows.length === 0) {
+      return res.status(401).send("Unauthorized user.");
+    }
+
+    const user_id = rows[0].user_id;
+
+    connection.query(
+      insertQuery,
+      [
+        images5,
+        user_id
+      ],
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send("Error adding shop.");
+        }
+
+        console.log(result);
+        return res.status(200).send("Shop added successfully!");
+      }
+    );
+  });
+});
+
+app.get("/all/shops/main/page", (req, res) => {
+  const sqlget = "SELECT * FROM shops";
+
+  connection.query(sqlget, (err, results) => {
+    if (err) {
+      console.error("Error fetching data from MySQL: ", err);
+      res.status(500).json({ error: "Error fetching data from MySQL" });
+    } else {
+      res.send({ shops: results });
+    }
+  });
+});
+
+app.get("/all/products/main/page", (req, res) => {
+  const sqlget = "SELECT * FROM products";
+
+  connection.query(sqlget, (err, results) => {
+    if (err) {
+      console.error("Error fetching data from MySQL: ", err);
+      res.status(500).json({ error: "Error fetching data from MySQL" });
+    } else {
+      res.send({ shops: results });
+    }
+  });
+});
+
+app.get("/main/shop/logo", (req, res) => {
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT * FROM shops WHERE shop_id = '${token}' `;
+  const insertQuery = "SELECT * FROM shops where user_id = ?";
+
+  // Execute the first query to fetch users
+  const fetchUsersPromise = new Promise((resolve, reject) => {
+    connection.query(selectQuery, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+
+  // Chain the promises to insert the shop details after fetching the users
+  fetchUsersPromise
+    .then((rows) => {
+      // Assuming you have a specific user in mind to retrieve the userId
+      const user_id = rows[0].shop_id;
+
+      return new Promise((resolve, reject) => {
+        const shopsquary = `select * from shops where shop_id = '${user_id}'`;
+        connection.query(shopsquary, (err, result) => {
+          if (err) reject(err);
+          else resolve;
+          res.send({ shops: result });
+        });
+      });
+    })
+    .then((result) => {
+      res.send({ shops: result });
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+});
+
+app.post("/followpage", (req, res) => {
+  const { shop_id } = req.body;
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
+  const insertQuery = "INSERT INTO followshop(user_id, shop_id) VALUES (?,?)";
+
+  connection.query(selectQuery, (err, rows) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Error fetching user.");
+    }
+
+    if (rows.length === 0) {
+      return res.status(401).send("Unauthorized user.");
+    }
+
+    const user_id = rows[0].user_id;
+
+    connection.query(
+      insertQuery,
+      [user_id, shop_id],
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send("Error following user.");
+        }
+
+        console.log(result);
+        return res.status(200).send("User followed successfully!");
+      }
+    );
+  });
+});
+
+app.get('/check-followpage/:followerId/:followedId', (req, res) => {
+  const { followerId, followedId } = req.params;
+
+  // Query the database to check if the follower is following the followed user
+  const query = `SELECT COUNT(*) AS count FROM followshop WHERE user_id = ? AND shop_id = ?`;
+
+  connection.query(query, [followerId, followedId], (err, results) => {
+    if (err) {
+      res.status(500).json({ error: 'Database error' });
+      return;
+    }
+
+    const isFollowing = results[0].count > 0;
+    res.json({ isFollowing });
+  });
+});
+
+// Unfollow a user
+app.post("/unfollowpage", (req, res) => {
+  const { id } = req.body;
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
+  const insertQuery = "DELETE FROM followshop WHERE user_id = ? AND shop_id = ?";
+
+  connection.query(selectQuery, (err, rows) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Error fetching user.");
+    }
+
+    if (rows.length === 0) {
+      return res.status(401).send("Unauthorized user.");
+    }
+
+    const user_id = rows[0].user_id;
+
+    connection.query(
+      insertQuery,
+      [user_id, id],
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send("Error following user.");
+        }
+
+        console.log(result);
+        return res.status(200).send("User followed successfully!");
+      }
+    );
+  });
+});
+
+app.get("/shop/main/user/details/profile", (req, res) => {
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT * FROM users WHERE user_id = '${token}' `;
+  const insertQuery = "SELECT * FROM shops where user_id = ?";
+
+  // Execute the first query to fetch users
+  const fetchUsersPromise = new Promise((resolve, reject) => {
+    connection.query(selectQuery, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+
+  // Chain the promises to insert the shop details after fetching the users
+  fetchUsersPromise
+    .then((rows) => {
+      // Assuming you have a specific user in mind to retrieve the userId
+      const user_id = rows[0].user_id;
+
+      return new Promise((resolve, reject) => {
+        const shopsquary = `select * from users where user_id = '${user_id}'`;
+        connection.query(shopsquary, (err, result) => {
+          if (err) reject(err);
+          else resolve;
+          res.send({ shops: result });
+        });
+      });
+    })
+    .then((result) => {
+      res.send({ shops: result });
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+});
+
+app.get('/products-count/:userId', (req, res) => {
+  const { userId } = req.params;
+
+  // Query the database to count the number of followers for the given user
+  const query = `SELECT COUNT(*) AS followerCount FROM products WHERE shop_id = ?`;
+
+  connection.query(query, [userId], (err, results) => {
+    if (err) {
+      res.status(500).json({ error: 'Database error' });
+      return;
+    }
+
+    const followerCount = results[0].followerCount;
+    res.json({ followerCount });
+  });
+});
+
+app.post('/api/ratings', (req, res) => {
+  const { shop_id, rating, user_id } = req.body;
+  const sql = 'INSERT INTO shoprating (shop_id, rating, user_id) VALUES (?, ?, ?)';
+  connection.query(sql, [shop_id, rating, user_id], (error, results) => {
+    if (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Error saving rating' });
+    }
+    return res.status(200).json({ message: 'Rating saved successfully' });
+  });
+});
+
+// Endpoint to calculate and return the average rating for an item
+app.get('/api/average-rating/:shop_id', (req, res) => {
+  const shop_id = req.params.shop_id;
+  const sql = 'SELECT AVG(rating) AS averageRating FROM shoprating WHERE shop_id = ?';
+  connection.query(sql, [shop_id], (error, results) => {
+    if (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Error calculating average rating' });
+    }
+    const averageRating = results[0].averageRating || 0; // Default to 0 if no ratings found
+    return res.status(200).json({ averageRating });
+  });
+});
+
+app.get('/shops-count/:userId', (req, res) => {
+  const { userId } = req.params;
+
+  // Query the database to count the number of followers for the given user
+  const query = `SELECT COUNT(*) AS followerCount FROM shops WHERE user_id = ?`;
+
+  connection.query(query, [userId], (err, results) => {
+    if (err) {
+      res.status(500).json({ error: 'Database error' });
+      return;
+    }
+
+    const followerCount = results[0].followerCount;
+    res.json({ followerCount });
+  });
+});
+
+
+
+app.post("/followdis", (req, res) => {
+  const { user_id } = req.body;
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
+  const insertQuery = "INSERT INTO follows(follower_id, following_id) VALUES (?,?)";
+
+  connection.query(selectQuery, (err, rows) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Error fetching user.");
+    }
+
+    if (rows.length === 0) {
+      return res.status(401).send("Unauthorized user.");
+    }
+
+    const user_id = rows[0].user_id;
+
+    connection.query(
+      insertQuery,
+      [user_id, user_id],
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send("Error following user.");
+        }
+
+        console.log(result);
+        return res.status(200).send("User followed successfully!");
+      }
+    );
+  });
+});
+
+app.get('/check-follow/:followerId/:followedId', (req, res) => {
+  const { followerId, followedId } = req.params;
+
+  // Query the database to check if the follower is following the followed user
+  const query = `SELECT COUNT(*) AS count FROM follows WHERE follower_id = ? AND following_id = ?`;
+
+  connection.query(query, [followerId, followedId], (err, results) => {
+    if (err) {
+      res.status(500).json({ error: 'Database error' });
+      return;
+    }
+
+    const isFollowing = results[0].count > 0;
+    res.json({ isFollowing });
+  });
+});
+
+// Unfollow a user
+app.post("/unfollowdis", (req, res) => {
+  const { user_id } = req.body;
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
+  const insertQuery = "DELETE FROM follows WHERE follower_id = ? AND following_id = ?";
+
+  connection.query(selectQuery, (err, rows) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Error fetching user.");
+    }
+
+    if (rows.length === 0) {
+      return res.status(401).send("Unauthorized user.");
+    }
+
+    const user_id = rows[0].user_id;
+
+    connection.query(
+      insertQuery,
+      [user_id, user_id],
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send("Error following user.");
+        }
+
+        console.log(result);
+        return res.status(200).send("User followed successfully!");
+      }
+    );
+  });
+});
+
+app.post("/start/chat", (req, res) => {
+  const { user_id } = req.body;
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
+  const insertQuery = "INSERT INTO chat_messages(user_id_1, user_id_2) VALUES (?,?)";
+
+  connection.query(selectQuery, (err, rows) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Error fetching user.");
+    }
+
+    if (rows.length === 0) {
+      return res.status(401).send("Unauthorized user.");
+    }
+
+    const id = rows[0].user_id;
+
+    connection.query(
+      insertQuery,
+      [id, user_id],
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send("Error following user.");
+        }
+
+        console.log(result);
+        return res.status(200).send("User followed successfully!");
+      }
+    );
+  });
+});
+
+app.get("/chat/users/display", (req, res) => {
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT * FROM users WHERE jwt = '${token}' `;
+  const insertQuery = "SELECT * FROM shops where user_id = ?";
+
+  // Execute the first query to fetch users
+  const fetchUsersPromise = new Promise((resolve, reject) => {
+    connection.query(selectQuery, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+
+  // Chain the promises to insert the shop details after fetching the users
+  fetchUsersPromise
+    .then((rows) => {
+      // Assuming you have a specific user in mind to retrieve the userId
+      const user_id = rows[0].user_id;
+
+      return new Promise((resolve, reject) => {
+        const shopsquary = `SELECT * FROM chat_messages WHERE user_id_1 = '${user_id}' OR user_id_2 = '${user_id}'`;
+        connection.query(shopsquary, (err, result) => {
+          if (err) reject(err);
+          else resolve;
+          res.send({ chat: result });
+        });
+      });
+    })
+    .then((result) => {
+      res.send({ chat: result });
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+});
+
+app.get("/user/chat/details/1", (req, res) => {
+  const token = req.headers.authorization;
+  const sqlget = `SELECT * FROM users where user_id = '${token}'`;
+
+  connection.query(sqlget, (err, results) => {
+    if (err) {
+      console.error("Error fetching data from MySQL: ", err);
+      res.status(500).json({ error: "Error fetching data from MySQL" });
+    } else {
+      res.send({ user: results });
+    }
+  });
+});
+
+app.get("/user/chat/details/2", (req, res) => {
+  const token = req.headers.authorization;
+  const sqlget = `SELECT * FROM users where user_id = '${token}'`;
+
+  connection.query(sqlget, (err, results) => {
+    if (err) {
+      console.error("Error fetching data from MySQL: ", err);
+      res.status(500).json({ error: "Error fetching data from MySQL" });
+    } else {
+      res.send({ user: results });
+    }
+  });
+});
+
+app.get("/chat/messages/display/api", (req, res) => {
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT * FROM chat_messages WHERE chat_id = '${token}'`;
+
+  // Execute the query to fetch chat messages based on the provided token
+  connection.query(selectQuery, (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send("Error fetching chat messages.");
+    } else {
+      res.send({ chat: result });
+    }
+  });
+});
+
+app.post("/send/message/sender", (req, res) => {
+  const { message_text, user_id_1, user_id_2, sender_id } = req.body;
+  const token = req.headers.authorization;
+  const insertQuery = "INSERT INTO chat_messages(chat_id, message_text, sender_id, user_id_1, user_id_2) VALUES (?, ?, ?, ?, ?)";
+
+  // Execute the query to insert the message
+  connection.query(insertQuery, [token, message_text, sender_id, user_id_1, user_id_2], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send("Error sending message.");
+    } else {
+      console.log(result);
+      res.status(200).send("Message sent successfully!");
+    }
   });
 });
 

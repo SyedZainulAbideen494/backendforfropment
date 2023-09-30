@@ -109,6 +109,7 @@ app.post("/addProduct", upload.single("image"), (req, res) => {
   const price = req.body.price;
   const amount = req.body.amount;
   const payment = req.body.payment;
+  const product_description = req.body.product_description;
   const usd = req.body.usd;
   const EUR = req.body.EUR;
   const GBP = req.body.GBP;
@@ -135,7 +136,7 @@ app.post("/addProduct", upload.single("image"), (req, res) => {
 
   const selectQuery = `SELECT shop_id FROM shops WHERE shop_id = '${token}'`;
   const insertQuery =
-    "INSERT INTO products (title, price, amount, shop_id, images, payment, usd, EUR, GBP, JPY, CAD, AUD, CHF, CNY, INR, BRL, RUB, KRW, SGD, NZD, MXN, HKD, TRY, ZAR, SEK, NOK) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    "INSERT INTO products (title, price, amount, shop_id, images, payment, product_description,  usd, EUR, GBP, JPY, CAD, AUD, CHF, CNY, INR, BRL, RUB, KRW, SGD, NZD, MXN, HKD, TRY, ZAR, SEK, NOK) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
   // Execute the first query to fetch the shop_id
   connection.query(selectQuery, (err, rows) => {
@@ -156,7 +157,7 @@ app.post("/addProduct", upload.single("image"), (req, res) => {
     // Execute the second query to insert the product details
     connection.query(
       insertQuery,
-      [title, price, amount, shop_id, image, payment, usd, EUR, GBP, JPY, CAD, AUD, CHF, CNY, INR, BRL, RUB, KRW, SGD, NZD, MXN, HKD, TRY, ZAR, SEK, NOK],
+      [title, price, amount, shop_id, image, payment, product_description, usd, EUR, GBP, JPY, CAD, AUD, CHF, CNY, INR, BRL, RUB, KRW, SGD, NZD, MXN, HKD, TRY, ZAR, SEK, NOK],
       (err, result) => {
         if (err) {
           console.error("Error inserting product:", err);
@@ -3650,10 +3651,12 @@ app.post("/unfollowdis", (req, res) => {
 });
 
 app.post("/start/chat", (req, res) => {
-  const { user_id } = req.body;
+  const { user_id, first_name1, first_name2 } = req.body;
   const token = req.headers.authorization;
   const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
-  const insertQuery = "INSERT INTO chat_messages(user_id_1, user_id_2) VALUES (?,?)";
+  const findChatQuery = `SELECT chat_id, user1, user2 FROM chat_data 
+                         WHERE (user1 = ? AND user2 = ?) 
+                         OR (user1 = ? AND user2 = ?)`;
 
   connection.query(selectQuery, (err, rows) => {
     if (err) {
@@ -3667,17 +3670,37 @@ app.post("/start/chat", (req, res) => {
 
     const id = rows[0].user_id;
 
+    // Check if a chat between user1 and user2 already exists
     connection.query(
-      insertQuery,
-      [id, user_id],
-      (err, result) => {
+      findChatQuery,
+      [id, user_id, user_id, id],
+      (err, chatRows) => {
         if (err) {
           console.error(err);
-          return res.status(500).send("Error following user.");
+          return res.status(500).send("Error checking chat data.");
         }
 
-        console.log(result);
-        return res.status(200).send("User followed successfully!");
+        if (chatRows.length > 0) {
+          // Chat already exists, return the chat_id
+          const { chat_id, user1, user2 } = chatRows[0];
+          return res.status(200).json({ chat_id, user1, user2 });
+        } else {
+          // Chat doesn't exist, create a new chat row
+          const insertQuery = `INSERT INTO chat_data(user1, user2, first_name1, first_name2) VALUES (?, ?, ?, ?)`;
+          connection.query(
+            insertQuery,
+            [id, user_id, first_name1, first_name2],
+            (err, result) => {
+              if (err) {
+                console.error(err);
+                return res.status(500).send("Error creating new chat.");
+              }
+
+              const chat_id = result.insertId;
+              return res.status(200).json({ chat_id, user1: id, user2: user_id });
+            }
+          );
+        }
       }
     );
   });
@@ -3685,8 +3708,7 @@ app.post("/start/chat", (req, res) => {
 
 app.get("/chat/users/display", (req, res) => {
   const token = req.headers.authorization;
-  const selectQuery = `SELECT * FROM users WHERE jwt = '${token}' `;
-  const insertQuery = "SELECT * FROM shops where user_id = ?";
+  const selectQuery = `SELECT * FROM users WHERE jwt = '${token}'`;
 
   // Execute the first query to fetch users
   const fetchUsersPromise = new Promise((resolve, reject) => {
@@ -3699,15 +3721,24 @@ app.get("/chat/users/display", (req, res) => {
   // Chain the promises to insert the shop details after fetching the users
   fetchUsersPromise
     .then((rows) => {
+      if (rows.length === 0) {
+        // Handle the case where no user with the given token is found
+        throw new Error("User not found");
+      }
+      
       // Assuming you have a specific user in mind to retrieve the userId
-      const user_id = rows[0].user_id;
+      const id = rows[0].user_id;
 
       return new Promise((resolve, reject) => {
-        const shopsquary = `SELECT * FROM chat_messages WHERE user_id_1 = '${user_id}' OR user_id_2 = '${user_id}'`;
-        connection.query(shopsquary, (err, result) => {
+        const shopsQuery = `
+          SELECT * FROM chat_data 
+          WHERE (user1 = '${id}' OR user2 = '${id}')
+        `;
+        // Replace user1 and user2 with the actual column names in your chat_data table
+        
+        connection.query(shopsQuery, [id, id], (err, result) => {
           if (err) reject(err);
-          else resolve;
-          res.send({ chat: result });
+          else resolve(result);
         });
       });
     })
@@ -3716,6 +3747,7 @@ app.get("/chat/users/display", (req, res) => {
     })
     .catch((err) => {
       console.error(err);
+      res.status(500).send({ error: err.message });
     });
 });
 
@@ -3778,6 +3810,76 @@ app.post("/send/message/sender", (req, res) => {
     }
   });
 });
+
+app.post('/create-customer', async (req, res) => {
+  try {
+    const customer = await stripe.customers.create({
+      email: req.body.email,
+      payment_method: req.body.paymentMethodId,
+      invoice_settings: {
+        default_payment_method: req.body.paymentMethodId,
+      },
+    });
+
+    // Save the customer ID in your database
+    const insertCustomerQuery = `INSERT INTO customers (stripe_customer_id, email) VALUES ('${customer.id}', '${req.body.email}')`;
+    db.query(insertCustomerQuery, (err, result) => {
+      if (err) {
+        console.error('Error inserting customer into the database: ', err);
+        res.status(500).json({ error: 'Internal server error' });
+      } else {
+        res.status(200).json({ customer });
+      }
+    });
+  } catch (error) {
+    console.error('Error creating customer: ', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+app.post('/subscribe/dropment', async (req, res) => {
+  const { userId, paymentMethodId } = req.body;
+
+  try {
+    // Create a customer in Stripe
+    const customer = await stripe.customers.create({
+      email: req.body.email,
+      payment_method: paymentMethodId,
+      invoice_settings: {
+        default_payment_method: paymentMethodId,
+      },
+    });
+
+    // Subscribe the customer to a plan
+    const subscription = await stripe.subscriptions.create({
+      customer: customer.id,
+      items: [{ price: 'price_1NkrliSGyKMMAZwsvglP94Bk' }],
+      expand: ['latest_invoice.payment_intent'],
+    });
+
+    // Check if the payment was successful
+    if (subscription.latest_invoice.payment_intent.status === 'succeeded') {
+      // Update the user's premium status in the database
+      const updateUserQuery = `UPDATE users SET premium = 1, stripe_customer_id = '${customer.id}' WHERE user_id = ${userId}`;
+      db.query(updateUserQuery, (err, result) => {
+        if (err) {
+          console.error('Error updating user premium status: ', err);
+          res.status(500).json({ error: 'Internal server error' });
+        } else {
+          res.status(200).json({ message: 'Subscription successful' });
+        }
+      });
+    } else {
+      res.status(400).json({ error: 'Payment failed' });
+    }
+  } catch (error) {
+    console.error('Error subscribing customer: ', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
 
 app.listen(PORT, () => {
   console.log("Server started on port 8080");

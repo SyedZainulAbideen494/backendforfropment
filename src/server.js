@@ -530,72 +530,6 @@ app.get("/user/shops/fashion/preview", (req, res) => {
   });
 });
 
-app.post("/orders", (req, res) => {
-  const name = req.body.name;
-  const Phone = req.body.Phone;
-  const Email = req.body.Email;
-  const streetadrs = req.body.streetadrs;
-  const city = req.body.city;
-  const state = req.body.state;
-  const zipcode = req.body.zipcode;
-  const country = req.body.country;
-  const id = req.body.id;
-  const product = req.body.product;
-  const shop_id = req.body.shop_id;
-  const product_id = req.body.product_id;
-  const token = req.headers.authorization;
-  const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
-  const insertQuery =
-    "INSERT INTO orders(name, Phone, Email, streetadrs, city, state, zipcode, country, id, product, sender_id, shop_id, product_id) VALUES (?,?, ?, ?, ?, ?, ?,?,?,?,?,?,?)";
-
-  // Execute the first query to fetch users
-  const fetchUsersPromise = new Promise((resolve, reject) => {
-    connection.query(selectQuery, (err, rows) => {
-      if (err) reject(err);
-      else resolve(rows);
-    });
-  });
-
-  // Chain the promises to insert the shop details after fetching the users
-  fetchUsersPromise
-    .then((rows) => {
-      // Assuming you have a specific user in mind to retrieve the userId
-      const sender_id = rows[0].user_id;
-      // Execute the second query to insert shop details
-      return new Promise((resolve, reject) => {
-        connection.query(
-          insertQuery,
-          [
-            name,
-            Phone,
-            Email,
-            streetadrs,
-            city,
-            state,
-            zipcode,
-            country,
-            id,
-            product,
-            sender_id,
-            shop_id,
-            product_id,
-          ],
-          (err, result) => {
-            if (err) reject(err);
-            else resolve(result);
-          }
-        );
-      });
-    })
-    .then((result) => {
-      console.log(result);
-      res.status(200).send("Shop added successfully!");
-    })
-    .catch((err) => {
-      console.error(err);
-      res.status(500).send("Error adding shop.");
-    });
-});
 
 app.get("/myorders", (req, res) => {
   const token = req.headers.authorization;
@@ -3879,6 +3813,213 @@ app.post('/subscribe/dropment', async (req, res) => {
   }
 });
 
+app.get("/prods/details/shop/details", (req, res) => {
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT * FROM shops WHERE shop_id = '${token}'`;
+
+  // Execute the query to fetch chat messages based on the provided token
+  connection.query(selectQuery, (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send("Error fetching chat messages.");
+    } else {
+      res.send({ shops: result });
+    }
+  });
+});
+
+app.get("/user/details/shop/details", (req, res) => {
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT * FROM users WHERE user_id = '${token}'`;
+
+  // Execute the query to fetch chat messages based on the provided token
+  connection.query(selectQuery, (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send("Error fetching chat messages.");
+    } else {
+      res.send({ users: result });
+    }
+  });
+});
+
+app.post("/place/order", (req, res) => {
+  const {
+    name,
+    Phone,
+    Email,
+    streetadrs,
+    city,
+    state,
+    zipcode,
+    country,
+    id,
+    product,
+    shop_id,
+    occupation,
+    sender_id,
+    age
+  } = req.body;
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM users WHERE jwt = ?`; // Use placeholders
+  const insertQuery =
+    "INSERT INTO orders(name, Phone, Email, streetadrs, city, state, zipcode, country, id, product, shop_id, occupation, sender_id, age) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+  connection.query(selectQuery, [token], (err, rows) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Error fetching user.");
+    }
+
+    if (rows.length === 0) {
+      return res.status(401).send("Unauthorized user.");
+    }
+
+    const user_id = rows[0].user_id;
+
+    connection.query(
+      insertQuery,
+      [
+        name,
+        Phone,
+        Email,
+        streetadrs,
+        city,
+        state,
+        zipcode,
+        country,
+        id,
+        product,
+        shop_id,
+        occupation,
+        user_id,
+        age
+      ],
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send("Error adding shop.");
+        }
+
+        console.log(result);
+        return res.status(200).send("Shop added successfully!");
+      }
+    );
+  });
+});
+
+app.post("/orders", (req, res) => {
+  const name = req.body.name;
+  const Phone = req.body.Phone;
+  const Email = req.body.Email;
+  const streetadrs = req.body.streetadrs;
+  const city = req.body.city;
+  const state = req.body.state;
+  const zipcode = req.body.zipcode;
+  const country = req.body.country;
+  const id = req.body.id;
+  const product = req.body.product;
+  const shop_id = req.body.shop_id;
+  const product_id = req.body.product_id;
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
+  const insertQuery =
+    "INSERT INTO orders(name, Phone, Email, streetadrs, city, state, zipcode, country, id, product, sender_id, shop_id) VALUES (?, ?, ?, ?, ?, ?,?,?,?,?,?,?)";
+
+  // Execute the first query to fetch users
+  const fetchUsersPromise = new Promise((resolve, reject) => {
+    connection.query(selectQuery, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+
+  // Chain the promises to insert the shop details after fetching the users
+  fetchUsersPromise
+    .then((rows) => {
+      // Assuming you have a specific user in mind to retrieve the userId
+      const sender_id = rows[0].user_id;
+      // Execute the second query to insert shop details
+      return new Promise((resolve, reject) => {
+        connection.query(
+          insertQuery,
+          [
+            name,
+            Phone,
+            Email,
+            streetadrs,
+            city,
+            state,
+            zipcode,
+            country,
+            id,
+            product,
+            sender_id,
+            shop_id,
+            product_id,
+          ],
+          (err, result) => {
+            if (err) reject(err);
+            else resolve(result);
+          }
+        );
+      });
+    })
+    .then((result) => {
+      console.log(result);
+      res.status(200).send("Shop added successfully!");
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("Error adding shop.");
+    });
+});
+
+
+app.get("/prods/details/orders/for/details", (req, res) => {
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT * FROM products WHERE id = '${token}'`;
+
+  // Execute the query to fetch chat messages based on the provided token
+  connection.query(selectQuery, (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send("Error fetching chat messages.");
+    } else {
+      res.send({ products: result });
+    }
+  });
+});
+
+app.get("/user/details/orders/for/details", (req, res) => {
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT * FROM users WHERE jwt = '${token}'`;
+
+  // Execute the query to fetch chat messages based on the provided token
+  connection.query(selectQuery, (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send("Error fetching chat messages.");
+    } else {
+      res.send({ products: result });
+    }
+  });
+});
+
+app.get("/sales/stats/shop", (req, res) => {
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT * FROM orders WHERE shop_id = '${token}'`;
+
+  // Execute the query to fetch chat messages based on the provided token
+  connection.query(selectQuery, (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send("Error fetching chat messages.");
+    } else {
+      res.send({ products: result });
+    }
+  });
+});
 
 
 app.listen(PORT, () => {

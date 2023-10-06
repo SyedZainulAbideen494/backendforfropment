@@ -3988,7 +3988,7 @@ app.get("/prods/details/orders/for/details", (req, res) => {
     } else {
       res.send({ products: result });
     }
-  });
+  }); 
 });
 
 app.get("/user/details/orders/for/details", (req, res) => {
@@ -4021,6 +4021,93 @@ app.get("/sales/stats/shop", (req, res) => {
   });
 });
 
+app.get("/user/details/shop/user/id", (req, res) => {
+  const id = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM shops WHERE user_id = '${id}' `;
+  const insertQuery = "SELECT * FROM products where id = ?";
+
+  // Execute the first query to fetch users
+  const fetchUsersPromise = new Promise((resolve, reject) => {
+    connection.query(selectQuery, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+
+  // Chain the promises to insert the shop details after fetching the users
+  fetchUsersPromise
+    .then((rows) => {
+      // Assuming you have a specific user in mind to retrieve the userId
+      const id = rows[0].user_id;
+
+      return new Promise((resolve, reject) => {
+        const shopsquary = `select * from users where user_id = '${id}'`;
+        connection.query(shopsquary, (err, result) => {
+          if (err) reject(err);
+          else resolve;
+          res.send({ user: result });
+        });
+      });
+    })
+    .then((result) => {
+      res.send({ order: result });
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+});
+
+app.get("/user/order/display", (req, res) => {
+  const id = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM users WHERE jwt = '${id}' `;
+  const insertQuery = "SELECT * FROM products where id = ?";
+
+  // Execute the first query to fetch users
+  const fetchUsersPromise = new Promise((resolve, reject) => {
+    connection.query(selectQuery, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+
+  // Chain the promises to insert the shop details after fetching the users
+  fetchUsersPromise
+    .then((rows) => {
+      // Assuming you have a specific user in mind to retrieve the userId
+      const id = rows[0].user_id;
+
+      return new Promise((resolve, reject) => {
+        const shopsquary = `select * from orders where sender_id = '${id}'`;
+        connection.query(shopsquary, (err, result) => {
+          if (err) reject(err);
+          else resolve;
+          res.send({ user: result });
+        });
+      });
+    })
+    .then((result) => {
+      res.send({ order: result });
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+});
+
+app.put('/api/update-order-status/:orderId', (req, res) => {
+  const { orderId } = req.params;
+  const { newStatus } = req.body;
+
+  const sql = `UPDATE orders SET status = ? WHERE orders_id = ?`;
+
+  connection.query(sql, [newStatus, orderId], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      res.json({ message: 'Order status updated successfully' });
+    }
+  });
+});
 
 app.listen(PORT, () => {
   console.log("Server started on port 8080");

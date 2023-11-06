@@ -16,20 +16,20 @@ const PORT = process.env.PORT || 8080;
 app.use(express.urlencoded({ extended: true }));
 
 const storage = multer.diskStorage({
-  destination: (req, file, cd) => {
-    cd(null, "public/images");
+  destination: (req, file, cb) => {
+    const uploadDir = file.mimetype.startsWith('image/') ? 'public/images' : 'public/videos';
+    cb(null, uploadDir);
   },
-  filename: (req, file, cd) => {
-    cd(
-      null,
-      file.fieldname + "_" + Date.now() + path.extname(file.originalname)
-    );
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, file.fieldname + '_' + Date.now() + ext);
   },
 });
 
 const upload = multer({
   storage: storage,
 });
+
 
 app.use(
   cors({
@@ -990,7 +990,7 @@ app.post("/addShops/template4", (req, res) => {
   const token = req.headers.authorization;
   const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
   const insertQuery =
-    "INSERT INTO shops(shop_name, insta, temp4, shop_keyhead1, shop_key1, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_block3, shop_blockhead3) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    "INSERT INTO shops(shop_name, insta, temp, shop_keyhead1, shop_key1, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_block3, shop_blockhead3) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
   connection.query(selectQuery, (err, rows) => {
     if (err) {
@@ -1128,7 +1128,7 @@ app.post("/addShops/template5", (req, res) => {
   const token = req.headers.authorization;
   const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
   const insertQuery =
-    "INSERT INTO shops(shop_name, shop_email, insta, shop_keyhead1, shop_blockhead3, shop_blockhead1, shop_key1, shop_blockhead2, shop_phone, user_id, shop_owner, shop_block1, shop_block2, temp5, shop_block3) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    "INSERT INTO shops(shop_name, shop_email, insta, shop_keyhead1, shop_blockhead3, shop_blockhead1, shop_key1, shop_blockhead2, shop_phone, user_id, shop_owner, shop_block1, shop_block2, temp, shop_block3) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
   connection.query(selectQuery, (err, rows) => {
     if (err) {
@@ -1270,7 +1270,7 @@ app.post("/addShops/template6", (req, res) => {
   const token = req.headers.authorization;
   const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
   const insertQuery =
-    "INSERT INTO shops(shop_name, insta, salestext, temp6, shop_keyhead1, shop_key1, shop_keyhead2, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    "INSERT INTO shops(shop_name, insta, salestext, temp, shop_keyhead1, shop_key1, shop_keyhead2, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
   connection.query(selectQuery, (err, rows) => {
     if (err) {
@@ -1491,7 +1491,7 @@ app.post("/addShops/template1", (req, res) => {
   const token = req.headers.authorization;
   const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
   const insertQuery =
-    "INSERT INTO shops(shop_name,shop_keyhead3, shop_key3, insta, salestext, temp1, shop_keyhead1, shop_key1, shop_keyhead2, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    "INSERT INTO shops(shop_name,shop_keyhead3, shop_key3, insta, salestext, temp, shop_keyhead1, shop_key1, shop_keyhead2, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
   connection.query(selectQuery, (err, rows) => {
     if (err) {
@@ -1639,7 +1639,7 @@ app.post("/addShops/template2", (req, res) => {
   const token = req.headers.authorization;
   const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
   const insertQuery =
-    "INSERT INTO shops(shop_name, insta, salestext, temp2, shop_keyhead1, shop_key1, shop_keyhead2, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    "INSERT INTO shops(shop_name, insta, salestext, temp, shop_keyhead1, shop_key1, shop_keyhead2, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
   connection.query(selectQuery, (err, rows) => {
     if (err) {
@@ -1714,7 +1714,7 @@ app.post("/addShops/template2", (req, res) => {
   const token = req.headers.authorization;
   const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
   const insertQuery =
-    "INSERT INTO shops(shop_name, insta, salestext, temp2, shop_keyhead1, shop_key1, shop_keyhead2, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    "INSERT INTO shops(shop_name, insta, salestext, temp, shop_keyhead1, shop_key1, shop_keyhead2, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
   connection.query(selectQuery, (err, rows) => {
     if (err) {
@@ -1861,7 +1861,7 @@ app.post("/addShops/template3", (req, res) => {
   const token = req.headers.authorization;
   const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
   const insertQuery =
-    "INSERT INTO shops(shop_name, insta, salestext, temp3, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline, shop_key3, shop_keyhead3) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    "INSERT INTO shops(shop_name, insta, salestext, temp, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline, shop_key3, shop_keyhead3) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
   connection.query(selectQuery, (err, rows) => {
     if (err) {
@@ -1933,7 +1933,7 @@ app.post("/addShops/template7", (req, res) => {
   const token = req.headers.authorization;
   const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
   const insertQuery =
-    "INSERT INTO shops(shop_name, insta, salestext, temp7, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline, shop_key3, shop_keyhead3) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    "INSERT INTO shops(shop_name, insta, salestext, temp, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline, shop_key3, shop_keyhead3) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
   connection.query(selectQuery, (err, rows) => {
     if (err) {
@@ -2078,7 +2078,7 @@ app.post("/addShops/template8", (req, res) => {
   const token = req.headers.authorization;
   const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
   const insertQuery =
-    "INSERT INTO shops(shop_name, insta, salestext, temp8, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline, shop_key3, shop_keyhead3) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    "INSERT INTO shops(shop_name, insta, salestext, temp, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline, shop_key3, shop_keyhead3) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
   connection.query(selectQuery, (err, rows) => {
     if (err) {
@@ -4108,6 +4108,1371 @@ app.put('/api/update-order-status/:orderId', (req, res) => {
     }
   });
 });
+
+app.post("/delete/products", (req, res) => {
+  const { user_id } = req.body;
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT id FROM products WHERE id = '${token}' `;
+  const insertQuery = "DELETE FROM products WHERE id = ?";
+
+  connection.query(selectQuery, (err, rows) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Error fetching user.");
+    }
+
+    if (rows.length === 0) {
+      return res.status(401).send("Unauthorized user.");
+    }
+
+    const user_id = rows[0].id;
+
+    connection.query(
+      insertQuery,
+      [user_id,],
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send("Error following user.");
+        }
+
+        console.log(result);
+        return res.status(200).send("User followed successfully!");
+      }
+    );
+  });
+});
+
+app.post('/api/stories', upload.single('media'), (req, res) => {
+  const { token, content } = req.body;
+  const mediaPath = req.file.filename;
+  const mediaType = req.file.mimetype.startsWith('image/') ? 'image' : 'video';
+  const selectQuery = 'SELECT * FROM users WHERE jwt = ?';
+
+  // Verify the token and fetch the user ID from the database
+  connection.query(selectQuery, [token], (err, rows) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Error fetching user.');
+    }
+
+    if (rows.length === 0) {
+      return res.status(401).send('Unauthorized user.');
+    }
+
+    const user_id = rows[0].user_id;
+    const name = rows[0].first_name
+
+    const sql = 'INSERT INTO stories (user_id, content, media_path, media_type, name) VALUES (?, ?, ?, ?, ?)';
+    connection.query(sql, [user_id, content, mediaPath, mediaType, name], (err, result) => {
+      if (err) {
+        console.error('Error inserting into database: ' + err);
+        res.status(500).json({ error: 'Could not create story' });
+        return;
+      }
+
+      res.json({ message: 'Story created successfully' });
+      console.log(result)
+    });
+  });
+});
+
+// GET endpoint to fetch all stories
+app.get('/api/stories', (req, res) => {
+  const token = req.headers.authorization; // Get the token from the Authorization header
+
+  const selectQuery = 'SELECT user_id FROM users WHERE user_id = ?';
+
+  // Verify the token and fetch the user ID from the database
+  connection.query(selectQuery, [token], (err, rows) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Error fetching user.');
+    }
+
+    if (rows.length === 0) {
+      return res.status(401).send('Unauthorized user.');
+    }
+
+    const userId = rows[0].user_id; // Assuming you have a way to get the user's ID
+
+    const sql = `
+    SELECT * FROM stories WHERE user_id = ?
+    `;
+
+    connection.query(sql, [userId], (err, stories) => {
+      if (err) {
+        console.error('Error retrieving stories: ' + err);
+        res.status(500).json({ error: 'Could not fetch stories' });
+        return;
+      }
+
+      res.json(stories);
+    });
+  });
+});
+
+app.get('/api/stories/users/display', (req, res) => {
+  const token = req.headers.authorization; // Get the token from the Authorization header
+
+  const selectQuery = 'SELECT user_id FROM users WHERE jwt = ?';
+
+  // Verify the token and fetch the user ID from the database
+  connection.query(selectQuery, [token], (err, rows) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Error fetching user.');
+    }
+
+    if (rows.length === 0) {
+      return res.status(401).send('Unauthorized user.');
+    }
+
+    const userId = rows[0].user_id; // Assuming you have a way to get the user's ID
+
+    const sql = `
+      SELECT user_id, first_name, last_name, porfilepic
+      FROM users
+      WHERE user_id IN (
+        SELECT following_id
+        FROM follows
+        WHERE follower_id = ?
+      )
+    `;
+
+    connection.query(sql, [userId], (err, users) => {
+      if (err) {
+        console.error('Error retrieving users: ' + err);
+        res.status(500).json({ error: 'Could not fetch users' });
+        return;
+      }
+
+      res.send({ order: users });
+    });
+  });
+});
+// Serve static files from the 'public' directory
+app.use(express.static('public'));
+
+app.get("/user/details/send/id/details", (req, res) => {
+  const id = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM users WHERE user_id = '${id}' `;
+  const insertQuery = "SELECT * FROM products where id = ?";
+
+  // Execute the first query to fetch users
+  const fetchUsersPromise = new Promise((resolve, reject) => {
+    connection.query(selectQuery, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+
+  // Chain the promises to insert the shop details after fetching the users
+  fetchUsersPromise
+    .then((rows) => {
+      // Assuming you have a specific user in mind to retrieve the userId
+      const id = rows[0].user_id;
+
+      return new Promise((resolve, reject) => {
+        const shopsquary = `select * from users where user_id = '${id}'`;
+        connection.query(shopsquary, (err, result) => {
+          if (err) reject(err);
+          else resolve;
+          res.send({ user: result });
+        });
+      });
+    })
+    .then((result) => {
+      res.send({ order: result });
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+});
+
+app.post("/add/custom/shop", (req, res) => {
+  const {section} = req.body
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
+  const insertQuery =
+    "INSERT INTO shops(user_id, temp, build) VALUES (?, ?, ?)";
+
+  connection.query(selectQuery, (err, rows) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Error fetching user.");
+    }
+
+    if (rows.length === 0) {
+      return res.status(401).send("Unauthorized user.");
+    }
+
+    const user_id = rows[0].user_id;
+
+    connection.query(
+      insertQuery,
+      [
+        user_id,
+        'incomplete',
+        section
+      ],
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send("Error adding shop.");
+        }
+
+        console.log(result);
+        return res.status(200).send("Shop added successfully!");
+      }
+    );
+  });
+});
+
+app.put('/nav/bar/update', (req, res) => {
+  const shop_id = req.headers.authorization; // Use 'authorization' instead of destructuring
+  const { nav } = req.body;
+
+  const sql = `UPDATE shops SET section1 = ? WHERE shop_id = ?`;
+
+  connection.query(sql, [nav, shop_id], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      res.json({ message: 'Order status updated successfully' });
+    }
+  });
+});
+
+app.put('/header/update', (req, res) => {
+  const shop_id = req.headers.authorization; // Use 'authorization' instead of destructuring
+  const { nav } = req.body;
+
+  const sql = `UPDATE shops SET section2 = ? WHERE shop_id = ?`;
+
+  connection.query(sql, [nav, shop_id], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      res.json({ message: 'Order status updated successfully' });
+    }
+  });
+});
+
+app.put('/section3/update', (req, res) => {
+  const shop_id = req.headers.authorization; // Use 'authorization' instead of destructuring
+  const { nav } = req.body;
+
+  const sql = `UPDATE shops SET section3 = ? WHERE shop_id = ?`;
+
+  connection.query(sql, [nav, shop_id], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      res.json({ message: 'Order status updated successfully' });
+    }
+  });
+});
+
+app.put('/section4/update', (req, res) => {
+  const shop_id = req.headers.authorization; // Use 'authorization' instead of destructuring
+  const { nav } = req.body;
+
+  const sql = `UPDATE shops SET section4 = ? WHERE shop_id = ?`;
+
+  connection.query(sql, [nav, shop_id], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      res.json({ message: 'Order status updated successfully' });
+    }
+  });
+});
+
+app.put('/section5/update', (req, res) => {
+  const shop_id = req.headers.authorization; // Use 'authorization' instead of destructuring
+  const { nav } = req.body;
+
+  const sql = `UPDATE shops SET section5 = ? WHERE shop_id = ?`;
+
+  connection.query(sql, [nav, shop_id], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      res.json({ message: 'Order status updated successfully' });
+    }
+  });
+});
+app.put('/section6/update', (req, res) => {
+  const shop_id = req.headers.authorization; // Use 'authorization' instead of destructuring
+  const { nav } = req.body;
+
+  const sql = `UPDATE shops SET section6 = ? WHERE shop_id = ?`;
+
+  connection.query(sql, [nav, shop_id], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      res.json({ message: 'Order status updated successfully' });
+    }
+  });
+});
+
+app.put('/section7/update', (req, res) => {
+  const shop_id = req.headers.authorization; // Use 'authorization' instead of destructuring
+  const { nav } = req.body;
+
+  const sql = `UPDATE shops SET section7 = ? WHERE shop_id = ?`;
+
+  connection.query(sql, [nav, shop_id], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      res.json({ message: 'Order status updated successfully' });
+    }
+  });
+});
+
+app.put('/section8/update', (req, res) => {
+  const shop_id = req.headers.authorization; // Use 'authorization' instead of destructuring
+  const { nav } = req.body;
+
+  const sql = `UPDATE shops SET section8 = ? WHERE shop_id = ?`;
+
+  connection.query(sql, [nav, shop_id], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      res.json({ message: 'Order status updated successfully' });
+    }
+  });
+});
+
+app.put('/section9/update', (req, res) => {
+  const shop_id = req.headers.authorization; // Use 'authorization' instead of destructuring
+  const { nav } = req.body;
+
+  const sql = `UPDATE shops SET section9 = ? WHERE shop_id = ?`;
+
+  connection.query(sql, [nav, shop_id], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      res.json({ message: 'Order status updated successfully' });
+    }
+  });
+});
+
+app.put('/section10/update', (req, res) => {
+  const shop_id = req.headers.authorization; // Use 'authorization' instead of destructuring
+  const { nav } = req.body;
+
+  const sql = `UPDATE shops SET section10 = ? WHERE shop_id = ?`;
+
+  connection.query(sql, [nav, shop_id], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      res.json({ message: 'Order status updated successfully' });
+    }
+  });
+});
+
+app.put('/section11/update', (req, res) => {
+  const shop_id = req.headers.authorization; // Use 'authorization' instead of destructuring
+  const { nav } = req.body;
+
+  const sql = `UPDATE shops SET section11 = ? WHERE shop_id = ?`;
+
+  connection.query(sql, [nav, shop_id], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      res.json({ message: 'Order status updated successfully' });
+    }
+  });
+});
+
+app.put('/section12/update', (req, res) => {
+  const shop_id = req.headers.authorization; // Use 'authorization' instead of destructuring
+  const { nav } = req.body;
+
+  const sql = `UPDATE shops SET section12 = ? WHERE shop_id = ?`;
+
+  connection.query(sql, [nav, shop_id], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      res.json({ message: 'Order status updated successfully' });
+    }
+  });
+});
+
+app.put('/footer/update', (req, res) => {
+  const shop_id = req.headers.authorization; // Use 'authorization' instead of destructuring
+  const { nav } = req.body;
+
+  const sql = `UPDATE shops SET section13 = ? WHERE shop_id = ?`;
+
+  connection.query(sql, [nav, shop_id], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      res.json({ message: 'Order status updated successfully' });
+    }
+  });
+});
+
+app.get("/custom/shop/sections/form", (req, res) => {
+  const id = req.headers.authorization;
+  const selectQuery = `SELECT shop_id FROM shops WHERE shop_id = '${id}' `;
+  const insertQuery = "SELECT * FROM products where id = ?";
+
+  // Execute the first query to fetch users
+  const fetchUsersPromise = new Promise((resolve, reject) => {
+    connection.query(selectQuery, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+
+  // Chain the promises to insert the shop details after fetching the users
+  fetchUsersPromise
+    .then((rows) => {
+      // Assuming you have a specific user in mind to retrieve the userId
+      const id = rows[0].shop_id;
+
+      return new Promise((resolve, reject) => {
+        const shopsquary = `select * from shops where shop_id = '${id}'`;
+        connection.query(shopsquary, (err, result) => {
+          if (err) reject(err);
+          else resolve;
+          res.send({ shop: result });
+        });
+      });
+    })
+    .then((result) => {
+      res.send({ shop: result });
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+});
+
+app.put('/nav/bar/data', (req, res) => {
+  const shop_id = req.headers.authorization; // Use 'authorization' instead of destructuring
+  const { shop_name, btn1, btn2, btn3, instaLink, phone } = req.body;
+
+  const sql = `UPDATE shops SET shop_name = ?, button1 = ?, button2 = ?, button3 = ?, instagram_link = ?, phone_header_link = ? WHERE shop_id = ?`;
+
+  connection.query(sql, [shop_name, btn1, btn2, btn3, instaLink, phone, shop_id], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      res.json({ message: 'Order status updated successfully' });
+    }
+  });
+});
+
+app.put('/header/data', (req, res) => {
+  const shop_id = req.headers.authorization; // Use 'authorization' instead of destructuring
+  const { salestext, tagline, phone } = req.body;
+
+  const sql = `UPDATE shops SET salestext = ?, shop_tagline = ? WHERE shop_id = ?`;
+
+  connection.query(sql, [salestext, tagline, shop_id], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      res.json({ message: 'Order status updated successfully' });
+    }
+  });
+});
+
+app.put('/section1/data', (req, res) => {
+  const shop_id = req.headers.authorization; // Use 'authorization' instead of destructuring
+  const { shop_blockhead1, shop_block1, shop_blockhead2, shop_block2,
+  shop_blockhead3, shop_block3 } = req.body;
+
+  const sql = `UPDATE shops SET shop_blockhead1 = ?, shop_block1 = ?, shop_blockhead2 = ?, shop_block2 = ?, shop_blockhead3 = ?, shop_block3 = ? WHERE shop_id = ?`;
+
+  connection.query(sql, [shop_blockhead1, shop_block1, shop_blockhead2, shop_block2, shop_blockhead3, shop_block3, shop_id], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      res.json({ message: 'Order status updated successfully' });
+    }
+  });
+});
+
+app.put('/footer/data', (req, res) => {
+  const shop_id = req.headers.authorization; // Use 'authorization' instead of destructuring
+  const { insta, shop_phone, shop_email, othersocials } = req.body;
+
+  const sql = `UPDATE shops SET insta = ?, shop_phone = ?, shop_email = ?, othersocials = ?, temp = ? WHERE shop_id = ?`;
+
+  connection.query(sql, [insta, shop_phone, shop_email, othersocials, 'custom', shop_id], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      res.json({ message: 'Footer data updated successfully' });
+    }
+  });
+});
+
+app.get("/custom/shop/display", (req, res) => {
+  const id = req.headers.authorization;
+  const selectQuery = `SELECT shop_id FROM shops WHERE shop_id = '${id}' `;
+  const insertQuery = "SELECT * FROM shops where id = ?";
+
+  // Execute the first query to fetch users
+  const fetchUsersPromise = new Promise((resolve, reject) => {
+    connection.query(selectQuery, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+
+  // Chain the promises to insert the shop details after fetching the users
+  fetchUsersPromise
+    .then((rows) => {
+      // Assuming you have a specific user in mind to retrieve the userId
+      const id = rows[0].shop_id;
+
+      return new Promise((resolve, reject) => {
+        const shopsquary = `select * from shops where shop_id = '${id}'`;
+        connection.query(shopsquary, (err, result) => {
+          if (err) reject(err);
+          else resolve;
+          res.send({ shops: result });
+        });
+      });
+    })
+    .then((result) => {
+      res.send({ shops: result });
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+});
+
+app.get("/section/4/new/arrivals", (req, res) => {
+  const id = req.headers.authorization;
+  const selectQuery = `SELECT id FROM products WHERE id = '${id}' `;
+  const insertQuery = "SELECT * FROM shops where id = ?";
+
+  // Execute the first query to fetch users
+  const fetchUsersPromise = new Promise((resolve, reject) => {
+    connection.query(selectQuery, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+
+  // Chain the promises to insert the shop details after fetching the users
+  fetchUsersPromise
+    .then((rows) => {
+      // Assuming you have a specific user in mind to retrieve the userId
+      const id = rows[0].shop_id;
+
+      return new Promise((resolve, reject) => {
+        // Modify the SQL query to limit the result to 5 rows
+        const shopsquery = `SELECT * FROM shops WHERE id = '${id}' LIMIT 5`;
+        connection.query(shopsquery, (err, result) => {
+          if (err) reject(err);
+          else resolve(result);
+        });
+      });
+    })
+    .then((result) => {
+      res.send({ shops: result });
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+});
+
+
+app.post('/color/selection/section/3', (req, res) => {
+  const shop_id = req.headers.authorization; // Use 'authorization' from headers
+  const { 
+    fontColor1, 
+    fontColor2, 
+    fontColor3, 
+    fontColor4, 
+    fontColor5, 
+    fontColor6, 
+    fontColor7, 
+    fontColor8,
+    backgroundColor1,
+    backgroundColor2,
+    backgroundColor3,
+    backgroundColor4,
+    backgroundColor5
+  } = req.body;
+
+  // Check if a record with the same shop_id and section '1' already exists
+  const checkExistingSql = 'SELECT id FROM component_look WHERE shop_id = ? AND section = ?';
+  connection.query(checkExistingSql, [shop_id, '3'], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error(checkErr);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      if (checkResult.length > 0) {
+        // If a record exists, delete the previous record
+        const existingRecordId = checkResult[0].id;
+        const deleteSql = 'DELETE FROM component_look WHERE id = ?';
+        connection.query(deleteSql, [existingRecordId], (deleteErr, deleteResult) => {
+          if (deleteErr) {
+            console.error(deleteErr);
+            res.status(500).json({ message: 'Internal server error' });
+          } else {
+            // Insert the new record
+            insertNewRecordNav();
+          }
+        });
+      } else {
+        // If no record exists, insert the new record directly
+        insertNewRecordNav();
+      }
+    }
+  });
+
+  function insertNewRecordNav() {
+    const sql = `INSERT INTO component_look (shop_id, section, font_colour1, font_colour2, font_colour3, font_colour4, font_colour5, font_colour6, font_colour7, font_colour8, background_colour1, background_colour2, background_colour3, background_colour4, background_colour5)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+    connection.query(sql, [shop_id, '3', fontColor1, fontColor2, fontColor3, fontColor4, fontColor5, fontColor6, fontColor7, fontColor8, backgroundColor1, backgroundColor2, backgroundColor3, backgroundColor4, backgroundColor5], (err, result) => {
+      if (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Internal server error' });
+      } else {
+        res.json({ message: 'Color selection added to the database successfully' });
+      }
+    });
+  }
+});
+
+
+app.post('/color/selection/section/1', (req, res) => {
+  const shop_id = req.headers.authorization; // Use 'authorization' from headers
+  const { 
+    fontColor1, 
+    fontColor2, 
+    fontColor3, 
+    fontColor4, 
+    fontColor5, 
+    fontColor6, 
+    fontColor7, 
+    fontColor8,
+    backgroundColor1,
+    backgroundColor2,
+    backgroundColor3,
+    backgroundColor4,
+    backgroundColor5
+  } = req.body;
+
+  // Check if a record with the same shop_id and section '1' already exists
+  const checkExistingSql = 'SELECT id FROM component_look WHERE shop_id = ? AND section = ?';
+  connection.query(checkExistingSql, [shop_id, '1'], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error(checkErr);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      if (checkResult.length > 0) {
+        // If a record exists, delete the previous record
+        const existingRecordId = checkResult[0].id;
+        const deleteSql = 'DELETE FROM component_look WHERE id = ?';
+        connection.query(deleteSql, [existingRecordId], (deleteErr, deleteResult) => {
+          if (deleteErr) {
+            console.error(deleteErr);
+            res.status(500).json({ message: 'Internal server error' });
+          } else {
+            // Insert the new record
+            insertNewRecordNav();
+          }
+        });
+      } else {
+        // If no record exists, insert the new record directly
+        insertNewRecordNav();
+      }
+    }
+  });
+
+  function insertNewRecordNav() {
+    const sql = `INSERT INTO component_look (shop_id, section, font_colour1, font_colour2, font_colour3, font_colour4, font_colour5, font_colour6, font_colour7, font_colour8, background_colour1, background_colour2, background_colour3, background_colour4, background_colour5)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+    connection.query(sql, [shop_id, '1', fontColor1, fontColor2, fontColor3, fontColor4, fontColor5, fontColor6, fontColor7, fontColor8, backgroundColor1, backgroundColor2, backgroundColor3, backgroundColor4, backgroundColor5], (err, result) => {
+      if (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Internal server error' });
+      } else {
+        res.json({ message: 'Color selection added to the database successfully' });
+      }
+    });
+  }
+});
+
+app.post('/color/selection/section/footer', (req, res) => {
+  const shop_id = req.headers.authorization; // Use 'authorization' from headers
+  const { 
+    fontColor1, 
+    fontColor2, 
+    fontColor3, 
+    fontColor4, 
+    fontColor5, 
+    fontColor6, 
+    fontColor7, 
+    fontColor8,
+    backgroundColor1,
+    backgroundColor2,
+    backgroundColor3,
+    backgroundColor4,
+    backgroundColor5
+  } = req.body;
+
+  const sql = `INSERT INTO component_look (shop_id, section, font_colour1, font_colour2, font_colour3, font_colour4, font_colour5, font_colour6, font_colour7, font_colour8, background_colour1, background_colour2, background_colour3, background_colour4, background_colour5)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+  connection.query(sql, [shop_id, '12', fontColor1, fontColor2, fontColor3, fontColor4, fontColor5, fontColor6, fontColor7, fontColor8, backgroundColor1, backgroundColor2, backgroundColor3, backgroundColor4, backgroundColor5], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      res.json({ message: 'Color selection added to the database successfully' });
+    }
+  });
+});
+
+app.post('/color/selection/section/2', (req, res) => {
+  const shop_id = req.headers.authorization; // Use 'authorization' from headers
+
+  const {
+    fontColor1,
+    fontColor2,
+    fontColor3,
+    fontColor4,
+    fontColor5,
+    fontColor6,
+    fontColor7,
+    fontColor8,
+    backgroundColor1,
+    backgroundColor2,
+    backgroundColor3,
+    backgroundColor4,
+    backgroundColor5
+  } = req.body;
+
+  // Check if a record with the same shop_id and section '2' already exists
+  const checkExistingSql = 'SELECT id FROM component_look WHERE shop_id = ? AND section = ?';
+  connection.query(checkExistingSql, [shop_id, '2'], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error(checkErr);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+
+    if (checkResult.length > 0) {
+      // If a record exists, delete the previous record
+      const existingRecordId = checkResult[0].id;
+      const deleteSql = 'DELETE FROM component_look WHERE id = ?';
+      connection.query(deleteSql, [existingRecordId], (deleteErr, deleteResult) => {
+        if (deleteErr) {
+          console.error(deleteErr);
+          return res.status(500).json({ message: 'Internal server error' });
+        }
+        // Insert the new record
+        insertNewRecord();
+      });
+    } else {
+      // If no record exists, insert the new record directly
+      insertNewRecord();
+    }
+  });
+
+  function insertNewRecord() {
+    const sql = `INSERT INTO component_look (shop_id, section, font_colour1, font_colour2, font_colour3, font_colour4, font_colour5, font_colour6, font_colour7, font_colour8, background_colour1, background_colour2, background_colour3, background_colour4, background_colour5)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+    connection.query(
+      sql,
+      [
+        shop_id,
+        '2',
+        fontColor1,
+        fontColor2,
+        fontColor3,
+        fontColor4,
+        fontColor5,
+        fontColor6,
+        fontColor7,
+        fontColor8,
+        backgroundColor1,
+        backgroundColor2,
+        backgroundColor3,
+        backgroundColor4,
+        backgroundColor5
+      ],
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).json({ message: 'Internal server error' });
+        }
+        res.json({ message: 'Color selection added to the database successfully' });
+      }
+    );
+  }
+});
+
+app.post('/color/selection/section/4', (req, res) => {
+  const shop_id = req.headers.authorization; // Use 'authorization' from headers
+
+  const {
+    fontColor1,
+    fontColor2,
+    fontColor3,
+    fontColor4,
+    fontColor5,
+    fontColor6,
+    fontColor7,
+    fontColor8,
+    backgroundColor1,
+    backgroundColor2,
+    backgroundColor3,
+    backgroundColor4,
+    backgroundColor5
+  } = req.body;
+
+  // Check if a record with the same shop_id and section '2' already exists
+  const checkExistingSql = 'SELECT id FROM component_look WHERE shop_id = ? AND section = ?';
+  connection.query(checkExistingSql, [shop_id, '4'], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error(checkErr);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+
+    if (checkResult.length > 0) {
+      // If a record exists, delete the previous record
+      const existingRecordId = checkResult[0].id;
+      const deleteSql = 'DELETE FROM component_look WHERE id = ?';
+      connection.query(deleteSql, [existingRecordId], (deleteErr, deleteResult) => {
+        if (deleteErr) {
+          console.error(deleteErr);
+          return res.status(500).json({ message: 'Internal server error' });
+        }
+        // Insert the new record
+        insertNewRecord();
+      });
+    } else {
+      // If no record exists, insert the new record directly
+      insertNewRecord();
+    }
+  });
+
+  function insertNewRecord() {
+    const sql = `INSERT INTO component_look (shop_id, section, font_colour1, font_colour2, font_colour3, font_colour4, font_colour5, font_colour6, font_colour7, font_colour8, background_colour1, background_colour2, background_colour3, background_colour4, background_colour5)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+    connection.query(
+      sql,
+      [
+        shop_id,
+        '4',
+        fontColor1,
+        fontColor2,
+        fontColor3,
+        fontColor4,
+        fontColor5,
+        fontColor6,
+        fontColor7,
+        fontColor8,
+        backgroundColor1,
+        backgroundColor2,
+        backgroundColor3,
+        backgroundColor4,
+        backgroundColor5
+      ],
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).json({ message: 'Internal server error' });
+        }
+        res.json({ message: 'Color selection added to the database successfully' });
+      }
+    );
+  }
+});
+
+app.post('/color/selection/section/5', (req, res) => {
+  const shop_id = req.headers.authorization; // Use 'authorization' from headers
+
+  const {
+    fontColor1,
+    fontColor2,
+    fontColor3,
+    fontColor4,
+    fontColor5,
+    fontColor6,
+    fontColor7,
+    fontColor8,
+    backgroundColor1,
+    backgroundColor2,
+    backgroundColor3,
+    backgroundColor4,
+    backgroundColor5
+  } = req.body;
+
+  // Check if a record with the same shop_id and section '2' already exists
+  const checkExistingSql = 'SELECT id FROM component_look WHERE shop_id = ? AND section = ?';
+  connection.query(checkExistingSql, [shop_id, '5'], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error(checkErr);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+
+    if (checkResult.length > 0) {
+      // If a record exists, delete the previous record
+      const existingRecordId = checkResult[0].id;
+      const deleteSql = 'DELETE FROM component_look WHERE id = ?';
+      connection.query(deleteSql, [existingRecordId], (deleteErr, deleteResult) => {
+        if (deleteErr) {
+          console.error(deleteErr);
+          return res.status(500).json({ message: 'Internal server error' });
+        }
+        // Insert the new record
+        insertNewRecord();
+      });
+    } else {
+      // If no record exists, insert the new record directly
+      insertNewRecord();
+    }
+  });
+
+  function insertNewRecord() {
+    const sql = `INSERT INTO component_look (shop_id, section, font_colour1, font_colour2, font_colour3, font_colour4, font_colour5, font_colour6, font_colour7, font_colour8, background_colour1, background_colour2, background_colour3, background_colour4, background_colour5)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+    connection.query(
+      sql,
+      [
+        shop_id,
+        '5',
+        fontColor1,
+        fontColor2,
+        fontColor3,
+        fontColor4,
+        fontColor5,
+        fontColor6,
+        fontColor7,
+        fontColor8,
+        backgroundColor1,
+        backgroundColor2,
+        backgroundColor3,
+        backgroundColor4,
+        backgroundColor5
+      ],
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).json({ message: 'Internal server error' });
+        }
+        res.json({ message: 'Color selection added to the database successfully' });
+      }
+    );
+  }
+});
+
+
+app.get("/custom/shop/coloring/display/section1", (req, res) => {
+  const shop_id = req.headers.authorization;
+  const section = '1'; // Set the desired section
+
+  // Query to fetch records from component_look based on shop_id and section
+  const selectQuery = `SELECT * FROM component_look WHERE shop_id = '${shop_id}' AND section = '${section}'`;
+
+  connection.query(selectQuery, (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      if (result.length > 0) {
+        // Data matching the criteria is found
+        res.json({ shops: result });
+      } else {
+        // No matching data found
+        res.status(404).json({ message: 'Data not found' });
+      }
+    }
+  });
+});
+
+app.get("/custom/shop/coloring/display/section2", (req, res) => {
+  const shop_id = req.headers.authorization;
+  const section = '2'; // Set the desired section
+
+  // Query to fetch records from component_look based on shop_id and section
+  const selectQuery = `SELECT * FROM component_look WHERE shop_id = '${shop_id}' AND section = '${section}'`;
+
+  connection.query(selectQuery, (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      if (result.length > 0) {
+        // Data matching the criteria is found
+        res.json({ shops: result });
+      } else {
+        // No matching data found
+        res.status(404).json({ message: 'Data not found' });
+      }
+    }
+  });
+});
+
+app.get("/custom/shop/coloring/display/section3", (req, res) => {
+  const shop_id = req.headers.authorization;
+  const section = '3'; // Set the desired section
+
+  // Query to fetch records from component_look based on shop_id and section
+  const selectQuery = `SELECT * FROM component_look WHERE shop_id = '${shop_id}' AND section = '${section}'`;
+
+  connection.query(selectQuery, (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      if (result.length > 0) {
+        // Data matching the criteria is found
+        res.json({ shops: result });
+      } else {
+        // No matching data found
+        res.status(404).json({ message: 'Data not found' });
+      }
+    }
+  });
+});
+
+app.get("/custom/shop/coloring/display/section4", (req, res) => {
+  const shop_id = req.headers.authorization;
+  const section = '4'; // Set the desired section
+
+  // Query to fetch records from component_look based on shop_id and section
+  const selectQuery = `SELECT * FROM component_look WHERE shop_id = '${shop_id}' AND section = '${section}'`;
+
+  connection.query(selectQuery, (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      if (result.length > 0) {
+        // Data matching the criteria is found
+        res.json({ shops: result });
+      } else {
+        // No matching data found
+        res.status(404).json({ message: 'Data not found' });
+      }
+    }
+  });
+});
+
+app.get("/custom/shop/coloring/display/section5", (req, res) => {
+  const shop_id = req.headers.authorization;
+  const section = '5'; // Set the desired section
+
+  // Query to fetch records from component_look based on shop_id and section
+  const selectQuery = `SELECT * FROM component_look WHERE shop_id = '${shop_id}' AND section = '${section}'`;
+
+  connection.query(selectQuery, (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      if (result.length > 0) {
+        // Data matching the criteria is found
+        res.json({ shops: result });
+      } else {
+        // No matching data found
+        res.status(404).json({ message: 'Data not found' });
+      }
+    }
+  });
+});
+
+app.get("/custom/shop/coloring/display/section6", (req, res) => {
+  const shop_id = req.headers.authorization;
+  const section = '6'; // Set the desired section
+
+  // Query to fetch records from component_look based on shop_id and section
+  const selectQuery = `SELECT * FROM component_look WHERE shop_id = '${shop_id}' AND section = '${section}'`;
+
+  connection.query(selectQuery, (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      if (result.length > 0) {
+        // Data matching the criteria is found
+        res.json({ shops: result });
+      } else {
+        // No matching data found
+        res.status(404).json({ message: 'Data not found' });
+      }
+    }
+  });
+});
+
+app.get("/custom/shop/coloring/display/footer", (req, res) => {
+  const shop_id = req.headers.authorization;
+  const section = '13'; // Set the desired section
+
+  // Query to fetch records from component_look based on shop_id and section
+  const selectQuery = `SELECT * FROM component_look WHERE shop_id = '${shop_id}' AND section = '${section}'`;
+
+  connection.query(selectQuery, (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      if (result.length > 0) {
+        // Data matching the criteria is found
+        res.json({ shops: result });
+      } else {
+        // No matching data found
+        res.status(404).json({ message: 'Data not found' });
+      }
+    }
+  });
+});
+
+app.post('/section4/data', (req, res) => {
+  const shop_id = req.headers.authorization; // Use 'authorization' instead of destructuring
+  const { shop_blockhead1, shop_block1, shop_blockhead2, shop_block2, shop_blockhead3, shop_block3 } = req.body;
+
+  const sql = `INSERT INTO section4 (shop_id, shop_blockhead1, shop_block1, shop_blockhead2, shop_block2, shop_blockhead3, shop_block3) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+
+  connection.query(sql, [shop_id, shop_blockhead1, shop_block1, shop_blockhead2, shop_block2, shop_blockhead3, shop_block3], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      res.json({ message: 'Data inserted successfully' });
+    }
+  });
+});
+
+app.post('/section5/data', (req, res) => {
+  const shop_id = req.headers.authorization; // Use 'authorization' instead of destructuring
+  const { shop_blockhead1, shop_block1, shop_blockhead2, shop_block2, shop_blockhead3, shop_block3 } = req.body;
+
+  const sql = `INSERT INTO section5 (shop_id, shop_blockhead1, shop_block1, shop_blockhead2, shop_block2, shop_blockhead3, shop_block3) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+
+  connection.query(sql, [shop_id, shop_blockhead1, shop_block1, shop_blockhead2, shop_block2, shop_blockhead3, shop_block3], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      res.json({ message: 'Data inserted successfully' });
+    }
+  });
+});
+app.post('/section6/data', (req, res) => {
+  const shop_id = req.headers.authorization; // Use 'authorization' instead of destructuring
+  const { shop_blockhead1, shop_block1, shop_blockhead2, shop_block2, shop_blockhead3, shop_block3 } = req.body;
+
+  const sql = `INSERT INTO section6 (shop_id, shop_blockhead1, shop_block1, shop_blockhead2, shop_block2, shop_blockhead3, shop_block3) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+
+  connection.query(sql, [shop_id, shop_blockhead1, shop_block1, shop_blockhead2, shop_block2, shop_blockhead3, shop_block3], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      res.json({ message: 'Data inserted successfully' });
+    }
+  });
+});
+app.post('/section7/data', (req, res) => {
+  const shop_id = req.headers.authorization; // Use 'authorization' instead of destructuring
+  const { shop_blockhead1, shop_block1, shop_blockhead2, shop_block2, shop_blockhead3, shop_block3 } = req.body;
+
+  const sql = `INSERT INTO section7 (shop_id, shop_blockhead1, shop_block1, shop_blockhead2, shop_block2, shop_blockhead3, shop_block3) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+
+  connection.query(sql, [shop_id, shop_blockhead1, shop_block1, shop_blockhead2, shop_block2, shop_blockhead3, shop_block3], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      res.json({ message: 'Data inserted successfully' });
+    }
+  });
+});
+
+app.put('/section8/data', (req, res) => {
+  const shop_id = req.headers.authorization; // Use 'authorization' instead of destructuring
+  const { shop_blockhead1, shop_block1, shop_blockhead2, shop_block2,
+  shop_blockhead3, shop_block3 } = req.body;
+
+  const sql = `UPDATE section8 SET shop_blockhead1 = ?, shop_block1 = ?, shop_blockhead2 = ?, shop_block2 = ?, shop_blockhead3 = ?, shop_block3 = ? WHERE shop_id = ?`;
+
+  connection.query(sql, [shop_blockhead1, shop_block1, shop_blockhead2, shop_block2, shop_blockhead3, shop_block3, shop_id], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      res.json({ message: 'Order status updated successfully' });
+    }
+  });
+});
+
+app.put('/section9/data', (req, res) => {
+  const shop_id = req.headers.authorization; // Use 'authorization' instead of destructuring
+  const { shop_blockhead1, shop_block1, shop_blockhead2, shop_block2,
+  shop_blockhead3, shop_block3 } = req.body;
+
+  const sql = `UPDATE section9 SET shop_blockhead1 = ?, shop_block1 = ?, shop_blockhead2 = ?, shop_block2 = ?, shop_blockhead3 = ?, shop_block3 = ? WHERE shop_id = ?`;
+
+  connection.query(sql, [shop_blockhead1, shop_block1, shop_blockhead2, shop_block2, shop_blockhead3, shop_block3, shop_id], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      res.json({ message: 'Order status updated successfully' });
+    }
+  });
+});
+
+app.put('/section10/data', (req, res) => {
+  const shop_id = req.headers.authorization; // Use 'authorization' instead of destructuring
+  const { shop_blockhead1, shop_block1, shop_blockhead2, shop_block2,
+  shop_blockhead3, shop_block3 } = req.body;
+
+  const sql = `UPDATE section10 SET shop_blockhead1 = ?, shop_block1 = ?, shop_blockhead2 = ?, shop_block2 = ?, shop_blockhead3 = ?, shop_block3 = ? WHERE shop_id = ?`;
+
+  connection.query(sql, [shop_blockhead1, shop_block1, shop_blockhead2, shop_block2, shop_blockhead3, shop_block3, shop_id], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      res.json({ message: 'Order status updated successfully' });
+    }
+  });
+});
+
+app.put('/section11/data', (req, res) => {
+  const shop_id = req.headers.authorization; // Use 'authorization' instead of destructuring
+  const { shop_blockhead1, shop_block1, shop_blockhead2, shop_block2,
+  shop_blockhead3, shop_block3 } = req.body;
+
+  const sql = `UPDATE section11 SET shop_blockhead1 = ?, shop_block1 = ?, shop_blockhead2 = ?, shop_block2 = ?, shop_blockhead3 = ?, shop_block3 = ? WHERE shop_id = ?`;
+
+  connection.query(sql, [shop_blockhead1, shop_block1, shop_blockhead2, shop_block2, shop_blockhead3, shop_block3, shop_id], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      res.json({ message: 'Order status updated successfully' });
+    }
+  });
+});
+
+app.put('/section12/data', (req, res) => {
+  const shop_id = req.headers.authorization; // Use 'authorization' instead of destructuring
+  const { shop_blockhead1, shop_block1, shop_blockhead2, shop_block2,
+  shop_blockhead3, shop_block3 } = req.body;
+
+  const sql = `UPDATE section12 SET shop_blockhead1 = ?, shop_block1 = ?, shop_blockhead2 = ?, shop_block2 = ?, shop_blockhead3 = ?, shop_block3 = ? WHERE shop_id = ?`;
+
+  connection.query(sql, [shop_blockhead1, shop_block1, shop_blockhead2, shop_block2, shop_blockhead3, shop_block3, shop_id], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      res.json({ message: 'Order status updated successfully' });
+    }
+  });
+});
+
+app.get("/section4/display", (req, res) => {
+  const shop_id = req.headers.authorization;
+
+  // Query to fetch records from component_look based on shop_id and section
+  const selectQuery = `SELECT * FROM section4 WHERE shop_id = '${shop_id}'`;
+
+  connection.query(selectQuery, (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      if (result.length > 0) {
+        // Data matching the criteria is found
+        res.json({ shops: result });
+      } else {
+        // No matching data found
+        res.status(404).json({ message: 'Data not found' });
+      }
+    }
+  });
+});
+
+app.get("/section5/display", (req, res) => {
+  const shop_id = req.headers.authorization;
+
+  // Query to fetch records from component_look based on shop_id and section
+  const selectQuery = `SELECT * FROM section5 WHERE shop_id = '${shop_id}'`;
+
+  connection.query(selectQuery, (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      if (result.length > 0) {
+        // Data matching the criteria is found
+        res.json({ shops: result });
+      } else {
+        // No matching data found
+        res.status(404).json({ message: 'Data not found' });
+      }
+    }
+  });
+});
+app.get("/section6/display", (req, res) => {
+  const shop_id = req.headers.authorization;
+
+  // Query to fetch records from component_look based on shop_id and section
+  const selectQuery = `SELECT * FROM section6 WHERE shop_id = '${shop_id}'`;
+
+  connection.query(selectQuery, (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      if (result.length > 0) {
+        // Data matching the criteria is found
+        res.json({ shops: result });
+      } else {
+        // No matching data found
+        res.status(404).json({ message: 'Data not found' });
+      }
+    }
+  });
+});
+
 
 app.listen(PORT, () => {
   console.log("Server started on port 8080");

@@ -5099,6 +5099,84 @@ app.post('/color/selection/section/5', (req, res) => {
   }
 });
 
+app.post('/color/selection/section/footer/color', (req, res) => {
+  const shop_id = req.headers.authorization; // Use 'authorization' from headers
+
+  const {
+    fontColor1,
+    fontColor2,
+    fontColor3,
+    fontColor4,
+    fontColor5,
+    fontColor6,
+    fontColor7,
+    fontColor8,
+    backgroundColor1,
+    backgroundColor2,
+    backgroundColor3,
+    backgroundColor4,
+    backgroundColor5
+  } = req.body;
+
+  // Check if a record with the same shop_id and section '2' already exists
+  const checkExistingSql = 'SELECT id FROM component_look WHERE shop_id = ? AND section = ?';
+  connection.query(checkExistingSql, [shop_id, 'footer'], (checkErr, checkResult) => {
+    if (checkErr) {
+      console.error(checkErr);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+
+    if (checkResult.length > 0) {
+      // If a record exists, delete the previous record
+      const existingRecordId = checkResult[0].id;
+      const deleteSql = 'DELETE FROM component_look WHERE id = ?';
+      connection.query(deleteSql, [existingRecordId], (deleteErr, deleteResult) => {
+        if (deleteErr) {
+          console.error(deleteErr);
+          return res.status(500).json({ message: 'Internal server error' });
+        }
+        // Insert the new record
+        insertNewRecord();
+      });
+    } else {
+      // If no record exists, insert the new record directly
+      insertNewRecord();
+    }
+  });
+
+  function insertNewRecord() {
+    const sql = `INSERT INTO component_look (shop_id, section, font_colour1, font_colour2, font_colour3, font_colour4, font_colour5, font_colour6, font_colour7, font_colour8, background_colour1, background_colour2, background_colour3, background_colour4, background_colour5)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+    connection.query(
+      sql,
+      [
+        shop_id,
+        'footer',
+        fontColor1,
+        fontColor2,
+        fontColor3,
+        fontColor4,
+        fontColor5,
+        fontColor6,
+        fontColor7,
+        fontColor8,
+        backgroundColor1,
+        backgroundColor2,
+        backgroundColor3,
+        backgroundColor4,
+        backgroundColor5
+      ],
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).json({ message: 'Internal server error' });
+        }
+        res.json({ message: 'Color selection added to the database successfully' });
+      }
+    );
+  }
+});
 
 app.get("/custom/shop/coloring/display/section1", (req, res) => {
   const shop_id = req.headers.authorization;
@@ -5240,7 +5318,7 @@ app.get("/custom/shop/coloring/display/section6", (req, res) => {
 
 app.get("/custom/shop/coloring/display/footer", (req, res) => {
   const shop_id = req.headers.authorization;
-  const section = '13'; // Set the desired section
+  const section = 'footer'; // Set the desired section
 
   // Query to fetch records from component_look based on shop_id and section
   const selectQuery = `SELECT * FROM component_look WHERE shop_id = '${shop_id}' AND section = '${section}'`;
@@ -5322,6 +5400,42 @@ app.post('/section7/data', (req, res) => {
     }
   });
 });
+
+app.post('/footer/data/insert', (req, res) => {
+  const shop_id = req.headers.authorization; // Use 'authorization' instead of destructuring
+  const {companyname,
+   slogan,
+     insta,
+     facebook,
+     twiter,
+     linkdin,
+     phone,
+    email,
+     whatsapp,} = req.body;
+
+  const sql = `INSERT INTO footer (shop_id, insta, facebook, twitter, linkdin, slogan, email, phone, whatsapp ) VALUES (?,?,?,?,?,?,?,?,?)`;
+
+  connection.query(sql, [
+    shop_id,
+    companyname,
+    slogan,
+      insta,
+      facebook,
+      twiter,
+      linkdin,
+      phone,
+     email,
+      whatsapp, 
+    ], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      res.json({ message: 'Data inserted successfully' });
+    }
+  });
+});
+
 
 app.put('/section8/data', (req, res) => {
   const shop_id = req.headers.authorization; // Use 'authorization' instead of destructuring
@@ -5472,6 +5586,7 @@ app.get("/section6/display", (req, res) => {
     }
   });
 });
+
 
 
 app.listen(PORT, () => {

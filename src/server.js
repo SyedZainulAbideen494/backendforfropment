@@ -4674,9 +4674,9 @@ app.get("/custom/shop/display", (req, res) => {
 });
 
 app.get("/section/4/new/arrivals", (req, res) => {
-  const id = req.headers.authorization;
-  const selectQuery = `SELECT id FROM products WHERE id = '${id}' `;
-  const insertQuery = "SELECT * FROM shops where id = ?";
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT shop_id FROM shops WHERE shop_id = '${token}' `;
+  const insertQuery = "SELECT * FROM products where shop_id = ?";
 
   // Execute the first query to fetch users
   const fetchUsersPromise = new Promise((resolve, reject) => {
@@ -4690,19 +4690,19 @@ app.get("/section/4/new/arrivals", (req, res) => {
   fetchUsersPromise
     .then((rows) => {
       // Assuming you have a specific user in mind to retrieve the userId
-      const id = rows[0].shop_id;
+      const shop_id = rows[0].shop_id;
 
       return new Promise((resolve, reject) => {
-        // Modify the SQL query to limit the result to 5 rows
-        const shopsquery = `SELECT * FROM shops WHERE id = '${id}' LIMIT 5`;
-        connection.query(shopsquery, (err, result) => {
+        const shopsquary = `select * from products where shop_id = '${shop_id}' limit 5`;
+        connection.query(shopsquary, (err, result) => {
           if (err) reject(err);
-          else resolve(result);
+          else resolve;
+          res.send({ items: result });
         });
       });
     })
     .then((result) => {
-      res.send({ shops: result });
+      res.send({ items: result });
     })
     .catch((err) => {
       console.error(err);
@@ -5587,7 +5587,27 @@ app.get("/section6/display", (req, res) => {
   });
 });
 
+app.get("/custom/shop/display/footer", (req, res) => {
+  const shop_id = req.headers.authorization;
 
+  // Query to fetch records from component_look based on shop_id and section
+  const selectQuery = `SELECT * FROM footer WHERE shop_id = '${shop_id}'`;
+
+  connection.query(selectQuery, (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      if (result.length > 0) {
+        // Data matching the criteria is found
+        res.json({ shops: result });
+      } else {
+        // No matching data found
+        res.status(404).json({ message: 'Data not found' });
+      }
+    }
+  });
+});
 
 app.listen(PORT, () => {
   console.log("Server started on port 8080");

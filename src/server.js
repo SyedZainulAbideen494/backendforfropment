@@ -1124,11 +1124,12 @@ app.post("/addShops/template5", (req, res) => {
     shop_phone,
     insta,
     temp5,
+    uniqueIdentifier
   } = req.body;
   const token = req.headers.authorization;
   const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
   const insertQuery =
-    "INSERT INTO shops(shop_name, shop_email, insta, shop_keyhead1, shop_blockhead3, shop_blockhead1, shop_key1, shop_blockhead2, shop_phone, user_id, shop_owner, shop_block1, shop_block2, temp, shop_block3) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    "INSERT INTO shops(shop_name, shop_email, insta, shop_keyhead1, shop_blockhead3, shop_blockhead1, shop_key1, shop_blockhead2, shop_phone, user_id, shop_owner, shop_block1, shop_block2, temp, shop_block3, uniqueIdentifier) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
   connection.query(selectQuery, (err, rows) => {
     if (err) {
@@ -1160,6 +1161,7 @@ app.post("/addShops/template5", (req, res) => {
         shop_block2,
         temp5,
         shop_block3, 
+        uniqueIdentifier,
       ],
       (err, result) => {
         if (err) {
@@ -1265,12 +1267,13 @@ app.post("/addShops/template6", (req, res) => {
     insta,
     salestext,
     temp6,
-    shop_tagline
+    shop_tagline,
+    uniqueIdentifier
   } = req.body;
   const token = req.headers.authorization;
   const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
   const insertQuery =
-    "INSERT INTO shops(shop_name, insta, salestext, temp, shop_keyhead1, shop_key1, shop_keyhead2, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    "INSERT INTO shops(shop_name, insta, salestext, temp, shop_keyhead1, shop_key1, shop_keyhead2, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline, uniqueIdentifier) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
   connection.query(selectQuery, (err, rows) => {
     if (err) {
@@ -1305,7 +1308,8 @@ app.post("/addShops/template6", (req, res) => {
         shop_block2,
         shop_blockhead3,
         shop_block3,
-        shop_tagline
+        shop_tagline,
+        uniqueIdentifier
       ],
       (err, result) => {
         if (err) {
@@ -1486,12 +1490,13 @@ app.post("/addShops/template1", (req, res) => {
     shop_key3,
     salestext,
     temp1,
-    shop_tagline
+    shop_tagline,
+    uniqueIdentifier
   } = req.body;
   const token = req.headers.authorization;
   const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
   const insertQuery =
-    "INSERT INTO shops(shop_name,shop_keyhead3, shop_key3, insta, salestext, temp, shop_keyhead1, shop_key1, shop_keyhead2, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    "INSERT INTO shops(shop_name,shop_keyhead3, shop_key3, insta, salestext, temp, shop_keyhead1, shop_key1, shop_keyhead2, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline, uniqueIdentifier) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
   connection.query(selectQuery, (err, rows) => {
     if (err) {
@@ -1528,7 +1533,8 @@ app.post("/addShops/template1", (req, res) => {
         shop_block2,
         shop_blockhead3,
         shop_block3,
-        shop_tagline
+        shop_tagline,
+        uniqueIdentifier
       ],
       (err, result) => {
         if (err) {
@@ -1634,12 +1640,13 @@ app.post("/addShops/template2", (req, res) => {
     insta,
     salestext,
     temp2,
-    shop_tagline
+    shop_tagline,
+    uniqueIdentifier
   } = req.body;
   const token = req.headers.authorization;
   const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
   const insertQuery =
-    "INSERT INTO shops(shop_name, insta, salestext, temp, shop_keyhead1, shop_key1, shop_keyhead2, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    "INSERT INTO shops(shop_name, insta, salestext, temp, shop_keyhead1, shop_key1, shop_keyhead2, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline, uniqueIdentifier) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
   connection.query(selectQuery, (err, rows) => {
     if (err) {
@@ -1674,7 +1681,8 @@ app.post("/addShops/template2", (req, res) => {
         shop_block2,
         shop_blockhead3,
         shop_block3,
-        shop_tagline
+        shop_tagline,
+        uniqueIdentifier
       ],
       (err, result) => {
         if (err) {
@@ -1709,12 +1717,13 @@ app.post("/addShops/template2", (req, res) => {
     insta,
     salestext,
     temp2,
-    shop_tagline
+    shop_tagline,
+    uniqueIdentifier
   } = req.body;
   const token = req.headers.authorization;
   const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
   const insertQuery =
-    "INSERT INTO shops(shop_name, insta, salestext, temp, shop_keyhead1, shop_key1, shop_keyhead2, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    "INSERT INTO shops(shop_name, insta, salestext, temp, shop_keyhead1, shop_key1, shop_keyhead2, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline, uniqueIdentifier) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
   connection.query(selectQuery, (err, rows) => {
     if (err) {
@@ -1749,7 +1758,8 @@ app.post("/addShops/template2", (req, res) => {
         shop_block2,
         shop_blockhead3,
         shop_block3,
-        shop_tagline
+        shop_tagline,
+        uniqueIdentifier
       ],
       (err, result) => {
         if (err) {
@@ -1856,12 +1866,13 @@ app.post("/addShops/template3", (req, res) => {
     insta,
     salestext,
     temp3,
-    shop_tagline
+    shop_tagline,
+    uniqueIdentifier
   } = req.body;
   const token = req.headers.authorization;
   const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
   const insertQuery =
-    "INSERT INTO shops(shop_name, insta, salestext, temp, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline, shop_key3, shop_keyhead3) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    "INSERT INTO shops(shop_name, insta, salestext, temp, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline, shop_key3, shop_keyhead3, uniqueIdentifier) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
   connection.query(selectQuery, (err, rows) => {
     if (err) {
@@ -1896,6 +1907,7 @@ app.post("/addShops/template3", (req, res) => {
         shop_tagline,
         shop_key3,
     shop_keyhead3,
+    uniqueIdentifier
       ],
       (err, result) => {
         if (err) {
@@ -1928,12 +1940,13 @@ app.post("/addShops/template7", (req, res) => {
     insta,
     salestext,
     temp7,
-    shop_tagline
+    shop_tagline,
+    uniqueIdentifier
   } = req.body;
   const token = req.headers.authorization;
   const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
   const insertQuery =
-    "INSERT INTO shops(shop_name, insta, salestext, temp, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline, shop_key3, shop_keyhead3) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    "INSERT INTO shops(shop_name, insta, salestext, temp, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline, shop_key3, shop_keyhead3, uniqueIdentifier) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
   connection.query(selectQuery, (err, rows) => {
     if (err) {
@@ -1968,6 +1981,7 @@ app.post("/addShops/template7", (req, res) => {
         shop_tagline,
         shop_key3,
     shop_keyhead3,
+    uniqueIdentifier
       ],
       (err, result) => {
         if (err) {
@@ -2073,12 +2087,13 @@ app.post("/addShops/template8", (req, res) => {
     insta,
     salestext,
     temp8,
-    shop_tagline
+    shop_tagline,
+    uniqueIdentifier
   } = req.body;
   const token = req.headers.authorization;
   const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
   const insertQuery =
-    "INSERT INTO shops(shop_name, insta, salestext, temp, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline, shop_key3, shop_keyhead3) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    "INSERT INTO shops(shop_name, insta, salestext, temp, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline, shop_key3, shop_keyhead3, uniqueIdentifier) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
   connection.query(selectQuery, (err, rows) => {
     if (err) {
@@ -2113,6 +2128,7 @@ app.post("/addShops/template8", (req, res) => {
         shop_tagline,
         shop_key3,
     shop_keyhead3,
+    uniqueIdentifier
       ],
       (err, result) => {
         if (err) {
@@ -3858,12 +3874,14 @@ app.post("/place/order", (req, res) => {
     shop_id,
     occupation,
     sender_id,
-    age
+    age,
+    orderDateTime // Added orderDateTime field in the request body
   } = req.body;
+
   const token = req.headers.authorization;
   const selectQuery = `SELECT user_id FROM users WHERE jwt = ?`; // Use placeholders
   const insertQuery =
-    "INSERT INTO orders(name, Phone, Email, streetadrs, city, state, zipcode, country, id, product, shop_id, occupation, sender_id, age) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    "INSERT INTO orders(name, Phone, Email, streetadrs, city, state, zipcode, country, id, product, shop_id, occupation, sender_id, age, orderDateTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
   connection.query(selectQuery, [token], (err, rows) => {
     if (err) {
@@ -3893,16 +3911,36 @@ app.post("/place/order", (req, res) => {
         shop_id,
         occupation,
         user_id,
-        age
+        age,
+        orderDateTime // Include orderDateTime in the values to be inserted
       ],
       (err, result) => {
         if (err) {
           console.error(err);
-          return res.status(500).send("Error adding shop.");
+          return res.status(500).send("Error placing order.");
         }
 
         console.log(result);
-        return res.status(200).send("Shop added successfully!");
+        // Update the product amount after a successful order
+        const updateQuery = `
+        UPDATE products 
+        SET amount = amount - 1, 
+            status = CASE 
+                       WHEN amount <= 1 THEN 'Sold Out'
+                       ELSE status 
+                     END 
+        WHERE id = ?
+      `;
+      
+        connection.query(updateQuery, [id], (err, updateResult) => {
+          if (err) {
+            console.error(err);
+            return res.status(500).send("Error updating product quantity.");
+          }
+
+          console.log(updateResult);
+          return res.status(200).send("Order placed successfully! Product quantity updated.");
+        });
       }
     );
   });
@@ -5609,7 +5647,401 @@ app.get("/custom/shop/display/footer", (req, res) => {
   });
 });
 
+const botRules = [
+  { input: 'What is Dropment?', output: 'Dropment is an all-in-one platform for selling online. It allows users to create stores, chat with customers, and more.' },
+  { input: 'How can I create a store on Dropment?', output: 'You can create a store on Dropment by choosing a template or designing a custom one. Click on "Create Store" to get started.' },
+  { input: 'Tell me about the free plan.', output: 'Dropment offers a free plan that allows users to explore the platform and start selling online without any initial cost.' },
+  { input: 'What are Blinkfeeds?', output: 'Blinkfeeds are a type of stories feature, similar to Instagram stories, that allows users to showcase new products or achievements in a dynamic way.' },
+  { input: 'Can I collaborate with friends on Dropment?', output: 'Yes, you can collaborate with friends to start a new shop and do business together on Dropment.' },
+  { input: 'How does following shops work?', output: `By following shops on Dropment, you can stay updated on their latest products. It's a great way to discover and purchase new items.` },
+  { input: 'What data does Dropment collect about customers?', output: 'Dropment collects customer data to help users improve their marketing strategies and enhance their products. This includes customer preferences and behaviors.' },
+  { input: 'Is there customer support on Dropment?', output: `Yes, Dropment provides customer support. If you have any questions or issues, feel free to reach out, and we'll be happy to assist you.` },
+  { input: 'Tell me more about store templates.', output: 'Dropment offers a variety of store templates that users can choose from to customize their online stores. It makes the process of setting up a store quick and easy.' },
+  // Add more rules as needed
+];
 
+// Function to check if a string contains another string (case-insensitive)
+const contains = (str, substr) => str.toLowerCase().includes(substr.toLowerCase());
+
+// API endpoint to handle incoming messages
+app.post('/api/messages', (req, res) => {
+  const { userId, message } = req.body;
+
+  // Save the message to the database
+  const insertQuery = 'INSERT INTO bot_messages (user_id, message) VALUES (?, ?)';
+  connection.query(insertQuery, [userId, message], (err, result) => {
+    if (err) throw err;
+    console.log('Message saved to the database');
+  });
+
+  // Bot logic with partial matching
+  const matchedRule = botRules.find((rule) => contains(message, rule.input));
+  const botResponse = matchedRule ? matchedRule.output : 'Sorry, I didn\'t understand that. How can I assist you?';
+
+  res.json({ botResponse });
+});
+
+
+app.put('/color/selection/background/shop/color/add', (req, res) => {
+  const shop_id = req.headers.authorization;
+  const { backgroundColor1 } = req.body;
+
+  const sql = 'UPDATE shops SET background_clr = ? WHERE shop_id = ?';
+
+  connection.query(sql, [backgroundColor1, shop_id], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      res.json({ message: 'Background color updated successfully' });
+    }
+  });
+});
+
+
+app.put('/custom/shop/finish/api', (req, res) => {
+  const shop_id = req.headers.authorization;
+  const { temp } = req.body;
+
+  const sql = 'UPDATE shops SET temp = ? WHERE shop_id = ?';
+
+  connection.query(sql, [temp, shop_id], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error' });
+    } else {
+      res.json({ message: 'Background color updated successfully' });
+    }
+  });
+});
+
+app.get('/visitors/:shopId', (req, res) => {
+  const { shopId } = req.params;
+  const query = 'SELECT SUM(visitors) AS totalVisits FROM shop_visits WHERE shop_id = ?';
+  
+  connection.query(query, [shopId], (err, results) => {
+    if (err) {
+      console.error('Error fetching total shop visits: ', err);
+      res.status(500).json({ error: 'Failed to fetch total shop visits' });
+    } else {
+      const totalVisits = results[0].totalVisits || 0;
+      res.json({ totalVisits });
+    }
+  });
+});
+
+app.get('/orders/dashboard/data/:shopId', (req, res) => {
+  const shopId = req.params.shopId;
+  const query = 'SELECT id FROM orders WHERE shop_id = ?';
+
+  connection.query(query, [shopId], (error, results, fields) => {
+    if (error) {
+      res.status(500).json({ error: 'Error fetching data' });
+      throw error;
+    }
+    res.send(results);
+  });
+});
+
+app.get('/orders/dashboard/data/products/usd/:productId', (req, res) => {
+  const productId = req.params.productId;
+  const query = `SELECT usd FROM products WHERE id = ${productId}`;
+
+  connection.query(query, (error, results, fields) => {
+    if (error) throw error;
+    res.send(results);
+  });
+});
+app.get('/orders/dashboard/data/products/title/:productId', (req, res) => {
+  const productId = req.params.productId;
+  const query = 'SELECT title FROM products WHERE id = ?';
+
+  connection.query(query, [productId], (error, results) => {
+    if (error) {
+      res.status(500).json({ error: 'Error fetching USD values' });
+      throw error;
+    }
+    res.json(results);
+  });
+});
+app.get('/countOrdersById/:id', (req, res) => {
+  const id = req.params.id;
+  const query = `SELECT COUNT(*) AS id_count FROM orders WHERE id = ?`;
+
+  connection.query(query, [id], (error, results) => {
+    if (error) {
+      res.status(500).json({ error: 'Error fetching data' });
+      throw error;
+    }
+    res.json(results);
+  });
+});
+
+app.get('/mostOccurredID/shop/stats/:shopId', (req, res) => {
+  const { shopId } = req.params;
+  const query = 'SELECT id, COUNT(id) AS id_count FROM orders WHERE shop_id = ? GROUP BY id ORDER BY id_count DESC LIMIT 1';
+
+  connection.query(query, [shopId], (error, results) => {
+    if (error) {
+      res.status(500).json({ error: 'Error fetching data' });
+      throw error;
+    }
+    res.json(results);
+  });
+});
+
+app.post('/updateVisits/:shopId', (req, res) => {
+  const { shopId } = req.params;
+
+  const checkQuery = 'SELECT * FROM shop_visits WHERE shop_id = ?';
+  connection.query(checkQuery, [shopId], (checkErr, checkResults) => {
+    if (checkErr) {
+      console.error('Error checking shop visits: ', checkErr);
+      res.status(500).json({ error: 'Failed to check shop visits' });
+    } else {
+      if (checkResults.length > 0) {
+        // If shop_id exists, update visitors count
+        const updateQuery = 'UPDATE shop_visits SET visitors = visitors + 1 WHERE shop_id = ?';
+        connection.query(updateQuery, [shopId], (updateErr, updateResults) => {
+          if (updateErr) {
+            console.error('Error updating shop visits: ', updateErr);
+            res.status(500).json({ error: 'Failed to update shop visits' });
+          } else {
+            res.json({ message: 'Shop visits updated successfully' });
+          }
+        });
+      } else {
+        // If shop_id doesn't exist, insert a new record
+        const insertQuery = 'INSERT INTO shop_visits (shop_id, visit_date, visitors) VALUES (?, CURDATE(), 1)';
+        connection.query(insertQuery, [shopId], (insertErr, insertResults) => {
+          if (insertErr) {
+            console.error('Error inserting shop visits: ', insertErr);
+            res.status(500).json({ error: 'Failed to insert shop visits' });
+          } else {
+            res.json({ message: 'New shop visits record added successfully' });
+          }
+        });
+      }
+    }
+  });
+});
+
+app.get('/totalMoneyMade/:shopId', (req, res) => {
+  const shopId = req.params.shopId;
+  const query = 'SELECT COUNT(id) as totalOrders FROM orders WHERE shop_id = ?';
+
+  connection.query(query, [shopId], (err, results) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    res.json({ totalOrders: results[0].totalOrders });
+  });
+});
+
+app.get('/sales/data/7/days/:shopId', (req, res) => {
+  const shopId = req.params.shopId;
+  const today = new Date();
+  const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000); // 7 days ago
+
+  connection.query(
+    'SELECT id, date, amount FROM orders WHERE shop_id = ? AND date BETWEEN ? AND ?',
+    [shopId, sevenDaysAgo, today],
+    (error, results) => {
+      if (error) {
+        res.status(500).json({ error: error.message });
+      } else {
+        res.json(results);
+      }
+    }
+  );
+});
+
+app.get("/sales/data/for/date/:shopId", async (req, res) => {
+  const shopId = req.params.shopId;
+  const { filter } = req.query;
+
+  let timeFilter;
+  const today = new Date();
+
+  switch (filter) {
+    case "1year":
+      timeFilter = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
+      break;
+    case "6months":
+      timeFilter = new Date(today.getFullYear(), today.getMonth() - 6, today.getDate());
+      break;
+    case "1month":
+      timeFilter = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
+      break;
+    case "7days":
+      timeFilter = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+      break;
+    case "1day":
+      timeFilter = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+      break;
+    default:
+      timeFilter = new Date(0); // No filter
+      break;
+  }
+
+  const selectQuery = "SELECT id, COUNT(id) as count FROM orders WHERE shop_id = ? AND orderDateTime >= ? GROUP BY id";
+  
+  try {
+    const orderCounts = await new Promise((resolve, reject) => {
+      connection.query(selectQuery, [shopId, timeFilter], (error, results) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+    });
+
+    // Extract IDs and counts
+    const ids = orderCounts.map(result => result.id);
+    const counts = orderCounts.reduce((acc, result) => {
+      acc[result.id] = result.count;
+      return acc;
+    }, {});
+
+    // Fetch USD from products table based on the retrieved IDs
+    const productSelectQuery = "SELECT id, usd FROM products WHERE id IN (?)";
+    connection.query(productSelectQuery, [ids], (error, products) => {
+      if (error) {
+        console.error(error);
+        return res.status(500).json({ error: error.message });
+      }
+
+      // Calculate the total sales for each product
+      const salesData = products.map(product => ({
+        id: product.id,
+        totalUSD: product.usd * counts[product.id] // Multiply USD by count
+      }));
+
+      res.json(salesData);
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: error.message });
+  }
+});
+app.get('/orders/product/admin/data/:shop_id', (req, res) => {
+  const shopId = req.params.shop_id;
+  let timeFilter = '';
+
+  // Assuming 'timeInterval' is passed as a query parameter from frontend
+  if (req.query.timeInterval) {
+    const { timeInterval } = req.query;
+    const currentDate = new Date();
+
+    switch (timeInterval) {
+      case '1year':
+        currentDate.setFullYear(currentDate.getFullYear() - 1);
+        break;
+      case '6months':
+        currentDate.setMonth(currentDate.getMonth() - 6);
+        break;
+      case '1month':
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        break;
+      case '1week':
+        currentDate.setDate(currentDate.getDate() - 7);
+        break;
+      case '1day':
+        currentDate.setDate(currentDate.getDate() - 1);
+        break;
+      default:
+        break;
+    }
+
+    const formattedDate = currentDate.toISOString().split('T')[0];
+    timeFilter = ` AND orderDatetime >= '${formattedDate}'`;
+  }
+
+  const query = `SELECT product, id, country, state, zipcode, city, streetadrs, name, Email, Phone, orderDatetime FROM orders WHERE shop_id = ?${timeFilter}`;
+  
+  connection.query(query, [shopId], (error, results) => {
+    if (error) {
+      res.status(500).json({ error: 'Failed to fetch orders' });
+      return;
+    }
+    res.json(results);
+  });
+});
+app.get('/products/admin/products/data/:shop_id', (req, res) => {
+  const shopId = req.params.shop_id;
+  const query = 'SELECT * FROM products WHERE shop_id = ?';
+
+  connection.query(query, [shopId], (error, results) => {
+    if (error) {
+      res.status(500).json({ error: 'Failed to fetch products' });
+      return;
+    }
+    res.json(results);
+  });
+});
+app.delete('/products/delete/admin/data/:productId', (req, res) => {
+  const productId = req.params.productId;
+  const query = 'DELETE FROM products WHERE id = ?';
+
+  connection.query(query, [productId], (error, results) => {
+    if (error) {
+      res.status(500).json({ error: 'Failed to delete product' });
+      return;
+    }
+    res.json({ message: 'Product deleted successfully' });
+  });
+});
+
+app.put('/update/inventory/admin/data/products', (req, res) => {
+  const { productId, action } = req.body;
+
+  let updateQuery = '';
+  if (action === 'increase') {
+    updateQuery = `
+      UPDATE products 
+      SET amount = CASE 
+                     WHEN amount = 'Sold Out' THEN 1
+                     ELSE amount + 1
+                   END
+      WHERE id = ?
+    `;
+  } else if (action === 'decrease') {
+    updateQuery = `
+      UPDATE products 
+      SET amount = CASE 
+                     WHEN amount > 1 THEN amount - 1
+                     ELSE 'Sold Out'
+                   END 
+      WHERE id = ?
+    `;
+  }
+
+  connection.query(updateQuery, [productId], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Error updating inventory.');
+    }
+
+    console.log(result);
+    return res.status(200).send('Inventory updated successfully.');
+  });
+});
+app.get('/products/total_inventory/:shop_id', (req, res) => {
+  const { shop_id } = req.params;
+
+  const query = `SELECT SUM(amount) AS total_inventory FROM products WHERE shop_id = ?`;
+
+  connection.query(query, [shop_id], (err, results) => {
+    if (err) {
+      console.error('Error fetching total inventory: ' + err.stack);
+      res.status(500).send('Error fetching total inventory');
+      return;
+    }
+    res.json(results[0].total_inventory || 0); // Return total inventory or 0 if null
+  });
+});
 
 app.listen(PORT, () => {
   console.log("Server started on port 8080");

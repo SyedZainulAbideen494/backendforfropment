@@ -3925,9 +3925,9 @@ app.post("/place/order", (req, res) => {
         const updateQuery = `
         UPDATE products 
         SET amount = amount - 1, 
-            status = CASE 
+        amount = CASE 
                        WHEN amount <= 1 THEN 'Sold Out'
-                       ELSE status 
+                       ELSE amount 
                      END 
         WHERE id = ?
       `;
@@ -5959,7 +5959,7 @@ app.get('/orders/product/admin/data/:shop_id', (req, res) => {
     timeFilter = ` AND orderDatetime >= '${formattedDate}'`;
   }
 
-  const query = `SELECT product, id, country, state, zipcode, city, streetadrs, name, Email, Phone, orderDatetime FROM orders WHERE shop_id = ?${timeFilter}`;
+  const query = `SELECT product, id, country, state, zipcode, city, streetadrs, name, Email, Phone, orderDatetime, orders_id, status FROM orders WHERE shop_id = ?${timeFilter}`;
   
   connection.query(query, [shopId], (error, results) => {
     if (error) {
@@ -6041,6 +6041,154 @@ app.get('/products/total_inventory/:shop_id', (req, res) => {
     }
     res.json(results[0].total_inventory || 0); // Return total inventory or 0 if null
   });
+});
+app.put('/order/:orderId/cancel', (req, res) => {
+  const { orderId } = req.params;
+  const { status } = req.body;
+
+  const sql = 'UPDATE orders SET status = ? WHERE orders_id = ?';
+  connection.query(sql, ['cancel', orderId], (err, result) => {
+    if (err) {
+      console.error('Error canceling order:', err);
+      res.status(500).send('Error canceling order');
+    } else {
+      console.log('Order canceled successfully');
+      res.status(200).send('Order canceled successfully');
+    }
+  });
+});
+
+app.get('/api/stories/check/:userId', (req, res) => {
+  const userId = req.params.userId;
+
+  const query = 'SELECT * FROM stories WHERE user_id = ?'; // Change 'user_id' to your column name
+
+  connection.query(query, [userId], (error, results) => {
+    if (error) {
+      console.error('Error querying database:', error);
+      res.status(500).json({ error: 'Error checking user ID' });
+      return;
+    }
+
+    if (results.length > 0) {
+      res.json({ exists: true });
+    } else {
+      res.json({ exists: false });
+    }
+  });
+});
+app.post('/share-instagram', (req, res) => {
+  const { title, description, imageUrl } = req.body;
+
+  try {
+    // Construct the Instagram share URL with product details
+    const instagramShareURL = `https://www.instagram.com/?url=${encodeURIComponent(imageUrl)}&caption=${encodeURIComponent(title + ' - ' + description)}`;
+
+    res.json({ success: true, instagramShareURL });
+  } catch (error) {
+    res.status(500).json({ error: 'Error sharing on Instagram' });
+  }
+});
+
+app.get('/followers/count/myprofile/:user_id', (req, res) => {
+  const userId = req.params.user_id;
+  const query = 'SELECT COUNT(*) AS followerCount FROM follows WHERE following_id = ?';
+
+  connection.query(query, [userId], (err, results) => {
+    if (err) throw err;
+    const followerCount = results[0].followerCount;
+    res.json({ followerCount });
+  });
+});
+
+app.put("/edit/profile/my", upload.single("image"), (req, res) => {
+  const token = req.headers.authorization;
+  const {
+    first_name,
+    last_name,
+    unique_id,
+    country,
+    state,
+    city,
+    streetadrs,
+    zipcode,
+    occupation,
+    phoneno,
+    bio,
+    // other fields...
+  } = req.body;
+
+  const profilepic = req.file ? req.file.filename : null; // Check if file is uploaded
+
+  const updateFields = [];
+  const updateValues = [];
+
+  if (first_name) {
+    updateFields.push("first_name = ?");
+    updateValues.push(first_name);
+  }
+  if (last_name) {
+    updateFields.push("last_name = ?");
+    updateValues.push(last_name);
+  }
+  if (unique_id) {
+    updateFields.push("unique_id = ?");
+    updateValues.push(unique_id);
+  }
+  if (country) {
+    updateFields.push("country = ?");
+    updateValues.push(country);
+  }
+  if (state) {
+    updateFields.push("state = ?");
+    updateValues.push(state);
+  }
+  if (city) {
+    updateFields.push("city = ?");
+    updateValues.push(city);
+  }
+  if (streetadrs) {
+    updateFields.push("streetadrs = ?");
+    updateValues.push(streetadrs);
+  }
+  if (zipcode) {
+    updateFields.push("zipcode = ?");
+    updateValues.push(zipcode);
+  }
+  if (occupation) {
+    updateFields.push("occupation = ?");
+    updateValues.push(occupation);
+  }
+  if (phoneno) {
+    updateFields.push("phoneno = ?");
+    updateValues.push(phoneno);
+  }
+  if (bio) {
+    updateFields.push("bio = ?");
+    updateValues.push(bio);
+  }
+  if (profilepic) {
+    updateFields.push("profilepic = ?");
+    updateValues.push(profilepic);
+  }
+
+  updateValues.push(token); // Assuming 'jwt' column stores the JWT token in your 'users' table
+
+  let updateQuery = "UPDATE users SET " + updateFields.join(", ") + " WHERE jwt = ?";
+
+  connection.query(
+    updateQuery,
+    updateValues,
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send("Error updating profile.");
+      }
+
+      console.log(result);
+      return res.status(200).send("Profile updated successfully!");
+    }
+  );
 });
 
 app.listen(PORT, () => {

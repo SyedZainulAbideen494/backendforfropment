@@ -3130,8 +3130,9 @@ app.get("/user/profile/details", (req, res) => {
 app.post("/follow", (req, res) => {
   const { id } = req.body;
   const token = req.headers.authorization;
-  const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
+  const selectQuery = `SELECT user_id, first_name, last_name FROM users WHERE jwt = '${token}' `;
   const insertQuery = "INSERT INTO follows(follower_id, following_id) VALUES (?,?)";
+  const notificationQuery = "INSERT INTO notification (user_id, message) VALUES (?, ?)";
 
   connection.query(selectQuery, (err, rows) => {
     if (err) {
@@ -3143,19 +3144,36 @@ app.post("/follow", (req, res) => {
       return res.status(401).send("Unauthorized user.");
     }
 
-    const user_id = rows[0].user_id;
+    const follower = rows[0];
+    const followerId = follower.user_id;
+    const followerFirstName = follower.first_name;
+    const followerLastName = follower.last_name;
 
     connection.query(
       insertQuery,
-      [user_id, id],
+      [followerId, id],
       (err, result) => {
         if (err) {
           console.error(err);
           return res.status(500).send("Error following user.");
         }
 
-        console.log(result);
-        return res.status(200).send("User followed successfully!");
+        // Notification creation
+        const notificationMessage = `You have a new follower! ${followerFirstName} ${followerLastName} is now following you.`;
+
+        connection.query(
+          notificationQuery,
+          [id, notificationMessage],
+          (err, notificationResult) => {
+            if (err) {
+              console.error(err);
+              return res.status(500).send("Error creating notification.");
+            }
+
+            console.log(notificationResult);
+            return res.status(200).send("User followed successfully!");
+          }
+        );
       }
     );
   });
@@ -3230,43 +3248,27 @@ app.get('/follower-count/:userId', (req, res) => {
   });
 });
 
-app.post("/addprofilepic", upload.single("image"), (req, res) => {
-  const images5 = req.file.filename;
-  const token = req.headers.authorization;
-  const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
-  const insertQuery =
-    "UPDATE users SET porfilepic = ? WHERE user_id = ?";
+app.post("/add/profile/pic", upload.single("image"), (req, res) => {
+  const images6 = req.file.filename;
+  const shop_id = req.headers.authorization; // Access the Authorization header correctly
 
-  connection.query(selectQuery, (err, rows) => {
+  const updateQuery = "UPDATE users SET porfilepic = ? WHERE jwt = ?";
+
+  connection.query(updateQuery, [images6, shop_id], (err, result) => {
     if (err) {
       console.error(err);
-      return res.status(500).send("Error fetching user.");
+      return res.status(500).send("Error updating shop image.");
     }
 
-    if (rows.length === 0) {
-      return res.status(401).send("Unauthorized user.");
+    if (result.affectedRows === 0) {
+      return res.status(404).send("Shop not found or no changes made.");
     }
 
-    const user_id = rows[0].user_id;
-
-    connection.query(
-      insertQuery,
-      [
-        images5,
-        user_id
-      ],
-      (err, result) => {
-        if (err) {
-          console.error(err);
-          return res.status(500).send("Error adding shop.");
-        }
-
-        console.log(result);
-        return res.status(200).send("Shop added successfully!");
-      }
-    );
+    console.log(result);
+    return res.status(200).send("Shop image updated successfully!");
   });
 });
+
 
 app.get("/all/shops/main/page", (req, res) => {
   const sqlget = "SELECT * FROM shops";
@@ -3517,8 +3519,9 @@ app.get('/shops-count/:userId', (req, res) => {
 app.post("/followdis", (req, res) => {
   const { user_id } = req.body;
   const token = req.headers.authorization;
-  const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
+  const selectQuery = `SELECT user_id, first_name, last_name, profile_pic FROM users WHERE jwt = '${token}'`;
   const insertQuery = "INSERT INTO follows(follower_id, following_id) VALUES (?,?)";
+  const notificationQuery = "INSERT INTO notification (user_id, message) VALUES (?, ?)";
 
   connection.query(selectQuery, (err, rows) => {
     if (err) {
@@ -3530,23 +3533,42 @@ app.post("/followdis", (req, res) => {
       return res.status(401).send("Unauthorized user.");
     }
 
-    const user_id = rows[0].user_id;
+    const follower = rows[0];
+    const followerId = follower.user_id;
+    const followerFirstName = follower.first_name;
+    const followerLastName = follower.last_name;
 
     connection.query(
       insertQuery,
-      [user_id, user_id],
+      [followerId, user_id],
       (err, result) => {
         if (err) {
           console.error(err);
           return res.status(500).send("Error following user.");
         }
 
-        console.log(result);
-        return res.status(200).send("User followed successfully!");
+        // Send notification to the user being followed
+        const notificationMessage = `You have a new follower! ${followerFirstName} ${followerLastName} is now following you.`;
+
+        connection.query(
+          notificationQuery,
+          [user_id, notificationMessage],
+          (err, notificationResult) => {
+            if (err) {
+              console.error(err);
+              return res.status(500).send("Error creating notification.");
+            }
+
+            console.log(notificationResult);
+            return res.status(200).send("User followed successfully!");
+          }
+        );
       }
     );
   });
 });
+
+
 
 app.get('/check-follow/:followerId/:followedId', (req, res) => {
   const { followerId, followedId } = req.params;
@@ -3861,27 +3883,18 @@ app.get("/user/details/shop/details", (req, res) => {
 
 app.post("/place/order", (req, res) => {
   const {
-    name,
-    Phone,
-    Email,
-    streetadrs,
-    city,
-    state,
-    zipcode,
-    country,
-    id,
-    product,
-    shop_id,
-    occupation,
-    sender_id,
-    age,
-    orderDateTime // Added orderDateTime field in the request body
+    name, Phone, Email, streetadrs, city, state, zipcode, country,
+    id, product, shop_id, occupation, orderDateTime
   } = req.body;
 
   const token = req.headers.authorization;
-  const selectQuery = `SELECT user_id FROM users WHERE jwt = ?`; // Use placeholders
-  const insertQuery =
-    "INSERT INTO orders(name, Phone, Email, streetadrs, city, state, zipcode, country, id, product, shop_id, occupation, sender_id, age, orderDateTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  const selectQuery = `SELECT user_id FROM users WHERE jwt = ?`;
+  const insertQuery = `
+    INSERT INTO orders (
+      name, Phone, Email, streetadrs, city, state, zipcode, country,
+      id, product, shop_id, occupation, sender_id, age, orderDateTime
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
 
   connection.query(selectQuery, [token], (err, rows) => {
     if (err) {
@@ -3898,21 +3911,8 @@ app.post("/place/order", (req, res) => {
     connection.query(
       insertQuery,
       [
-        name,
-        Phone,
-        Email,
-        streetadrs,
-        city,
-        state,
-        zipcode,
-        country,
-        id,
-        product,
-        shop_id,
-        occupation,
-        user_id,
-        age,
-        orderDateTime // Include orderDateTime in the values to be inserted
+        name, Phone, Email, streetadrs, city, state, zipcode, country,
+        id, product, shop_id, occupation, user_id, req.body.age, orderDateTime
       ],
       (err, result) => {
         if (err) {
@@ -3921,17 +3921,15 @@ app.post("/place/order", (req, res) => {
         }
 
         console.log(result);
-        // Update the product amount after a successful order
         const updateQuery = `
-        UPDATE products 
-        SET amount = amount - 1, 
-        amount = CASE 
-                       WHEN amount <= 1 THEN 'Sold Out'
-                       ELSE amount 
-                     END 
-        WHERE id = ?
-      `;
-      
+          UPDATE products 
+          SET amount = CASE 
+                         WHEN amount <= 1 THEN 'Sold Out'
+                         ELSE amount - 1 
+                       END 
+          WHERE id = ?
+        `;
+
         connection.query(updateQuery, [id], (err, updateResult) => {
           if (err) {
             console.error(err);
@@ -3939,13 +3937,37 @@ app.post("/place/order", (req, res) => {
           }
 
           console.log(updateResult);
-          return res.status(200).send("Order placed successfully! Product quantity updated.");
+
+          const shopOwnerQuery = `SELECT user_id FROM shops WHERE shop_id = ?`;
+          connection.query(shopOwnerQuery, [shop_id], (err, shopRows) => {
+            if (err) {
+              console.error(err);
+              return res.status(500).send("Error fetching shop owner details.");
+            }
+
+            if (shopRows.length === 0) {
+              return res.status(404).send("Shop owner not found.");
+            }
+
+            const shop_owner_id = shopRows[0].user_id;
+            const notificationMessage = `New order for ${product} is being requested.`;
+            const notificationInsertQuery = "INSERT INTO notification(user_id, message) VALUES (?, ?)";
+
+            connection.query(notificationInsertQuery, [shop_owner_id, notificationMessage], (err, notificationResult) => {
+              if (err) {
+                console.error(err);
+                return res.status(500).send("Error sending notification to shop owner.");
+              }
+
+              console.log(notificationResult);
+              return res.status(200).send("Order placed successfully! Product quantity updated. Notification sent to shop owner.");
+            });
+          });
         });
       }
     );
   });
 });
-
 app.post("/orders", (req, res) => {
   const name = req.body.name;
   const Phone = req.body.Phone;
@@ -5441,37 +5463,43 @@ app.post('/section7/data', (req, res) => {
 
 app.post('/footer/data/insert', (req, res) => {
   const shop_id = req.headers.authorization; // Use 'authorization' instead of destructuring
-  const {companyname,
-   slogan,
-     insta,
-     facebook,
-     twiter,
-     linkdin,
-     phone,
-    email,
-     whatsapp,} = req.body;
-
-  const sql = `INSERT INTO footer (shop_id, insta, facebook, twitter, linkdin, slogan, email, phone, whatsapp ) VALUES (?,?,?,?,?,?,?,?,?)`;
-
-  connection.query(sql, [
-    shop_id,
+  const {
     companyname,
     slogan,
+    insta,
+    facebook,
+    twitter, // Corrected typo here
+    linkedin, // Corrected variable name
+    phone,
+    email,
+    whatsapp,
+  } = req.body;
+
+  const sql = `INSERT INTO footer (shop_id, companyname, slogan, insta, facebook, twitter, linkdin, email, phone, whatsapp) VALUES (?,?,?,?,?,?,?,?,?,?)`;
+
+  connection.query(
+    sql,
+    [
+      shop_id,
+      companyname,
+      slogan,
       insta,
       facebook,
-      twiter,
-      linkdin,
+      twitter,
+      linkedin, // Corrected variable name
+      email,
       phone,
-     email,
-      whatsapp, 
-    ], (err, result) => {
-    if (err) {
-      console.error(err);
-      res.status(500).json({ message: 'Internal server error' });
-    } else {
-      res.json({ message: 'Data inserted successfully' });
+      whatsapp,
+    ],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Internal server error' });
+      } else {
+        res.json({ message: 'Data inserted successfully' });
+      }
     }
-  });
+  );
 });
 
 
@@ -5647,21 +5675,75 @@ app.get("/custom/shop/display/footer", (req, res) => {
   });
 });
 
+const stringSimilarity = require('string-similarity');
 const botRules = [
-  { input: 'What is Dropment?', output: 'Dropment is an all-in-one platform for selling online. It allows users to create stores, chat with customers, and more.' },
-  { input: 'How can I create a store on Dropment?', output: 'You can create a store on Dropment by choosing a template or designing a custom one. Click on "Create Store" to get started.' },
-  { input: 'Tell me about the free plan.', output: 'Dropment offers a free plan that allows users to explore the platform and start selling online without any initial cost.' },
-  { input: 'What are Blinkfeeds?', output: 'Blinkfeeds are a type of stories feature, similar to Instagram stories, that allows users to showcase new products or achievements in a dynamic way.' },
+  { input: 'What is Dropment?', output: 'Dropment is an all-in-one platform for selling online.' },
+  { input: 'How can I create a store on Dropment?', output: 'You can create a store on Dropment by choosing a template or designing a custom one.' },
+  { input: 'Tell me about the free plan.', output: 'Dropment offers a free plan that allows users to explore the platform without any initial cost.' },
+  { input: 'What are Blinkfeeds?', output: 'Blinkfeeds are a type of stories feature, similar to Instagram stories, for showcasing new products or achievements.' },
   { input: 'Can I collaborate with friends on Dropment?', output: 'Yes, you can collaborate with friends to start a new shop and do business together on Dropment.' },
-  { input: 'How does following shops work?', output: `By following shops on Dropment, you can stay updated on their latest products. It's a great way to discover and purchase new items.` },
+  { input: 'How does following shops work on Dropment?', output: `By following shops on Dropment, you can stay updated on their latest products. It's a great way to discover and purchase new items.` },
   { input: 'What data does Dropment collect about customers?', output: 'Dropment collects customer data to help users improve their marketing strategies and enhance their products. This includes customer preferences and behaviors.' },
   { input: 'Is there customer support on Dropment?', output: `Yes, Dropment provides customer support. If you have any questions or issues, feel free to reach out, and we'll be happy to assist you.` },
   { input: 'Tell me more about store templates.', output: 'Dropment offers a variety of store templates that users can choose from to customize their online stores. It makes the process of setting up a store quick and easy.' },
-  // Add more rules as needed
+  { input: 'Does Dropment provide analytics for stores?', output: 'Yes, Dropment offers analytics tools to track visits, sales, revenue, and other key metrics for your store.' },
+  { input: 'Can I connect my domain to Dropment?', output: 'Yes, you can connect your existing domain to your Dropment store for a seamless brand experience.' },
+  { input: 'What payment options are available on Dropment?', output: 'Dropment supports multiple payment gateways, providing flexibility for customers to make transactions.' },
+  { input: 'How secure are transactions on Dropment?', output: 'Dropment ensures secure transactions by employing encryption and following industry-standard security measures.' },
+  { input: 'Are there shipping management tools on Dropment?', output: 'Yes, Dropment offers shipping management tools to help streamline order fulfillment and tracking.' },
+  { input: 'Can I schedule promotions on Dropment?', output: 'Yes, Dropment allows users to schedule and run promotional campaigns to boost sales.' },
+  { input: 'Is there a mobile app for Dropment?', output: 'Yes, Dropment has a mobile app that enables users to manage their stores and sales on the go.' },
+  { input: 'How can I add new products to my store?', output: 'Adding products to your store is simple. Access your dashboard and go to the product management section to add new items.' },
+  { input: 'Can I change my store design after creating it?', output: 'Yes, you can modify your store design at any time by accessing the store customization options.' },
+  { input: 'What marketing features does Dropment offer?', output: 'Dropment provides various marketing features such as email campaigns, discounts, and SEO tools to help attract customers.' },
+  { input: 'How do I delete my Dropment store?', output: 'To delete your Dropment store, go to settings and find the option to delete your account, which will remove your store as well.' },
+  { input: 'Can I export data from my Dropment store?', output: 'Yes, Dropment allows users to export their store data for analysis or backup purposes.' },
+  { input: 'Does Dropment offer integration with other apps?', output: 'Yes, Dropment supports integration with various third-party apps and services to enhance store functionality.' },
+  { input: 'Is there a limit on the number of products I can sell?', output: 'Dropment does not impose limits on the number of products you can sell on your store.' },
+  { input: 'How can I reset my Dropment password?', output: 'You can reset your Dropment password by going to the login page and using the "forgot password" option.' },
+  { input: 'Can I run multiple stores under one account?', output: 'Yes, Dropment allows users to manage multiple stores using a single account.' },
+  { input: 'What happens if I exceed the bandwidth limit?', output: 'If you exceed the bandwidth limit on your plan, additional charges may apply or certain functionalities might be affected until the next billing cycle.' },
+  { input: 'Is there a trial period for premium plans?', output: 'Dropment occasionally offers trial periods for premium plans. Check the plans section to see current offers.' },
+  { input: 'Can I offer discounts on specific products?', output: 'Yes, you can set up discounts for specific products or categories to attract customers.' },
+  { input: `How can I track my store's performance over time?`, output: `Dropment provides performance reports and analytics that give insights into your store's growth and trends over time.` },
+  { input: 'Does Dropment offer a blog feature for stores?', output: 'Yes, Dropment provides a blog feature that allows users to create and publish content to engage customers and improve SEO.' },
+  { input: 'What languages are supported on Dropment?', output: 'Dropment supports multiple languages to cater to users from different regions and markets.' },
+  { input: 'Can I import products from another platform to Dropment?', output: 'Yes, Dropment allows users to import products from other platforms using compatible formats.' },
+  { input: 'Is Dropment compatible with social media integration?', output: 'Yes, Dropment offers integration with social media platforms for marketing and selling products.' },
+  { input: 'How can I change the currency on my store?', output: `'You can change the currency settings in your store's settings to display prices in your desired currency.` },
+  { input: 'Does Dropment provide tools for inventory management?', output: 'Yes, Dropment offers inventory management tools to help users keep track of stock levels and product availability.' },
+  { input: 'Can I add a chat feature for customer support on my store?', output: 'Yes, Dropment provides options to integrate live chat features for customer support on your store.' },
+  { input: 'How can I add product variations like size or color?', output: 'When adding a product, you can specify variations such as size, color, or other attributes to offer options to customers.' },
+  { input: 'Does Dropment support multi-currency transactions?', output: 'Yes, Dropment allows transactions in multiple currencies to accommodate international customers.' },
+  { input: 'Can I offer digital downloads on my store?', output: 'Yes, Dropment supports the sale of digital downloads such as ebooks, music, or software.' },
+  { input: 'What shipping carriers can I integrate with my Dropment store?', output: 'Dropment supports integration with various shipping carriers for efficient order fulfillment, including major carriers like UPS, FedEx, and others.' },
+  { input: 'How can I organize products into categories on my store?', output: `You can create product categories and organize your products accordingly in your store's admin panel.` },
+  { input: 'Can I schedule product launches or promotions?', output: 'Yes, Dropment allows users to schedule product launches or promotions to coincide with specific dates or events.' },
+  { input: 'Are there restrictions on the types of products I can sell on Dropment?', output: `Dropment has guidelines regarding prohibited products. Ensure your products comply with the platform's policies.` },
+  { input: 'Does Dropment offer tools for email marketing?', output: 'Yes, Dropment provides email marketing tools to reach out to customers and promote products or offers.' },
+  { input: 'Can I integrate my store with my existing website?', output: 'Yes, Dropment allows integration with existing websites to add an online store section.' },
+  { input: 'How can I optimize my store for search engines?', output: `Dropment provides SEO tools and recommendations to optimize your store's visibility in search engine results.` },
+  { input: 'Does Dropment offer training or resources for store owners?', output: 'Yes, Dropment provides resources, guides, and tutorials to help users navigate and optimize their stores.' },
+  { input: 'Can I sell subscriptions or recurring services on Dropment?', output: 'Yes, Dropment supports the sale of subscriptions or recurring services.' },
+  { input: 'How can I set up a discount code for my store?', output: 'You can create and manage discount codes within your store settings to offer discounts to customers.' },
+  { input: 'Does Dropment offer abandoned cart recovery features?', output: 'Yes, Dropment provides tools to recover abandoned carts and encourage customers to complete their purchases.' },
+  { input: 'How can I process refunds for orders on Dropment?', output: 'You can manage refunds for orders through the order management section in your store dashboard.' },
+  { input: 'Can I offer gift cards or vouchers on my store?', output: 'Yes, Dropment supports the sale of gift cards or vouchers that customers can use for purchases.' },
+  { input: 'How can I manage customer reviews on my store?', output: 'Dropment provides features to manage and display customer reviews to build trust and credibility.' },
+  { input: 'Does Dropment offer a mobile-responsive design for stores?', output: 'Yes, Dropment ensures that stores are mobile-responsive for optimal viewing on various devices.' },
+  { input: 'Can I sell personalized or custom products on Dropment?', output: 'Yes, Dropment allows users to sell personalized or custom products with customizable options.' },
+  { input: 'How can I set up taxes and shipping rates for my store?', output: 'You can configure tax settings and shipping rates within your store settings based on your location and preferences.' },
+  { input: 'Does Dropment offer a feature to create discount bundles or packages?', output: 'Yes, Dropment allows the creation of discount bundles or package deals for multiple products.' },
 ];
-
-// Function to check if a string contains another string (case-insensitive)
-const contains = (str, substr) => str.toLowerCase().includes(substr.toLowerCase());
+// Function to find the most similar rule
+const findBestMatch = (input) => {
+  const matches = botRules.map((rule) => ({
+    rule,
+    similarity: stringSimilarity.compareTwoStrings(input.toLowerCase(), rule.input.toLowerCase()),
+  }));
+  matches.sort((a, b) => b.similarity - a.similarity);
+  return matches[0].similarity > 0.5 ? matches[0].rule : null;
+};
 
 // API endpoint to handle incoming messages
 app.post('/api/messages', (req, res) => {
@@ -5674,13 +5756,13 @@ app.post('/api/messages', (req, res) => {
     console.log('Message saved to the database');
   });
 
-  // Bot logic with partial matching
-  const matchedRule = botRules.find((rule) => contains(message, rule.input));
-  const botResponse = matchedRule ? matchedRule.output : 'Sorry, I didn\'t understand that. How can I assist you?';
+  // Bot logic with fuzzy matching
+  const bestMatch = findBestMatch(message);
+
+  const botResponse = bestMatch ? bestMatch.output : 'Sorry, I didn\'t understand that. How can I assist you?';
 
   res.json({ botResponse });
 });
-
 
 app.put('/color/selection/background/shop/color/add', (req, res) => {
   const shop_id = req.headers.authorization;
@@ -6190,6 +6272,102 @@ app.put("/edit/profile/my", upload.single("image"), (req, res) => {
     }
   );
 });
+
+app.post('/cancel-order', (req, res) => {
+  const { reason, customReason, orderId, shopId } = req.body;
+
+  let query = '';
+  if (reason === 'other') {
+    query = `INSERT INTO cancellation_reasons (reason, orders_id, shop_id) VALUES ('${customReason}', ${orderId}, ${shopId})`;
+  } else {
+    query = `INSERT INTO cancellation_reasons (reason, orders_id, shop_id) VALUES ('${reason}', ${orderId}, ${shopId})`;
+  }
+
+  connection.query(query, (error, results, fields) => {
+    if (error) {
+      res.status(500).send(error);
+    } else {
+      res.status(200).send('Order cancellation reason recorded successfully.');
+    }
+  });
+});
+
+app.get('/get-reason/:orderId', (req, res) => {
+  const { orderId } = req.params;
+
+  // Fetch reason from the database based on orderId
+  const sql = 'SELECT reason FROM cancellation_reasons WHERE orders_id = ?';
+  connection.query(sql, [orderId], (error, results, fields) => {
+    if (error) {
+      res.status(500).send(error);
+    } else {
+      if (results.length > 0) {
+        const reason = results[0].reason;
+        res.status(200).send(reason);
+      } else {
+        res.status(404).send('Reason not found');
+      }
+    }
+  });
+});
+
+app.get('/product/views/:productId', (req, res) => {
+  const productId = req.params.productId;
+
+  // Increment view count in the database
+  const sql = 'INSERT INTO product_views (id, views) VALUES (?, 1) ON DUPLICATE KEY UPDATE views = views + 1';
+  connection.query(sql, [productId], (err, result) => {
+    if (err) {
+      throw err;
+    }
+    if (result.affectedRows > 0) {
+      console.log(`Product with ID ${productId} viewed`);
+    } else {
+      console.log(`Product with ID ${productId} does not exist, new row inserted`);
+    }
+    res.sendStatus(200);
+  });
+});
+
+app.get('/product/views/display/:productId', (req, res) => {
+  const productId = req.params.productId;
+
+  const sql = 'SELECT views FROM product_views WHERE id = ?';
+  connection.query(sql, [productId], (err, results) => {
+    if (err) {
+      console.error('Error fetching product views:', err);
+      return res.status(500).send('Error fetching product views');
+    }
+
+    if (results.length > 0) {
+      const views = results[0].views;
+      res.json({ views });
+    } else {
+      res.json({ views: 0 }); // Assuming 0 views if the product ID doesn't exist
+    }
+  });
+});
+
+app.get("/api/notifications", (req, res) => {
+  const token = req.headers.authorization;
+  const selectQuery = `
+    SELECT * 
+    FROM notification 
+    WHERE user_id = (SELECT user_id FROM users WHERE jwt = '${token}')
+    ORDER BY time_created DESC`; // Assuming 'created_at' is the timestamp field
+
+  connection.query(selectQuery, (err, rows) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Error fetching notifications.");
+    }
+
+    // Assuming 'rows' contain notifications fetched from the database
+    res.json({ notifications: rows });
+  });
+});
+
+
 
 app.listen(PORT, () => {
   console.log("Server started on port 8080");

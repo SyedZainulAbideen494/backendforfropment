@@ -1124,12 +1124,16 @@ app.post("/addShops/template5", (req, res) => {
     shop_phone,
     insta,
     temp5,
-    uniqueIdentifier
+    uniqueIdentifier,
+    shop_keyhead2,
+    shop_key2,
+    shop_keyhead3,
+    shop_key3
   } = req.body;
   const token = req.headers.authorization;
   const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
   const insertQuery =
-    "INSERT INTO shops(shop_name, shop_email, insta, shop_keyhead1, shop_blockhead3, shop_blockhead1, shop_key1, shop_blockhead2, shop_phone, user_id, shop_owner, shop_block1, shop_block2, temp, shop_block3, uniqueIdentifier) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    "INSERT INTO shops(shop_keyhead2, shop_key2, shop_keyhead3, shop_key3, shop_name, shop_email, insta, shop_keyhead1, shop_blockhead3, shop_blockhead1, shop_key1, shop_blockhead2, shop_phone, user_id, shop_owner, shop_block1, shop_block2, temp, shop_block3, uniqueIdentifier) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
   connection.query(selectQuery, (err, rows) => {
     if (err) {
@@ -1146,6 +1150,10 @@ app.post("/addShops/template5", (req, res) => {
     connection.query(
       insertQuery,
       [
+        shop_keyhead2,
+        shop_key2,
+        shop_keyhead3,
+        shop_key3,
         shop_name,
         shop_email,
         insta,   

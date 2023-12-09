@@ -6375,7 +6375,26 @@ app.get("/api/notifications", (req, res) => {
   });
 });
 
+app.put("/api/remove/profile/picture", (req, res) => {
+  const token = req.headers.authorization;
 
+  // Query to update the profile picture based on the user's JWT token
+  const updateQuery = `
+    UPDATE users 
+    SET porfilepic = 'profiledef.png'
+    WHERE user_id IN (SELECT user_id FROM (SELECT * FROM users) AS u WHERE jwt = '${token}')
+  `;
+
+  connection.query(updateQuery, (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Error updating profile picture.");
+    }
+
+    // Assuming the update was successful
+    res.status(200).send("Profile picture updated successfully.");
+  });
+});
 
 app.listen(PORT, () => {
   console.log("Server started on port 8080");

@@ -1495,7 +1495,7 @@ app.post("/addShops/template1", (req, res) => {
     shop_keyhead3,
     shop_key3,
     salestext,
-    temp1,
+    temp,
     shop_tagline,
     uniqueIdentifier
   } = req.body;
@@ -1524,7 +1524,7 @@ app.post("/addShops/template1", (req, res) => {
         shop_key3,
         insta,
         salestext,
-        temp1,
+        temp,
         shop_keyhead1,
         shop_key1,
         shop_keyhead2,
@@ -1627,81 +1627,6 @@ app.get("/user/template1", (req, res) => {
     });
 });
 
-app.post("/addShops/template2", (req, res) => {
-  const {
-    shop_name,
-    shop_owner,
-    shop_blockhead1,
-    shop_block1,
-    shop_blockhead2,
-    shop_block2,
-    shop_blockhead3,
-    shop_block3,
-    shop_keyhead1,
-    shop_key1,
-    shop_keyhead2,
-    shop_key2,
-    shop_email,
-    shop_phone,
-    insta,
-    salestext,
-    temp2,
-    shop_tagline,
-    uniqueIdentifier
-  } = req.body;
-  const token = req.headers.authorization;
-  const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
-  const insertQuery =
-    "INSERT INTO shops(shop_name, insta, salestext, temp, shop_keyhead1, shop_key1, shop_keyhead2, shop_key2, shop_blockhead1, shop_blockhead2, shop_email, shop_phone, user_id, shop_owner, shop_block1, shop_block2, shop_blockhead3, shop_block3, shop_tagline, uniqueIdentifier) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-
-  connection.query(selectQuery, (err, rows) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).send("Error fetching user.");
-    }
-
-    if (rows.length === 0) {
-      return res.status(401).send("Unauthorized user.");
-    }
-
-    const user_id = rows[0].user_id;
-
-    connection.query(
-      insertQuery,
-      [
-        shop_name,
-        insta,
-        salestext,
-        temp2,
-        shop_keyhead1,
-        shop_key1,
-        shop_keyhead2,
-        shop_key2,
-        shop_blockhead1,
-        shop_blockhead2,
-        shop_email,
-        shop_phone,
-        user_id,
-        shop_owner,
-        shop_block1,
-        shop_block2,
-        shop_blockhead3,
-        shop_block3,
-        shop_tagline,
-        uniqueIdentifier
-      ],
-      (err, result) => {
-        if (err) {
-          console.error(err);
-          return res.status(500).send("Error adding shop.");
-        }
-
-        console.log(result);
-        return res.status(200).send("Shop added successfully!");
-      }
-    );
-  });
-});
 
 
 app.post("/addShops/template2", (req, res) => {
@@ -1780,42 +1705,6 @@ app.post("/addShops/template2", (req, res) => {
   });
 });
 
-
-app.get("/user/shops/template2", (req, res) => {
-  const token = req.headers.authorization;
-  const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
-  const insertQuery = "SELECT * FROM shops where user_id = ?";
-
-  // Execute the first query to fetch users
-  const fetchUsersPromise = new Promise((resolve, reject) => {
-    connection.query(selectQuery, (err, rows) => {
-      if (err) reject(err);
-      else resolve(rows);
-    });
-  });
-
-  // Chain the promises to insert the shop details after fetching the users
-  fetchUsersPromise
-    .then((rows) => {
-      // Assuming you have a specific user in mind to retrieve the userId
-      const user_id = rows[0].user_id;
-
-      return new Promise((resolve, reject) => {
-        const shopsquary = `select * from shops where user_id = '${user_id}'`;
-        connection.query(shopsquary, (err, result) => {
-          if (err) reject(err);
-          else resolve;
-          res.send({ shops: result });
-        });
-      });
-    })
-    .then((result) => {
-      res.send({ shops: result });
-    })
-    .catch((err) => {
-      console.error(err);
-    });
-});
 
 app.get("/user/template2", (req, res) => {
   const token = req.headers.authorization;
@@ -2329,68 +2218,6 @@ app.get("/user/shops/data", (req, res) => {
     .catch((err) => {
       console.error(err);
     });
-});
-
-
-
-
-app.post("/addShops/Fashion", upload.single("image"), (req, res) => {
-  const {
-    shop_name,
-    shop_owner,
-    shop_abouthead,
-    shop_about,
-    shop_blockhead2,
-    shop_block2,
-    shop_blockhead3,
-    shop_block3,
-    temp2,
-  } = req.body;
-
-  const images = req.file.filename;
-  const token = req.headers.authorization;
-  const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
-  const insertQuery =
-    "INSERT INTO shops(shop_name, temp2, shop_abouthead, shop_about, shop_blockhead2, user_id, shop_owner, shop_block2, shop_blockhead3, shop_block3, images) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
-
-  connection.query(selectQuery, (err, rows) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).send("Error fetching user.");
-    }
-
-    if (rows.length === 0) {
-      return res.status(401).send("Unauthorized user.");
-    }
-
-    const user_id = rows[0].user_id;
-
-    connection.query(
-      insertQuery,
-      [
-        shop_name,
-        temp2,
-        shop_abouthead,
-        shop_about,
-        shop_blockhead2,
-        user_id,
-        shop_owner,
-        shop_block2,
-        shop_blockhead3,
-        shop_block3,
-        images,
-      ],
-      (err, result) => {
-        if (err) {
-          console.error(err);
-          return res.status(500).send("Error adding shop.");
-        }
-
-        console.log(result);
-        return res.status(200).send("Shop added successfully!");
-      }
-    );
-  });
 });
 
 app.post("/addshopimg1", upload.single("image"), (req, res) => {

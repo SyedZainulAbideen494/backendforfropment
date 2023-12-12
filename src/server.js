@@ -223,7 +223,7 @@ app.post("/addShops", upload.single("image"), (req, res) => {
       res.status(500).send("Error adding shop.");
     });
 });
-app.post("/addUser", (req, res) => {
+app.post('/addUser', (req, res) => {
   const {
     phoneno,
     email,
@@ -238,18 +238,16 @@ app.post("/addUser", (req, res) => {
     occupation,
     age,
     unique_id,
-    bio
+    bio,
   } = req.body;
 
-  // Hash the password
   bcrypt.hash(password, saltRounds, (err, hash) => {
     if (err) {
-      console.error("Error hashing password: ", err);
-      res.status(500).json({ error: "Internal server error" });
+      console.error('Error hashing password: ', err);
+      res.status(500).json({ error: 'Internal server error' });
     } else {
-      // Insert the user into the database
       const query =
-        "INSERT INTO users (first_name, last_name, email, password, unique_id, occupation, age, phoneno, streetadrs, city, state, zipcode, country, bio) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        'INSERT INTO users (first_name, last_name, email, password, unique_id, occupation, age, phoneno, streetadrs, city, state, zipcode, country, bio) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
       const values = [
         first_name,
         last_name,
@@ -264,15 +262,15 @@ app.post("/addUser", (req, res) => {
         state,
         zipcode,
         country,
-        bio
+        bio,
       ];
 
       connection.query(query, values, (error, results) => {
         if (error) {
-          console.error("Error inserting user: ", error);
-          res.status(500).json({ error: "Internal server error" });
+          console.error('Error inserting user: ', error);
+          res.status(500).json({ error: 'Internal server error' });
         } else {
-          console.log("User registration successful!");
+          console.log('User registration successful!');
           res.sendStatus(200);
         }
       });

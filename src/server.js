@@ -1495,7 +1495,7 @@ app.post("/addShops/template1", (req, res) => {
     shop_keyhead3,
     shop_key3,
     salestext,
-    temp,
+    temp2,
     shop_tagline,
     uniqueIdentifier
   } = req.body;
@@ -1524,7 +1524,7 @@ app.post("/addShops/template1", (req, res) => {
         shop_key3,
         insta,
         salestext,
-        temp,
+        temp2,
         shop_keyhead1,
         shop_key1,
         shop_keyhead2,

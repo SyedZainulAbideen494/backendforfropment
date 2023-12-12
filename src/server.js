@@ -89,7 +89,7 @@ app.get("/products/product", (req, res) => {
   });
 });
 
-app.get("/users/incase", (req, res) => {
+app.get("/users", (req, res) => {
   const token = req.headers.authorization;
   const sqlget = `SELECT * FROM users where jwt = '${token}'`;
 
@@ -99,29 +99,6 @@ app.get("/users/incase", (req, res) => {
       res.status(500).json({ error: "Error fetching data from MySQL" });
     } else {
       res.send({ user: results });
-    }
-  });
-});
-
-app.get("/users", (req, res) => {
-  const token = req.headers.authorization;
-
-  if (!token) {
-    return res.status(401).json({ error: "Give me a token fucking hell!(Message by faizal)" });
-  }
-
-  const sqlget = 'SELECT * FROM users WHERE jwt = ?';
-  
-  connection.query(sqlget, [token], (err, results) => {
-    if (err) {
-      console.error("Error fetching data from MySQL: ", err);
-      res.status(500).json({ error: "Error fetching data from MySQL" });
-    } else {
-      if (results.length === 0) {
-        res.status(404).json({ error: "User not found" });
-      } else {
-        res.send({ user: results });
-      }
     }
   });
 });

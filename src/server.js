@@ -1154,7 +1154,7 @@ app.post("/addShops/template5", (req, res) => {
         shop_key3,
         shop_name,
         shop_email,
-        insta,   
+        insta,
         shop_keyhead1,
         shop_blockhead3,
         shop_blockhead1,
@@ -1165,8 +1165,8 @@ app.post("/addShops/template5", (req, res) => {
         shop_owner,
         shop_block1,
         shop_block2,
-        'temp5',
-        shop_block3, 
+        temp5, // removed quotes to pass variable instead of string 'temp5'
+        shop_block3,
         uniqueIdentifier,
       ],
       (err, result) => {
@@ -1181,6 +1181,7 @@ app.post("/addShops/template5", (req, res) => {
     );
   });
 });
+
 
 app.get("/user/shops/template5", (req, res) => {
   const token = req.headers.authorization;

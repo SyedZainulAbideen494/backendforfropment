@@ -73,7 +73,7 @@ connection.getConnection((err) => {
 });
 
 app.get("/", (req, res) => {
-  res.send("error!!");
+  res.send("server working!!");
 });
 
 app.get("/products/product", (req, res) => {

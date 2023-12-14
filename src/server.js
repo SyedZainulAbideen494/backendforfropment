@@ -28,8 +28,8 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage: storage,
+  limits: { fileSize: 150 * 1024 * 1024 } // 150MB in bytes
 });
-
 
 app.use(
   cors({

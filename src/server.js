@@ -1135,7 +1135,7 @@ app.post("/addShops/template5", (req, res) => {
 
   connection.query(selectQuery, (err, rows) => {
     if (err) {
-      console.error(err);
+      console.error("Error fetching user:", err);
       return res.status(500).send("Error fetching user.");
     }
 
@@ -1165,17 +1165,17 @@ app.post("/addShops/template5", (req, res) => {
         shop_owner,
         shop_block1,
         shop_block2,
-        temp5, // removed quotes to pass variable instead of string 'temp5'
+        'temp5',
         shop_block3,
         uniqueIdentifier,
       ],
       (err, result) => {
         if (err) {
-          console.error(err);
+          console.error("Error adding shop:", err);
           return res.status(500).send("Error adding shop.");
         }
 
-        console.log(result);
+        console.log("Shop added successfully:", result);
         return res.status(200).send("Shop added successfully!");
       }
     );

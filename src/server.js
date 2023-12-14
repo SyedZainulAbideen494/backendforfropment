@@ -2992,7 +2992,7 @@ app.post("/follow", (req, res) => {
         }
 
         // Notification creation
-        const notificationMessage = `You have a new follower! ${followerFirstName} ${followerLastName} is now following you.`;
+        const notificationMessage = `${followerFirstName} ${followerLastName} is now linked with you.`;
 
         connection.query(
           notificationQuery,

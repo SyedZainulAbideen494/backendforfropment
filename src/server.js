@@ -2222,26 +2222,34 @@ app.get("/user/shops/data", (req, res) => {
 });
 
 app.post("/addshopimg1", upload.single("image"), (req, res) => {
-  const images1 = req.file.filename;
-  const shop_id = req.headers.authorization; // Access the Authorization header correctly
-
-  const updateQuery = "UPDATE shops SET images1 = ? WHERE shop_id = ?";
-
-  connection.query(updateQuery, [images1, shop_id], (err, result) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).send("Error updating shop image.");
+  try {
+    if (!req.file) {
+      return res.status(400).send('No file uploaded.');
     }
 
-    if (result.affectedRows === 0) {
-      return res.status(404).send("Shop not found or no changes made.");
-    }
+    const images1 = req.file.filename;
+    const shop_id = req.headers.authorization; // Access the Authorization header correctly
 
-    console.log(result);
-    return res.status(200).send("Shop image updated successfully!");
-  });
+    const updateQuery = "UPDATE shops SET images1 = ? WHERE shop_id = ?";
+
+    connection.query(updateQuery, [images1, shop_id], (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send("Error updating shop image.");
+      }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).send("Shop not found or no changes made.");
+      }
+
+      console.log(result);
+      return res.status(200).send("Shop image updated successfully!");
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Server error.");
+  }
 });
-
 app.post("/addshopimg2", upload.single("image"), (req, res) => {
   const images2 = req.file.filename;
   const shop_id = req.headers.authorization; // Access the Authorization header correctly

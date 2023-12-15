@@ -4494,14 +4494,14 @@ app.put('/header/data', (req, res) => {
   const shop_id = req.headers.authorization;
   const { salestext, tagline, phone } = req.body;
 
-  const sql = `UPDATE shops SET salestext = ?, shop_tagline = ? WHERE shop_id = ?`; // Include 'phone'
+  const sql = `UPDATE shops SET salestext = ?, shop_tagline = ?, phone = ? WHERE shop_id = ?`;
 
   connection.query(sql, [salestext, tagline, phone, shop_id], (err, result) => {
     if (err) {
       console.error(err);
       res.status(500).json({ message: 'Internal server error' });
     } else {
-      res.json({ message: 'Order status updated successfully' });
+      res.json({ message: 'Data updated successfully' });
     }
   });
 });

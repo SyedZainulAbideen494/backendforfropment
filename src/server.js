@@ -3725,8 +3725,19 @@ app.get("/user/details/shop/details", (req, res) => {
 
 app.post("/place/order", (req, res) => {
   const {
-    name, Phone, Email, streetadrs, city, state, zipcode, country,
-    id, product, shop_id, occupation, orderDateTime
+    name,
+    Phone,
+    Email,
+    streetadrs,
+    city,
+    state,
+    zipcode,
+    country,
+    id,
+    product,
+    shop_id,
+    occupation,
+    orderDateTime
   } = req.body;
 
   const token = req.headers.authorization;
@@ -3741,11 +3752,11 @@ app.post("/place/order", (req, res) => {
   connection.query(selectQuery, [token], (err, rows) => {
     if (err) {
       console.error(err);
-      return res.status(500).send("Error fetching user.");
+      return res.status(500).json({ success: false, message: "Error fetching user." });
     }
 
     if (rows.length === 0) {
-      return res.status(401).send("Unauthorized user.");
+      return res.status(401).json({ success: false, message: "Unauthorized user." });
     }
 
     const user_id = rows[0].user_id;
@@ -3759,10 +3770,9 @@ app.post("/place/order", (req, res) => {
       (err, result) => {
         if (err) {
           console.error(err);
-          return res.status(500).send("Error placing order.");
+          return res.status(500).json({ success: false, message: "Error placing order." });
         }
 
-        console.log(result);
         const updateQuery = `
           UPDATE products 
           SET amount = CASE 
@@ -3775,20 +3785,18 @@ app.post("/place/order", (req, res) => {
         connection.query(updateQuery, [id], (err, updateResult) => {
           if (err) {
             console.error(err);
-            return res.status(500).send("Error updating product quantity.");
+            return res.status(500).json({ success: false, message: "Error updating product quantity." });
           }
-
-          console.log(updateResult);
 
           const shopOwnerQuery = `SELECT user_id FROM shops WHERE shop_id = ?`;
           connection.query(shopOwnerQuery, [shop_id], (err, shopRows) => {
             if (err) {
               console.error(err);
-              return res.status(500).send("Error fetching shop owner details.");
+              return res.status(500).json({ success: false, message: "Error fetching shop owner details." });
             }
 
             if (shopRows.length === 0) {
-              return res.status(404).send("Shop owner not found.");
+              return res.status(404).json({ success: false, message: "Shop owner not found." });
             }
 
             const shop_owner_id = shopRows[0].user_id;
@@ -3798,11 +3806,10 @@ app.post("/place/order", (req, res) => {
             connection.query(notificationInsertQuery, [shop_owner_id, notificationMessage], (err, notificationResult) => {
               if (err) {
                 console.error(err);
-                return res.status(500).send("Error sending notification to shop owner.");
+                return res.status(500).json({ success: false, message: "Error sending notification to shop owner." });
               }
 
-              console.log(notificationResult);
-              return res.status(200).send("Order placed successfully! Product quantity updated. Notification sent to shop owner.");
+              return res.status(200).json({ success: true, message: "Order placed successfully! Product quantity updated. Notification sent to shop owner." });
             });
           });
         });

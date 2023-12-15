@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir = file.mimetype.startsWith('image/') ? 'public/images' : 'public/videos';
+    const uploadDir = file.mimetype.startsWith('image/') ? '/root/dropment/backendforfropment/public/images' : '/root/dropment/backendforfropment/public/videos';
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {

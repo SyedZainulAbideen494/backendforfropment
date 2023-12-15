@@ -2792,7 +2792,7 @@ app.post('/create-checkout-session', async (req, res) => {
       payment_method_types: ['card'],
       line_items: [
         {
-          price: 'price_1NkrkYSGyKMMAZwsXbXR6K2x', // Replace with your Stripe Price ID
+          price: 'pmc_1MwatkSGyKMMAZwsf3fShgDV', // Replace with your Stripe Price ID
           quantity: 1,
         },
       ],

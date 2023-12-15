@@ -5304,20 +5304,20 @@ app.post('/section7/data', (req, res) => {
 });
 
 app.post('/footer/data/insert', (req, res) => {
-  const shop_id = req.headers.authorization; // Use 'authorization' instead of destructuring
+  const shop_id = req.headers.authorization;
   const {
     companyname,
     slogan,
     insta,
     facebook,
-    twitter, // Corrected typo here
+    twitter,
     linkedin, // Corrected variable name
     phone,
     email,
     whatsapp,
   } = req.body;
 
-  const sql = `INSERT INTO footer (shop_id, companyname, slogan, insta, facebook, twitter, linkdin, email, phone, whatsapp) VALUES (?,?,?,?,?,?,?,?,?,?)`;
+  const sql = `INSERT INTO footer (shop_id, companyname, slogan, insta, facebook, twitter, linkedin, email, phone, whatsapp) VALUES (?,?,?,?,?,?,?,?,?,?)`;
 
   connection.query(
     sql,
@@ -5328,7 +5328,7 @@ app.post('/footer/data/insert', (req, res) => {
       insta,
       facebook,
       twitter,
-      linkedin, // Corrected variable name
+      linkedin,
       email,
       phone,
       whatsapp,
@@ -5343,7 +5343,6 @@ app.post('/footer/data/insert', (req, res) => {
     }
   );
 });
-
 
 app.put('/section8/data', (req, res) => {
   const shop_id = req.headers.authorization; // Use 'authorization' instead of destructuring

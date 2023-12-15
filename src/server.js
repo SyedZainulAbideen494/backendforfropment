@@ -5721,31 +5721,29 @@ app.post('/updateVisits/:shopId', (req, res) => {
   connection.query(checkQuery, [shopId], (checkErr, checkResults) => {
     if (checkErr) {
       console.error('Error checking shop visits:', checkErr);
-      res.status(500).json({ error: 'Failed to check shop visits' });
+      return res.status(500).json({ error: 'Failed to check shop visits' });
+    }
+
+    if (checkResults.length > 0) {
+      // If shop_id exists, update visitors count
+      const updateQuery = 'UPDATE shop_visits SET visitors = visitors + 1 WHERE shop_id = ?';
+      connection.query(updateQuery, [shopId], (updateErr, updateResults) => {
+        if (updateErr) {
+          console.error('Error updating shop visits:', updateErr);
+          return res.status(500).json({ error: 'Failed to update shop visits' });
+        }
+        return res.json({ message: 'Shop visits updated successfully' });
+      });
     } else {
-      if (checkResults.length > 0) {
-        // If shop_id exists, update visitors count
-        const updateQuery = 'UPDATE shop_visits SET visitors = visitors + 1 WHERE shop_id = ?';
-        connection.query(updateQuery, [shopId], (updateErr, updateResults) => {
-          if (updateErr) {
-            console.error('Error updating shop visits:', updateErr);
-            res.status(500).json({ error: 'Failed to update shop visits' });
-          } else {
-            res.json({ message: 'Shop visits updated successfully' });
-          }
-        });
-      } else {
-        // If shop_id doesn't exist, insert a new record
-        const insertQuery = 'INSERT INTO shop_visits (shop_id, visit_date, visitors) VALUES (?, CURDATE(), 1)';
-        connection.query(insertQuery, [shopId], (insertErr, insertResults) => {
-          if (insertErr) {
-            console.error('Error inserting shop visits:', insertErr);
-            res.status(500).json({ error: 'Failed to insert shop visits' });
-          } else {
-            res.json({ message: 'New shop visits record added successfully' });
-          }
-        });
-      }
+      // If shop_id doesn't exist, insert a new record
+      const insertQuery = 'INSERT INTO shop_visits (shop_id, visit_date, visitors) VALUES (?, CURDATE(), 1)';
+      connection.query(insertQuery, [shopId], (insertErr, insertResults) => {
+        if (insertErr) {
+          console.error('Error inserting shop visits:', insertErr);
+          return res.status(500).json({ error: 'Failed to insert shop visits' });
+        }
+        return res.json({ message: 'New shop visits record added successfully' });
+      });
     }
   });
 });

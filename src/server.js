@@ -6228,6 +6228,14 @@ app.put("/api/remove/profile/picture", (req, res) => {
   });
 });
 
+app.get('/api/data', (req, res) => {
+  connection.query('SELECT * FROM users; SELECT * FROM shops', (err, results) => {
+    if (err) throw err;
+    const [users, shops] = results;
+    res.json({ users, shops });
+  });
+});
+
 app.listen(PORT, () => {
   console.log("Server started on port 8080");
 });

@@ -4494,7 +4494,7 @@ app.put('/header/data', (req, res) => {
   const shop_id = req.headers.authorization;
   const { salestext, tagline, phone } = req.body;
 
-  const sql = `UPDATE shops SET salestext = ?, shop_tagline = ?, phone = ? WHERE shop_id = ?`; // Include 'phone'
+  const sql = `UPDATE shops SET salestext = ?, shop_tagline = ?, phone_header_link = ? WHERE shop_id = ?`; // Include 'phone'
 
   connection.query(sql, [salestext, tagline, phone, shop_id], (err, result) => {
     if (err) {

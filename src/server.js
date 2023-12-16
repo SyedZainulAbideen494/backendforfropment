@@ -3832,7 +3832,6 @@ app.post("/place/order", (req, res) => {
   });
 });
 
-
 app.post("/orders", (req, res) => {
   const name = req.body.name;
   const Phone = req.body.Phone;

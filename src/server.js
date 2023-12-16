@@ -6231,7 +6231,97 @@ app.put("/api/remove/profile/picture", (req, res) => {
   });
 });
 
+app.get('/orders/admin/main', async (req, res) => {
+  const { token } = req.headers; // Assuming token is sent in headers
+  
+  try {
+    // Fetch user_id from users table based on the token
+    const userQuery = 'SELECT user_id FROM users WHERE jwt = ?';
+    const userResult = await queryDatabase(userQuery, [token]);
 
+    if (userResult.length === 0) {
+      res.status(401).send('Unauthorized');
+      return;
+    }
+
+    const userId = userResult[0].user_id;
+
+    // Fetch shop_id based on user_id
+    const shopQuery = 'SELECT shop_id FROM shops WHERE user_id = ?';
+    const shopResult = await queryDatabase(shopQuery, [userId]);
+
+    if (shopResult.length === 0) {
+      res.status(404).send('Shop not found');
+      return;
+    }
+
+    const shopId = shopResult[0].shop_id;
+
+    // Fetch orders based on shop_id
+    const ordersQuery = `
+      SELECT product, orderDateTime 
+      FROM orders 
+      WHERE shop_id = ?
+    `;
+    const ordersResult = await queryDatabase(ordersQuery, [shopId]);
+
+    res.json(ordersResult);
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+function queryDatabase(query, params) {
+  return new Promise((resolve, reject) => {
+    connection.query(query, params, (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
+// admin app dropment
+app.get('/usersCount/admin/app', (req, res) => {
+  connection.query('SELECT COUNT(*) AS userCount FROM users', (error, results) => {
+    if (error) throw error;
+    res.json(results[0]);
+  });
+});
+
+// Get number of shops
+app.get('/shopsCount/admin/app', (req, res) => {
+  connection.query('SELECT COUNT(*) AS shopCount FROM shops', (error, results) => {
+    if (error) throw error;
+    res.json(results[0]);
+  });
+});
+
+// Get number of orders
+app.get('/ordersCount/admin/app', (req, res) => {
+  connection.query('SELECT COUNT(*) AS orderCount FROM orders', (error, results) => {
+    if (error) throw error;
+    res.json(results[0]);
+  });
+});
+
+// Get all user names
+app.get('/userNames/admin/app', (req, res) => {
+  connection.query('SELECT firstName, lastName FROM users', (error, results) => {
+    if (error) throw error;
+    res.json(results);
+  });
+});
+
+// Get all shop names
+app.get('/shopNames/admin/app', (req, res) => {
+  connection.query('SELECT shopName FROM shops', (error, results) => {
+    if (error) throw error;
+    res.json(results);
+  });
+});
 
 app.listen(PORT, () => {
   console.log("Server started on port 8080");

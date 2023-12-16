@@ -6231,6 +6231,20 @@ app.put("/api/remove/profile/picture", (req, res) => {
   });
 });
 
+app.get('/orders/count', (req, res) => {
+  const query = 'SELECT COUNT(order_id) AS orderCount FROM orders';
+
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching order count: ', err);
+      res.status(500).json({ error: 'Error fetching order count' });
+      return;
+    }
+
+    const orderCount = results[0].orderCount;
+    res.json({ orderCount });
+  });
+});
 
 app.listen(PORT, () => {
   console.log("Server started on port 8080");

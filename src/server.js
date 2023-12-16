@@ -6303,6 +6303,27 @@ function queryDatabase(query, params) {
   });
 }
 
+app.put('/updateLive/:shopId', (req, res) => {
+  const { shopId } = req.params;
+
+  const updateQuery = `
+    UPDATE shops 
+    SET live = CASE 
+      WHEN shop_id = ? THEN 'live'
+      ELSE 'not_live'
+    END
+  `;
+
+  connection.query(updateQuery, [shopId], (error, results) => {
+    if (error) {
+      console.error('Error updating live status:', error);
+      res.status(500).send('Error updating live status');
+    } else {
+      res.status(200).send('Live status updated successfully');
+    }
+  });
+});
+
 app.listen(PORT, () => {
   console.log("Server started on port 8080");
 });

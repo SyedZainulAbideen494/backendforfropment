@@ -6303,22 +6303,19 @@ function queryDatabase(query, params) {
   });
 }
 
-app.put('/updateLive/:shopId', (req, res) => {
+app.put('/updateShop/live/:shopId', (req, res) => {
   const { shopId } = req.params;
 
-  const updateQuery = `
-    UPDATE shops 
-    SET live = 'live'
-    WHERE shop_id = ?
-  `;
+  const updateQuery = `UPDATE shops SET column_name = 'live' WHERE shop_id = ?`;
 
-  connection.query(updateQuery, [shopId], (error, results) => {
-    if (error) {
-      console.error('Error updating live status:', error);
-      res.status(500).send('Error updating live status');
-    } else {
-      res.status(200).send('Live status updated successfully');
+  connection.query(updateQuery, [shopId], (err, result) => {
+    if (err) {
+      console.error('Error updating shop status:', err);
+      res.status(500).send('Error updating shop status');
+      return;
     }
+    console.log('Shop status updated successfully');
+    res.status(200).send('Shop status updated successfully');
   });
 });
 

@@ -6307,12 +6307,10 @@ app.put('/updateLive/:shopId', (req, res) => {
   const { shopId } = req.params;
 
   const updateQuery = `
-    UPDATE shops 
-    SET live = CASE 
-      WHEN shop_id = ? THEN 'live'
-      ELSE 'not_live'
-    END
-  `;
+  UPDATE shops 
+  SET live = 'live'
+  WHERE shop_id = ?
+`;
 
   connection.query(updateQuery, [shopId], (error, results) => {
     if (error) {

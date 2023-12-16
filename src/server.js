@@ -6297,8 +6297,9 @@ app.get('/orderCount/admin/menu', (req, res) => {
     }
 
     // Get the count of unique orders_id
-    const uniqueOrderCount = results[0].uniqueOrderCount;
-    res.json({ uniqueOrderCount });
+    const uniqueOrderCount = results[0].totalorders;
+
+    res.json({ totalorders: uniqueOrderCount });
   });
 });
 

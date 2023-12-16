@@ -6284,24 +6284,24 @@ function queryDatabase(query, params) {
   });
 }
 // admin app dropment
-app.get('/usersCount/admin/app', (req, res) => {
-  connection.query('SELECT COUNT(*) AS userCount FROM users', (error, results) => {
+app.get('/userCountByUserID', (req, res) => {
+  connection.query('SELECT COUNT(DISTINCT user_id) AS userCount FROM users', (error, results) => {
     if (error) throw error;
     res.json(results[0]);
   });
 });
 
-// Get number of shops
-app.get('/shopsCount/admin/app', (req, res) => {
-  connection.query('SELECT COUNT(*) AS shopCount FROM shops', (error, results) => {
+// Count occurrences of shop_id in shops table
+app.get('/shopCountByShopID', (req, res) => {
+  connection.query('SELECT COUNT(DISTINCT shop_id) AS shopCount FROM shops', (error, results) => {
     if (error) throw error;
     res.json(results[0]);
   });
 });
 
-// Get number of orders
-app.get('/ordersCount/admin/app', (req, res) => {
-  connection.query('SELECT COUNT(*) AS orderCount FROM orders', (error, results) => {
+// Count occurrences of orders_id in orders table
+app.get('/orderCountByOrderID', (req, res) => {
+  connection.query('SELECT COUNT(DISTINCT orders_id) AS orderCount FROM orders', (error, results) => {
     if (error) throw error;
     res.json(results[0]);
   });
@@ -6309,7 +6309,7 @@ app.get('/ordersCount/admin/app', (req, res) => {
 
 // Get all user names
 app.get('/userNames/admin/app', (req, res) => {
-  connection.query('SELECT firstName, lastName FROM users', (error, results) => {
+  connection.query('SELECT first_name, last_name FROM users', (error, results) => {
     if (error) throw error;
     res.json(results);
   });
@@ -6317,7 +6317,7 @@ app.get('/userNames/admin/app', (req, res) => {
 
 // Get all shop names
 app.get('/shopNames/admin/app', (req, res) => {
-  connection.query('SELECT shopName FROM shops', (error, results) => {
+  connection.query('SELECT shop_name FROM shops', (error, results) => {
     if (error) throw error;
     res.json(results);
   });

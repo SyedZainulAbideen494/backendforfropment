@@ -3723,8 +3723,7 @@ app.get("/user/details/shop/details", (req, res) => {
   });
 });
 
-app.post('/place/order', (req, res) => {
-  const token = req.headers.authorization;
+app.post("/place/order", (req, res) => {
   const {
     name,
     Phone,
@@ -3744,14 +3743,14 @@ app.post('/place/order', (req, res) => {
   } = req.body;
 
   const selectQuery = `SELECT user_id FROM users WHERE jwt = ?`;
-  const insertOrderQuery = `
+  const insertQuery = `
     INSERT INTO orders (
       name, Phone, Email, streetadrs, city, state, zipcode, country,
       id, product, shop_id, occupation, sender_id, age, orderDateTime
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
-  connection.query(selectQuery, [token], (err, rows) => {
+  connection.query(selectQuery, [req.headers.authorization], (err, rows) => {
     if (err) {
       console.error("Error fetching user:", err);
       return res.status(500).send("Error fetching user.");
@@ -3764,7 +3763,7 @@ app.post('/place/order', (req, res) => {
     const user_id = rows[0].user_id;
 
     connection.query(
-      insertOrderQuery,
+      insertQuery,
       [
         name,
         Phone,
@@ -3788,7 +3787,8 @@ app.post('/place/order', (req, res) => {
           return res.status(500).send("Error placing order.");
         }
 
-        const updateProductQuery = `
+        // Update product quantity logic
+        const updateQuery = `
           UPDATE products 
           SET amount = CASE 
                          WHEN amount <= 1 THEN 'Sold Out'
@@ -3796,13 +3796,24 @@ app.post('/place/order', (req, res) => {
                        END 
           WHERE id = ?
         `;
-        connection.query(updateProductQuery, [id], (err, updateResult) => {
+        connection.query(updateQuery, [id], (err, updateResult) => {
           if (err) {
             console.error("Error updating product quantity:", err);
             return res.status(500).send("Error updating product quantity.");
           }
 
+          // Notify shop owner logic (replace with actual shop owner details retrieval and notification process)
+          const shopOwnerQuery = `SELECT user_id FROM shops WHERE shop_id = ?`;
+          connection.query(shopOwnerQuery, [shop_id], (err, shopRows) => {
+            if (err) {
+              console.error("Error fetching shop owner details:", err);
+              return res.status(500).send("Error fetching shop owner details.");
+            }
 
+            // Process notification logic here
+
+            return res.status(200).send("Order placed successfully!");
+          });
         });
       }
     );

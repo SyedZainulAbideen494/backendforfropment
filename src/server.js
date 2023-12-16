@@ -6250,6 +6250,21 @@ app.put("/api/remove/profile/picture", (req, res) => {
   });
 });
 
+app.put('/updateShopLiveStatus/:shopId', (req, res) => {
+  const { shopId } = req.params;
+  const { live } = req.body;
+
+  const updateQuery = `UPDATE shops SET live = ? WHERE id = ?`;
+
+  connection.query(updateQuery, [live, shopId], (err, results) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+    } else {
+      res.status(200).json({ message: 'Shop updated successfully' });
+    }
+  });
+});
+
 app.get('/orders/admin/main', async (req, res) => {
   const { token } = req.headers; // Assuming token is sent in headers
   
@@ -6303,23 +6318,6 @@ function queryDatabase(query, params) {
   });
 }
 
-app.put('/updateShop/live/:shopId', (req, res) => {
-  const { shopId } = req.params;
-
-  // Assuming 'connection' is a valid MySQL connection established elsewhere
-  const updateQuery = 'UPDATE shops SET live = ? WHERE shop_id = ?';
-  const values = ['live', shopId];
-
-  connection.query(updateQuery, values, (err, result) => {
-    if (err) {
-      console.error('Error updating shop status:', err);
-      res.status(500).json({ error: 'Error updating shop status' });
-      return;
-    }
-    console.log('Shop status updated successfully');
-    res.status(200).json({ message: 'Shop status updated successfully' });
-  });
-});
 
 
 app.listen(PORT, () => {

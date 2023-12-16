@@ -3743,7 +3743,7 @@ app.post("/place/order", (req, res) => {
   } = req.body;
 
   const selectQuery = `SELECT user_id FROM users WHERE jwt = ?`;
-  const insertQuery = `
+  const insertOrderQuery = `
     INSERT INTO orders (
       name, Phone, Email, streetadrs, city, state, zipcode, country,
       id, product, shop_id, occupation, sender_id, age, orderDateTime
@@ -3763,7 +3763,7 @@ app.post("/place/order", (req, res) => {
     const user_id = rows[0].user_id;
 
     connection.query(
-      insertQuery,
+      insertOrderQuery,
       [
         name,
         Phone,
@@ -3787,8 +3787,7 @@ app.post("/place/order", (req, res) => {
           return res.status(500).send("Error placing order.");
         }
 
-        // Update product quantity logic
-        const updateQuery = `
+        const updateProductQuery = `
           UPDATE products 
           SET amount = CASE 
                          WHEN amount <= 1 THEN 'Sold Out'
@@ -3796,13 +3795,12 @@ app.post("/place/order", (req, res) => {
                        END 
           WHERE id = ?
         `;
-        connection.query(updateQuery, [id], (err, updateResult) => {
+        connection.query(updateProductQuery, [id], (err, updateResult) => {
           if (err) {
             console.error("Error updating product quantity:", err);
             return res.status(500).send("Error updating product quantity.");
           }
 
-          // Notify shop owner logic (replace with actual shop owner details retrieval and notification process)
           const shopOwnerQuery = `SELECT user_id FROM shops WHERE shop_id = ?`;
           connection.query(shopOwnerQuery, [shop_id], (err, shopRows) => {
             if (err) {
@@ -3810,15 +3808,30 @@ app.post("/place/order", (req, res) => {
               return res.status(500).send("Error fetching shop owner details.");
             }
 
-            // Process notification logic here
+            if (shopRows.length === 0) {
+              return res.status(404).send("Shop owner not found.");
+            }
 
-            return res.status(200).send("Order placed successfully!");
+            const shop_owner_id = shopRows[0].user_id;
+            const notificationMessage = `New order for ${product} is being requested.`;
+            const insertNotificationQuery = "INSERT INTO notifications (user_id, message) VALUES (?, ?)";
+
+            connection.query(insertNotificationQuery, [shop_owner_id, notificationMessage], (err, notificationResult) => {
+              if (err) {
+                console.error("Error sending notification to shop owner:", err);
+                return res.status(500).send("Error sending notification to shop owner.");
+              }
+
+              console.log("Notification sent to shop owner:", notificationResult);
+              return res.status(200).send("Order placed successfully!");
+            });
           });
         });
       }
     );
   });
 });
+
 
 app.post("/orders", (req, res) => {
   const name = req.body.name;
@@ -6252,48 +6265,60 @@ app.put('/updateShopLiveStatus/:shopId', (req, res) => {
   });
 });
 
-app.get('/orders/overview', (req, res) => {
-  const token = req.headers.authorization; // Assuming the token is passed in the Authorization header
+app.get('/orders/admin/main', async (req, res) => {
+  const { token } = req.headers; // Assuming token is sent in headers
+  
+  try {
+    // Fetch user_id from users table based on the token
+    const userQuery = 'SELECT user_id FROM users WHERE jwt = ?';
+    const userResult = await queryDatabase(userQuery, [token]);
 
-  // Fetch user_id from users table using token directly
-  connection.query('SELECT user_id FROM users WHERE jwt = ?', [token], (error, results) => {
-    if (error) {
-      res.status(500).json({ error: 'Database Error' });
-    } else if (results.length === 0) {
-      res.status(401).json({ error: 'Unauthorized' });
-    } else {
-      const userId = results[0].user_id;
-
-      // Fetch shop_id from shops table using user_id
-      connection.query('SELECT shop_id FROM shops WHERE user_id = ?', [userId], (shopError, shopResults) => {
-        if (shopError) {
-          res.status(500).json({ error: 'Database Error' });
-        } else {
-          const shopIds = shopResults.map((result) => result.shop_id);
-
-          // Fetch orders for each shop_id
-          const promises = shopIds.map((shopId) => {
-            return new Promise((resolve, reject) => {
-              connection.query('SELECT COUNT(*) as orderCount, product FROM orders WHERE shop_id = ? GROUP BY product', [shopId], (err, orders) => {
-                if (err) reject(err);
-                resolve(orders);
-              });
-            });
-          });
-
-          // Resolve all promises and send the data
-          Promise.all(promises)
-            .then((ordersData) => {
-              res.json(ordersData);
-            })
-            .catch(() => {
-              res.status(500).json({ error: 'Internal Server Error' });
-            });
-        }
-      });
+    if (userResult.length === 0) {
+      res.status(401).send('Unauthorized');
+      return;
     }
-  });
+
+    const userId = userResult[0].user_id;
+
+    // Fetch shop_id based on user_id
+    const shopQuery = 'SELECT shop_id FROM shops WHERE user_id = ?';
+    const shopResult = await queryDatabase(shopQuery, [userId]);
+
+    if (shopResult.length === 0) {
+      res.status(404).send('Shop not found');
+      return;
+    }
+
+    const shopId = shopResult[0].shop_id;
+
+    // Fetch orders based on shop_id
+    const ordersQuery = `
+      SELECT product, orderDateTime 
+      FROM orders 
+      WHERE shop_id = ?
+    `;
+    const ordersResult = await queryDatabase(ordersQuery, [shopId]);
+
+    res.json(ordersResult);
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    res.status(500).send('Internal Server Error');
+  }
 });
+
+function queryDatabase(query, params) {
+  return new Promise((resolve, reject) => {
+    connection.query(query, params, (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
+
+
 
 app.listen(PORT, () => {
   console.log("Server started on port 8080");

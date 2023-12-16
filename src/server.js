@@ -3762,7 +3762,7 @@ app.post('/place-order', (req, res) => {
     orderDateTime
   };
 
-  db.query('INSERT INTO orders SET ?', order, (error, results) => {
+  connection.query('INSERT INTO orders SET ?', order, (error, results) => {
     if (error) {
       res.status(500).json({ error: 'Failed to place order' });
     } else {

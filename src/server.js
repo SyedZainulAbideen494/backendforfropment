@@ -6284,29 +6284,23 @@ function queryDatabase(query, params) {
   });
 }
 // admin app dropment
-app.get('/userCountByUserID', (req, res) => {
-  connection.query('SELECT COUNT(DISTINCT user_id) AS userCount FROM users', (error, results) => {
-    if (error) throw error;
-    res.json(results[0]);
+app.get('/orderCount/admin/menu', (req, res) => {
+  // Query to count rows in the 'orders' table
+  const countQuery = 'SELECT COUNT(*) AS orderCount FROM orders';
+
+  // Use the connection pool to execute the query
+  connection.query(countQuery, (error, results) => {
+    if (error) {
+      console.error('Error executing query:', error);
+      res.status(500).json({ error: 'Internal server error' });
+      return;
+    }
+
+    // Get the count of orders
+    const orderCount = results[0].orderCount;
+    res.json({ orderCount });
   });
 });
-
-// Count occurrences of shop_id in shops table
-app.get('/shopCountByShopID', (req, res) => {
-  connection.query('SELECT COUNT(DISTINCT shop_id) AS shopCount FROM shops', (error, results) => {
-    if (error) throw error;
-    res.json(results[0]);
-  });
-});
-
-// Count occurrences of orders_id in orders table
-app.get('/orderCountByOrderID', (req, res) => {
-  connection.query('SELECT COUNT(DISTINCT orders_id) AS orderCount FROM orders', (error, results) => {
-    if (error) throw error;
-    res.json(results[0]);
-  });
-});
-
 // Get all user names
 app.get('/userNames/admin/app', (req, res) => {
   connection.query('SELECT first_name, last_name FROM users', (error, results) => {

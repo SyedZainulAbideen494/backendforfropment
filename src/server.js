@@ -6254,7 +6254,7 @@ app.put('/updateShopLiveStatus/:shopId', (req, res) => {
   const { shopId } = req.params;
   const { live } = req.body;
 
-  const updateQuery = `UPDATE shops SET live = ? WHERE id = ?`;
+  const updateQuery = `UPDATE shops SET live = ? WHERE shop_id = ?`;
 
   connection.query(updateQuery, [live, shopId], (err, results) => {
     if (err) {

@@ -6265,60 +6265,48 @@ app.put('/updateShopLiveStatus/:shopId', (req, res) => {
   });
 });
 
-app.get('/orders/admin/main', async (req, res) => {
-  const { token } = req.headers; // Assuming token is sent in headers
-  
-  try {
-    // Fetch user_id from users table based on the token
-    const userQuery = 'SELECT user_id FROM users WHERE jwt = ?';
-    const userResult = await queryDatabase(userQuery, [token]);
+app.get('/orders/overview', (req, res) => {
+  const token = req.headers.authorization; // Assuming the token is passed in the Authorization header
 
-    if (userResult.length === 0) {
-      res.status(401).send('Unauthorized');
-      return;
+  // Fetch user_id from users table using token directly
+  connection.query('SELECT user_id FROM users WHERE jwt = ?', [token], (error, results) => {
+    if (error) {
+      res.status(500).json({ error: 'Database Error' });
+    } else if (results.length === 0) {
+      res.status(401).json({ error: 'Unauthorized' });
+    } else {
+      const userId = results[0].user_id;
+
+      // Fetch shop_id from shops table using user_id
+      connection.query('SELECT shop_id FROM shops WHERE user_id = ?', [userId], (shopError, shopResults) => {
+        if (shopError) {
+          res.status(500).json({ error: 'Database Error' });
+        } else {
+          const shopIds = shopResults.map((result) => result.shop_id);
+
+          // Fetch orders for each shop_id
+          const promises = shopIds.map((shopId) => {
+            return new Promise((resolve, reject) => {
+              connection.query('SELECT COUNT(*) as orderCount, product_name FROM orders WHERE shop_id = ? GROUP BY product_name', [shopId], (err, orders) => {
+                if (err) reject(err);
+                resolve(orders);
+              });
+            });
+          });
+
+          // Resolve all promises and send the data
+          Promise.all(promises)
+            .then((ordersData) => {
+              res.json(ordersData);
+            })
+            .catch(() => {
+              res.status(500).json({ error: 'Internal Server Error' });
+            });
+        }
+      });
     }
-
-    const userId = userResult[0].user_id;
-
-    // Fetch shop_id based on user_id
-    const shopQuery = 'SELECT shop_id FROM shops WHERE user_id = ?';
-    const shopResult = await queryDatabase(shopQuery, [userId]);
-
-    if (shopResult.length === 0) {
-      res.status(404).send('Shop not found');
-      return;
-    }
-
-    const shopId = shopResult[0].shop_id;
-
-    // Fetch orders based on shop_id
-    const ordersQuery = `
-      SELECT product, orderDateTime 
-      FROM orders 
-      WHERE shop_id = ?
-    `;
-    const ordersResult = await queryDatabase(ordersQuery, [shopId]);
-
-    res.json(ordersResult);
-  } catch (error) {
-    console.error('Error fetching orders:', error);
-    res.status(500).send('Internal Server Error');
-  }
-});
-
-function queryDatabase(query, params) {
-  return new Promise((resolve, reject) => {
-    connection.query(query, params, (err, results) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(results);
-      }
-    });
   });
-}
-
-
+});
 
 app.listen(PORT, () => {
   console.log("Server started on port 8080");

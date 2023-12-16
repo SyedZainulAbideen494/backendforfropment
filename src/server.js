@@ -3726,14 +3726,22 @@ app.get("/user/details/shop/details", (req, res) => {
 app.post("/place/order", (req, res) => {
   const {
     name,
-     Phone,
-      Email,
-       streetadrs,
-        city, state, zipcode, country,
-    id, product, shop_id, occupation, orderDateTime
+    Phone,
+    Email,
+    streetadrs,
+    city,
+    state,
+    zipcode,
+    country,
+    id,
+    product,
+    shop_id,
+    occupation,
+    sender_id,
+    age,
+    orderDateTime,
   } = req.body;
 
-  const token = req.headers.authorization;
   const selectQuery = `SELECT user_id FROM users WHERE jwt = ?`;
   const insertQuery = `
     INSERT INTO orders (
@@ -3742,9 +3750,9 @@ app.post("/place/order", (req, res) => {
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
-  connection.query(selectQuery, [token], (err, rows) => {
+  connection.query(selectQuery, [req.headers.authorization], (err, rows) => {
     if (err) {
-      console.error(err);
+      console.error("Error fetching user:", err);
       return res.status(500).send("Error fetching user.");
     }
 
@@ -3757,16 +3765,29 @@ app.post("/place/order", (req, res) => {
     connection.query(
       insertQuery,
       [
-        name, Phone, Email, streetadrs, city, state, zipcode, country,
-        id, product, shop_id, occupation, user_id, req.body.age, orderDateTime
+        name,
+        Phone,
+        Email,
+        streetadrs,
+        city,
+        state,
+        zipcode,
+        country,
+        id,
+        product,
+        shop_id,
+        occupation,
+        user_id,
+        age,
+        orderDateTime,
       ],
       (err, result) => {
         if (err) {
-          console.error(err);
+          console.error("Error placing order:", err);
           return res.status(500).send("Error placing order.");
         }
 
-        console.log(result);
+        // Update product quantity logic
         const updateQuery = `
           UPDATE products 
           SET amount = CASE 
@@ -3775,45 +3796,30 @@ app.post("/place/order", (req, res) => {
                        END 
           WHERE id = ?
         `;
-
         connection.query(updateQuery, [id], (err, updateResult) => {
           if (err) {
-            console.error(err);
+            console.error("Error updating product quantity:", err);
             return res.status(500).send("Error updating product quantity.");
           }
 
-          console.log(updateResult);
-
+          // Notify shop owner logic (replace with actual shop owner details retrieval and notification process)
           const shopOwnerQuery = `SELECT user_id FROM shops WHERE shop_id = ?`;
           connection.query(shopOwnerQuery, [shop_id], (err, shopRows) => {
             if (err) {
-              console.error(err);
+              console.error("Error fetching shop owner details:", err);
               return res.status(500).send("Error fetching shop owner details.");
             }
 
-            if (shopRows.length === 0) {
-              return res.status(404).send("Shop owner not found.");
-            }
+            // Process notification logic here
 
-            const shop_owner_id = shopRows[0].user_id;
-            const notificationMessage = `New order for ${product} is being requested.`;
-            const notificationInsertQuery = "INSERT INTO notification(user_id, message) VALUES (?, ?)";
-
-            connection.query(notificationInsertQuery, [shop_owner_id, notificationMessage], (err, notificationResult) => {
-              if (err) {
-                console.error(err);
-                return res.status(500).send("Error sending notification to shop owner.");
-              }
-
-              console.log(notificationResult);
-              return res.status(200).send("Order placed successfully! Product quantity updated. Notification sent to shop owner.");
-            });
+            return res.status(200).send("Order placed successfully!");
           });
         });
       }
     );
   });
 });
+
 app.post("/orders", (req, res) => {
   const name = req.body.name;
   const Phone = req.body.Phone;

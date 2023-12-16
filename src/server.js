@@ -6286,7 +6286,7 @@ function queryDatabase(query, params) {
 // admin app dropment
 app.get('/orderCount/admin/menu', (req, res) => {
   // Query to count distinct orders_id in the 'orders' table
-  const countQuery = 'SELECT COUNT(DISTINCT orders_id) AS uniqueOrderCount FROM orders';
+  const countQuery = 'SELECT COUNT(orders_id) as totalorders FROM orders';
 
   // Use the connection pool to execute the query
   connection.query(countQuery, (error, results) => {
@@ -6301,21 +6301,7 @@ app.get('/orderCount/admin/menu', (req, res) => {
     res.json({ uniqueOrderCount });
   });
 });
-// Get all user names
-app.get('/userNames/admin/app', (req, res) => {
-  connection.query('SELECT first_name, last_name FROM users', (error, results) => {
-    if (error) throw error;
-    res.json(results);
-  });
-});
 
-// Get all shop names
-app.get('/shopNames/admin/app', (req, res) => {
-  connection.query('SELECT shop_name FROM shops', (error, results) => {
-    if (error) throw error;
-    res.json(results);
-  });
-});
 
 app.listen(PORT, () => {
   console.log("Server started on port 8080");

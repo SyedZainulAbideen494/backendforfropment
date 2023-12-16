@@ -6232,7 +6232,7 @@ app.put("/api/remove/profile/picture", (req, res) => {
 });
 
 app.get('/orders/count', (req, res) => {
-  const query = 'SELECT COUNT(orders_id) AS orderCount FROM orders';
+  const query = 'SELECT COUNT(user_id) AS orderCount FROM users';
 
   connection.query(query, (err, results) => {
     if (err) {

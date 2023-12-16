@@ -3724,6 +3724,7 @@ app.get("/user/details/shop/details", (req, res) => {
 });
 
 app.post("/place/order", (req, res) => {
+  const token = req.headers.authorization
   const {
     name,
     Phone,
@@ -3750,7 +3751,7 @@ app.post("/place/order", (req, res) => {
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
-  connection.query(selectQuery, [req.headers.authorization], (err, rows) => {
+  connection.query(selectQuery, [token], (err, rows) => {
     if (err) {
       console.error("Error fetching user:", err);
       return res.status(500).send("Error fetching user.");

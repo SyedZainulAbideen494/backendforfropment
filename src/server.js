@@ -6306,7 +6306,7 @@ function queryDatabase(query, params) {
 app.put('/updateShop/live/:shopId', (req, res) => {
   const { shopId } = req.params;
 
-  const updateQuery = `UPDATE shops SET column_name = 'live' WHERE shop_id = ?`;
+  const updateQuery = `UPDATE shops SET live = 'live' WHERE shop_id = ?`;
 
   connection.query(updateQuery, [shopId], (err, result) => {
     if (err) {

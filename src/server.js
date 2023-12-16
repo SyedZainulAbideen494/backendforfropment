@@ -3833,45 +3833,42 @@ app.post("/place/order", (req, res) => {
 });
 
 
-app.post('/orders', async (req, res) => {
-  try {
-    // Retrieve data from the request body
-    const {
-      name,
-      Phone,
-      Email,
-      streetadrs,
-      city,
-      state,
-      zipcode,
-      country,
-      id,
-      product,
-      shop_id,
-      occupation,
-      age,
-      token
-    } = req.body;
+app.post("/orders", (req, res) => {
+  const name = req.body.name;
+  const Phone = req.body.Phone;
+  const Email = req.body.Email;
+  const streetadrs = req.body.streetadrs;
+  const city = req.body.city;
+  const state = req.body.state;
+  const zipcode = req.body.zipcode;
+  const country = req.body.country;
+  const id = req.body.id;
+  const product = req.body.product;
+  const shop_id = req.body.shop_id;
+  const product_id = req.body.product_id;
+  const token = req.headers.authorization;
+  const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
+  const insertQuery =
+    "INSERT INTO orders(name, Phone, Email, streetadrs, city, state, zipcode, country, id, product, sender_id, shop_id) VALUES (?, ?, ?, ?, ?, ?,?,?,?,?,?,?)";
 
-    // Query to fetch user_id using the provided token
-    const fetchUserIdQuery = 'SELECT user_id FROM users WHERE token = ?';
+  // Execute the first query to fetch users
+  const fetchUsersPromise = new Promise((resolve, reject) => {
+    connection.query(selectQuery, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
 
-    // Execute the query to fetch user_id
-    connection.query(fetchUserIdQuery, [token], async (error, results) => {
-      if (error) {
-        console.error('Error fetching user_id:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-      } else {
-        if (results.length > 0) {
-          const user_id = results[0].user_id;
-
-          // Creating a SQL query to insert the order into the database
-          const insertQuery = `INSERT INTO orders 
-            (name, Phone, Email, streetadrs, city, state, zipcode, country, id, product, shop_id, occupation, age, sender_id, orderDateTime)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-
-          // Values to be inserted into the query
-          const values = [
+  // Chain the promises to insert the shop details after fetching the users
+  fetchUsersPromise
+    .then((rows) => {
+      // Assuming you have a specific user in mind to retrieve the userId
+      const sender_id = rows[0].user_id;
+      // Execute the second query to insert shop details
+      return new Promise((resolve, reject) => {
+        connection.query(
+          insertQuery,
+          [
             name,
             Phone,
             Email,
@@ -3882,32 +3879,27 @@ app.post('/orders', async (req, res) => {
             country,
             id,
             product,
+            sender_id,
             shop_id,
-            occupation,
-            age,
-            user_id, // Inserting fetched user_id into the order
-            formattedDate + ' ' + formattedTime // Assuming these are already defined
-          ];
-
-          // Execute the query to insert the order
-          connection.query(insertQuery, values, (error, results) => {
-            if (error) {
-              console.error('Error placing order:', error);
-              res.status(500).json({ error: 'Internal Server Error' });
-            } else {
-              res.status(200).json({ message: 'Order received successfully' });
-            }
-          });
-        } else {
-          res.status(404).json({ error: 'User not found' });
-        }
-      }
+            product_id,
+          ],
+          (err, result) => {
+            if (err) reject(err);
+            else resolve(result);
+          }
+        );
+      });
+    })
+    .then((result) => {
+      console.log(result);
+      res.status(200).send("Shop added successfully!");
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("Error adding shop.");
     });
-  } catch (error) {
-    console.error('Error placing order:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
 });
+
 
 app.get("/prods/details/orders/for/details", (req, res) => {
   const token = req.headers.authorization;

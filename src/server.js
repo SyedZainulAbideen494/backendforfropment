@@ -3723,8 +3723,119 @@ app.get("/user/details/shop/details", (req, res) => {
   });
 });
 
-app.post("/place/order", async (req, res) => {
+app.post("/place/order", (req, res) => {
+  const {
+    name,
+    Phone,
+    Email,
+    streetadrs,
+    city,
+    state,
+    zipcode,
+    country,
+    id,
+    product,
+    shop_id,
+    occupation,
+    sender_id,
+    age,
+    orderDateTime,
+  } = req.body;
+
+  const selectQuery = `SELECT user_id FROM users WHERE jwt = ?`;
+  const insertOrderQuery = `
+    INSERT INTO orders (
+      name, Phone, Email, streetadrs, city, state, zipcode, country,
+      id, product, shop_id, occupation, sender_id, age, orderDateTime
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+
+  connection.query(selectQuery, [req.headers.authorization], (err, rows) => {
+    if (err) {
+      console.error("Error fetching user:", err);
+      return res.status(500).send("Error fetching user.");
+    }
+
+    if (rows.length === 0) {
+      return res.status(401).send("Unauthorized user.");
+    }
+
+    const user_id = rows[0].user_id;
+
+    connection.query(
+      insertOrderQuery,
+      [
+        name,
+        Phone,
+        Email,
+        streetadrs,
+        city,
+        state,
+        zipcode,
+        country,
+        id,
+        product,
+        shop_id,
+        occupation,
+        user_id,
+        age,
+        orderDateTime,
+      ],
+      (err, result) => {
+        if (err) {
+          console.error("Error placing order:", err);
+          return res.status(500).send("Error placing order.");
+        }
+
+        const updateProductQuery = `
+          UPDATE products 
+          SET amount = CASE 
+                         WHEN amount <= 1 THEN 'Sold Out'
+                         ELSE amount - 1 
+                       END 
+          WHERE id = ?
+        `;
+        connection.query(updateProductQuery, [id], (err, updateResult) => {
+          if (err) {
+            console.error("Error updating product quantity:", err);
+            return res.status(500).send("Error updating product quantity.");
+          }
+
+          const shopOwnerQuery = `SELECT user_id FROM shops WHERE shop_id = ?`;
+          connection.query(shopOwnerQuery, [shop_id], (err, shopRows) => {
+            if (err) {
+              console.error("Error fetching shop owner details:", err);
+              return res.status(500).send("Error fetching shop owner details.");
+            }
+
+            if (shopRows.length === 0) {
+              return res.status(404).send("Shop owner not found.");
+            }
+
+            const shop_owner_id = shopRows[0].user_id;
+            const notificationMessage = `New order for ${product} is being requested.`;
+            const insertNotificationQuery = "INSERT INTO notifications (user_id, message) VALUES (?, ?)";
+
+            connection.query(insertNotificationQuery, [shop_owner_id, notificationMessage], (err, notificationResult) => {
+              if (err) {
+                console.error("Error sending notification to shop owner:", err);
+                return res.status(500).send("Error sending notification to shop owner.");
+              }
+
+              console.log("Notification sent to shop owner:", notificationResult);
+              return res.status(200).send("Order placed successfully!");
+            });
+          });
+        });
+      }
+    );
+  });
+});
+
+
+app.post('/orders', async (req, res) => {
   try {
+    // Retrieve data from the request body
     const {
       name,
       Phone,
@@ -3739,111 +3850,28 @@ app.post("/place/order", async (req, res) => {
       shop_id,
       occupation,
       age,
-      orderDateTime,
+      token
     } = req.body;
 
-    const selectQuery = `SELECT user_id FROM users WHERE jwt = ?`;
-    const userRows = await queryAsync(selectQuery, [req.headers.authorization]);
+    // Query to fetch user_id using the provided token
+    const fetchUserIdQuery = 'SELECT user_id FROM users WHERE token = ?';
 
-    if (userRows.length === 0) {
-      return res.status(401).send("Unauthorized user.");
-    }
+    // Execute the query to fetch user_id
+    connection.query(fetchUserIdQuery, [token], async (error, results) => {
+      if (error) {
+        console.error('Error fetching user_id:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      } else {
+        if (results.length > 0) {
+          const user_id = results[0].user_id;
 
-    const user_id = userRows[0].user_id;
+          // Creating a SQL query to insert the order into the database
+          const insertQuery = `INSERT INTO orders 
+            (name, Phone, Email, streetadrs, city, state, zipcode, country, id, product, shop_id, occupation, age, sender_id, orderDateTime)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
-    const insertOrderQuery = `
-      INSERT INTO orders (
-        name, Phone, Email, streetadrs, city, state, zipcode, country,
-        id, product, shop_id, occupation, sender_id, age, orderDateTime
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-
-    await queryAsync(insertOrderQuery, [
-      name,
-      Phone,
-      Email,
-      streetadrs,
-      city,
-      state,
-      zipcode,
-      country,
-      id,
-      product,
-      shop_id,
-      occupation,
-      user_id,
-      age,
-      orderDateTime,
-    ]);
-
-    const updateProductQuery = `
-      UPDATE products 
-      SET amount = CASE 
-                     WHEN amount <= 1 THEN 'Sold Out'
-                     ELSE amount - 1 
-                   END 
-      WHERE id = ?
-    `;
-    await queryAsync(updateProductQuery, [id]);
-
-    const shopOwnerQuery = `SELECT user_id FROM shops WHERE shop_id = ?`;
-    const shopRows = await queryAsync(shopOwnerQuery, [shop_id]);
-
-    if (shopRows.length === 0) {
-      return res.status(404).send("Shop owner not found.");
-    }
-
-    const shop_owner_id = shopRows[0].user_id;
-    const notificationMessage = `New order for ${product} is being requested.`;
-    const insertNotificationQuery = "INSERT INTO notifications (user_id, message) VALUES (?, ?)";
-
-    await queryAsync(insertNotificationQuery, [shop_owner_id, notificationMessage]);
-
-    console.log("Notification sent to shop owner");
-    return res.status(200).send("Order placed successfully!");
-  } catch (error) {
-    console.error("Error:", error);
-    return res.status(500).send("Something went wrong.");
-  }
-});
-
-
-app.post("/orders", (req, res) => {
-  const name = req.body.name;
-  const Phone = req.body.Phone;
-  const Email = req.body.Email;
-  const streetadrs = req.body.streetadrs;
-  const city = req.body.city;
-  const state = req.body.state;
-  const zipcode = req.body.zipcode;
-  const country = req.body.country;
-  const id = req.body.id;
-  const product = req.body.product;
-  const shop_id = req.body.shop_id;
-  const product_id = req.body.product_id;
-  const token = req.headers.authorization;
-  const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
-  const insertQuery =
-    "INSERT INTO orders(name, Phone, Email, streetadrs, city, state, zipcode, country, id, product, sender_id, shop_id) VALUES (?, ?, ?, ?, ?, ?,?,?,?,?,?,?)";
-
-  // Execute the first query to fetch users
-  const fetchUsersPromise = new Promise((resolve, reject) => {
-    connection.query(selectQuery, (err, rows) => {
-      if (err) reject(err);
-      else resolve(rows);
-    });
-  });
-
-  // Chain the promises to insert the shop details after fetching the users
-  fetchUsersPromise
-    .then((rows) => {
-      // Assuming you have a specific user in mind to retrieve the userId
-      const sender_id = rows[0].user_id;
-      // Execute the second query to insert shop details
-      return new Promise((resolve, reject) => {
-        connection.query(
-          insertQuery,
-          [
+          // Values to be inserted into the query
+          const values = [
             name,
             Phone,
             Email,
@@ -3854,27 +3882,32 @@ app.post("/orders", (req, res) => {
             country,
             id,
             product,
-            sender_id,
             shop_id,
-            product_id,
-          ],
-          (err, result) => {
-            if (err) reject(err);
-            else resolve(result);
-          }
-        );
-      });
-    })
-    .then((result) => {
-      console.log(result);
-      res.status(200).send("Shop added successfully!");
-    })
-    .catch((err) => {
-      console.error(err);
-      res.status(500).send("Error adding shop.");
-    });
-});
+            occupation,
+            age,
+            user_id, // Inserting fetched user_id into the order
+            formattedDate + ' ' + formattedTime // Assuming these are already defined
+          ];
 
+          // Execute the query to insert the order
+          connection.query(insertQuery, values, (error, results) => {
+            if (error) {
+              console.error('Error placing order:', error);
+              res.status(500).json({ error: 'Internal Server Error' });
+            } else {
+              res.status(200).json({ message: 'Order received successfully' });
+            }
+          });
+        } else {
+          res.status(404).json({ error: 'User not found' });
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Error placing order:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 app.get("/prods/details/orders/for/details", (req, res) => {
   const token = req.headers.authorization;

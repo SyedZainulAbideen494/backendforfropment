@@ -6287,7 +6287,7 @@ app.get('/orders/overview', (req, res) => {
           // Fetch orders for each shop_id
           const promises = shopIds.map((shopId) => {
             return new Promise((resolve, reject) => {
-              connection.query('SELECT COUNT(*) as orderCount, product_name FROM orders WHERE shop_id = ? GROUP BY product_name', [shopId], (err, orders) => {
+              connection.query('SELECT COUNT(*) as orderCount, product FROM orders WHERE shop_id = ? GROUP BY product_name', [shopId], (err, orders) => {
                 if (err) reject(err);
                 resolve(orders);
               });

@@ -6306,18 +6306,21 @@ function queryDatabase(query, params) {
 app.put('/updateShop/live/:shopId', (req, res) => {
   const { shopId } = req.params;
 
-  const updateQuery = `UPDATE shops SET live = 'live' WHERE shop_id = ?`;
+  // Assuming 'connection' is a valid MySQL connection established elsewhere
+  const updateQuery = 'UPDATE shops SET live = ? WHERE shop_id = ?';
+  const values = ['live', shopId];
 
-  connection.query(updateQuery, [shopId], (err, result) => {
+  connection.query(updateQuery, values, (err, result) => {
     if (err) {
       console.error('Error updating shop status:', err);
-      res.status(500).send('Error updating shop status');
+      res.status(500).json({ error: 'Error updating shop status' });
       return;
     }
     console.log('Shop status updated successfully');
-    res.status(200).send('Shop status updated successfully');
+    res.status(200).json({ message: 'Shop status updated successfully' });
   });
 });
+
 
 app.listen(PORT, () => {
   console.log("Server started on port 8080");

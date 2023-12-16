@@ -3723,8 +3723,8 @@ app.get("/user/details/shop/details", (req, res) => {
   });
 });
 
-app.post("/place/order", (req, res) => {
-  const token = req.headers.authorization
+app.post('/place/order', (req, res) => {
+  const token = req.headers.authorization;
   const {
     name,
     Phone,

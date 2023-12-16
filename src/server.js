@@ -6285,8 +6285,8 @@ function queryDatabase(query, params) {
 }
 // admin app dropment
 app.get('/orderCount/admin/menu', (req, res) => {
-  // Query to count rows in the 'orders' table
-  const countQuery = 'SELECT COUNT(*) AS orderCount FROM orders';
+  // Query to count distinct orders_id in the 'orders' table
+  const countQuery = 'SELECT COUNT(DISTINCT orders_id) AS uniqueOrderCount FROM orders';
 
   // Use the connection pool to execute the query
   connection.query(countQuery, (error, results) => {
@@ -6296,9 +6296,9 @@ app.get('/orderCount/admin/menu', (req, res) => {
       return;
     }
 
-    // Get the count of orders
-    const orderCount = results[0].orderCount;
-    res.json({ orderCount });
+    // Get the count of unique orders_id
+    const uniqueOrderCount = results[0].uniqueOrderCount;
+    res.json({ uniqueOrderCount });
   });
 });
 // Get all user names

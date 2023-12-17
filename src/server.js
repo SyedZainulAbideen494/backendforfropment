@@ -3814,7 +3814,6 @@ app.post("/place/order", async (req, res) => {
     return res.status(500).send("Error placing order.");
   }
 });
-
 app.post("/orders", (req, res) => {
   const name = req.body.name;
   const Phone = req.body.Phone;

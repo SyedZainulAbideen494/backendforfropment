@@ -2898,39 +2898,16 @@ app.post('/create-checkout-session3', async (req, res) => {
 // This endpoint receives the Stripe webhook event when a payment is successful
 
 app.get("/all/users", (req, res) => {
-  const id = req.headers.authorization;
   const selectQuery = `SELECT * FROM users LIMIT 3`;
-  const insertQuery = "SELECT * FROM products where id = ?";
 
-  // Execute the first query to fetch users
-  const fetchUsersPromise = new Promise((resolve, reject) => {
-    connection.query(selectQuery, (err, rows) => {
-      if (err) reject(err);
-      else resolve(rows);
-    });
-  });
-
-  // Chain the promises to insert the shop details after fetching the users
-  fetchUsersPromise
-    .then((rows) => {
-      // Assuming you have a specific user in mind to retrieve the userId
-      const id = rows[0].orders_id;
-
-      return new Promise((resolve, reject) => {
-        const shopsquary = `select * from users LIMIT 3`;
-        connection.query(shopsquary, (err, result) => {
-          if (err) reject(err);
-          else resolve;
-          res.send({ order: result });
-        });
-      });
-    })
-    .then((result) => {
-      res.send({ order: result });
-    })
-    .catch((err) => {
+  connection.query(selectQuery, (err, users) => {
+    if (err) {
       console.error(err);
-    });
+      return res.status(500).json({ error: "Failed to fetch users" });
+    }
+
+    res.status(200).json({ order: users });
+  });
 });
 
 app.get("/user/profile/details", (req, res) => {

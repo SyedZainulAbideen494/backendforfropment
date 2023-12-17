@@ -6252,59 +6252,29 @@ app.put('/updateShopLiveStatus/:shopId', (req, res) => {
   });
 });
 
-app.get('/orders/admin/main', async (req, res) => {
-  const { token } = req.headers; // Assuming token is sent in headers
-  
-  try {
-    // Fetch user_id from users table based on the token
-    const userQuery = 'SELECT user_id FROM users WHERE jwt = ?';
-    const userResult = await queryDatabase(userQuery, [token]);
 
-    if (userResult.length === 0) {
-      res.status(401).send('Unauthorized');
+app.get('/userOrders', (req, res) => {
+  const userId = req.query.user_id; // Assuming user_id is sent as a query parameter
+
+  const selectQuery = `
+    SELECT * FROM orders 
+    WHERE shop_id IN (SELECT shop_id FROM shops WHERE user_id = ?)
+  `;
+
+  connection.query(selectQuery, [userId], (error, results) => {
+    if (error) {
+      console.error('Error fetching user orders:', error);
+      res.status(500).json({ error: 'Internal server error' });
       return;
     }
 
-    const userId = userResult[0].user_id;
-
-    // Fetch shop_id based on user_id
-    const shopQuery = 'SELECT shop_id FROM shops WHERE user_id = ?';
-    const shopResult = await queryDatabase(shopQuery, [userId]);
-
-    if (shopResult.length === 0) {
-      res.status(404).send('Shop not found');
-      return;
+    if (results.length > 0) {
+      res.status(200).json(results);
+    } else {
+      res.status(404).json({ error: 'Orders not found for this user' });
     }
-
-    const shopId = shopResult[0].shop_id;
-
-    // Fetch orders based on shop_id
-    const ordersQuery = `
-      SELECT product, orderDateTime 
-      FROM orders 
-      WHERE shop_id = ?
-    `;
-    const ordersResult = await queryDatabase(ordersQuery, [shopId]);
-
-    res.json(ordersResult);
-  } catch (error) {
-    console.error('Error fetching orders:', error);
-    res.status(500).send('Internal Server Error');
-  }
-});
-
-function queryDatabase(query, params) {
-  return new Promise((resolve, reject) => {
-    connection.query(query, params, (err, results) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(results);
-      }
-    });
   });
-}
-
+});
 
 
 app.listen(PORT, () => {

@@ -6263,6 +6263,16 @@ app.get('/orderCount/admin', (req, res) => {
   });
 });
 
+app.get('/shopCount/admin', (req, res) => {
+  connection.query('SELECT COUNT(*) AS shopCount FROM shops', (error, results) => {
+    if (error) {
+      res.status(500).json({ error: error.message });
+    } else {
+      res.status(200).json({ shopCount: results[0].shopCount });
+    }
+  });
+});
+
 app.listen(PORT, () => {
   console.log("Server started on port 8080");
 });

@@ -2899,7 +2899,7 @@ app.post('/create-checkout-session3', async (req, res) => {
 
 app.get("/all/users", (req, res) => {
   const id = req.headers.authorization;
-  const selectQuery = `SELECT * FROM users`;
+  const selectQuery = `SELECT * FROM users LIMIT 3`;
   const insertQuery = "SELECT * FROM products where id = ?";
 
   // Execute the first query to fetch users

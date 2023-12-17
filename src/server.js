@@ -2917,7 +2917,7 @@ app.get("/all/users", (req, res) => {
       const id = rows[0].orders_id;
 
       return new Promise((resolve, reject) => {
-        const shopsquary = `select * from users`;
+        const shopsquary = `select * from users LIMIT 3`;
         connection.query(shopsquary, (err, result) => {
           if (err) reject(err);
           else resolve;

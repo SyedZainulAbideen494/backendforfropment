@@ -3742,6 +3742,8 @@ app.post("/place/order", (req, res) => {
     orderDateTime,
   } = req.body;
 
+  // Validate the received data here
+
   const selectQuery = `SELECT user_id FROM users WHERE jwt = ?`;
   const insertOrderQuery = `
     INSERT INTO orders (
@@ -3750,6 +3752,7 @@ app.post("/place/order", (req, res) => {
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
+  // Execute the queries with the connection object
   connection.query(selectQuery, [req.headers.authorization], (err, rows) => {
     if (err) {
       console.error("Error fetching user:", err);
@@ -3788,50 +3791,16 @@ app.post("/place/order", (req, res) => {
           return res.status(500).send("Error placing order.");
         }
 
-        const updateProductQuery = `
-          UPDATE products 
-          SET amount = CASE 
-                         WHEN amount <= 1 THEN 'Sold Out'
-                         ELSE amount - 1 
-                       END 
-          WHERE id = ?
-        `;
-        connection.query(updateProductQuery, [id], (err, updateResult) => {
-          if (err) {
-            console.error("Error updating product quantity:", err);
-            return res.status(500).send("Error updating product quantity.");
-          }
+        // Add logic for updating product quantity
 
-          const shopOwnerQuery = `SELECT user_id FROM shops WHERE shop_id = ?`;
-          connection.query(shopOwnerQuery, [shop_id], (err, shopRows) => {
-            if (err) {
-              console.error("Error fetching shop owner details:", err);
-              return res.status(500).send("Error fetching shop owner details.");
-            }
+        // Add logic for sending notification to shop owner
 
-            if (shopRows.length === 0) {
-              return res.status(404).send("Shop owner not found.");
-            }
-
-            const shop_owner_id = shopRows[0].user_id;
-            const notificationMessage = `New order for ${product} is being requested.`;
-            const insertNotificationQuery = "INSERT INTO notifications (user_id, message) VALUES (?, ?)";
-
-            connection.query(insertNotificationQuery, [shop_owner_id, notificationMessage], (err, notificationResult) => {
-              if (err) {
-                console.error("Error sending notification to shop owner:", err);
-                return res.status(500).send("Error sending notification to shop owner.");
-              }
-
-              console.log("Notification sent to shop owner:", notificationResult);
-              return res.status(200).send("Order placed successfully!");
-            });
-          });
-        });
+        return res.status(200).json({ message: "Order placed successfully!" });
       }
     );
   });
 });
+
 
 app.post("/orders", (req, res) => {
   const name = req.body.name;

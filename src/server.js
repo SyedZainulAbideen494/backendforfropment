@@ -3723,38 +3723,31 @@ app.get("/user/details/shop/details", (req, res) => {
   });
 });
 
-app.post("/place/order", (req, res) => {
-  const {
-    name,
-    Phone,
-    Email,
-    streetadrs,
-    city,
-    state,
-    zipcode,
-    country,
-    id,
-    product,
-    shop_id,
-    occupation,
-    sender_id,
-    age,
-    orderDateTime,
-  } = req.body;
+app.post("/place/order", async (req, res) => {
+  try {
+    const {
+      name,
+      Phone,
+      Email,
+      streetadrs,
+      city,
+      state,
+      zipcode,
+      country,
+      id,
+      product,
+      shop_id,
+      occupation,
+      sender_id,
+      age,
+      orderDateTime,
+    } = req.body;
 
-  const selectQuery = `SELECT user_id FROM users WHERE jwt = ?`;
-  const insertOrderQuery = `
-    INSERT INTO orders (
-      name, Phone, Email, streetadrs, city, state, zipcode, country,
-      id, product, shop_id, occupation, sender_id, age, orderDateTime, user_id
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `;
+    // Assuming 'connection' refers to your database connection object
 
-  connection.query(selectQuery, [req.headers.authorization], (err, rows) => {
-    if (err) {
-      console.error("Error fetching user:", err);
-      return res.status(500).send("Error fetching user.");
-    }
+    // Fetch user_id based on jwt from users table
+    const selectQuery = `SELECT user_id FROM users WHERE jwt = ?`;
+    const [rows] = await connection.query(selectQuery, [req.headers.authorization]);
 
     if (rows.length === 0) {
       return res.status(401).send("Unauthorized user.");
@@ -3762,75 +3755,64 @@ app.post("/place/order", (req, res) => {
 
     const user_id = rows[0].user_id;
 
-    connection.query(
-      insertOrderQuery,
-      [
-        name,
-        Phone,
-        Email,
-        streetadrs,
-        city,
-        state,
-        zipcode,
-        country,
-        id,
-        product,
-        shop_id,
-        occupation,
-        sender_id,
-        age,
-        orderDateTime,
-        user_id,
-      ],
-      (err, result) => {
-        if (err) {
-          console.error("Error placing order:", err);
-          return res.status(500).send("Error placing order.");
-        }
+    // Insert order details into the orders table
+    const insertOrderQuery = `
+      INSERT INTO orders (
+        name, Phone, Email, streetadrs, city, state, zipcode, country,
+        id, product, shop_id, occupation, sender_id, age, orderDateTime, user_id
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    await connection.query(insertOrderQuery, [
+      name,
+      Phone,
+      Email,
+      streetadrs,
+      city,
+      state,
+      zipcode,
+      country,
+      id,
+      product,
+      shop_id,
+      occupation,
+      sender_id,
+      age,
+      orderDateTime,
+      user_id,
+    ]);
 
-        const updateProductQuery = `
-          UPDATE products 
-          SET amount = CASE 
-                         WHEN amount <= 1 THEN 'Sold Out'
-                         ELSE amount - 1 
-                       END 
-          WHERE id = ?
-        `;
-        connection.query(updateProductQuery, [id], (err, updateResult) => {
-          if (err) {
-            console.error("Error updating product quantity:", err);
-            return res.status(500).send("Error updating product quantity.");
-          }
+    // Update product quantity
+    const updateProductQuery = `
+      UPDATE products 
+      SET amount = CASE 
+                    WHEN amount <= 1 THEN 'Sold Out'
+                    ELSE amount - 1 
+                  END 
+      WHERE id = ?
+    `;
+    await connection.query(updateProductQuery, [id]);
 
-          const shopOwnerQuery = `SELECT user_id FROM shops WHERE shop_id = ?`;
-          connection.query(shopOwnerQuery, [shop_id], (err, shopRows) => {
-            if (err) {
-              console.error("Error fetching shop owner details:", err);
-              return res.status(500).send("Error fetching shop owner details.");
-            }
+    // Fetch shop owner details
+    const shopOwnerQuery = `SELECT user_id FROM shops WHERE shop_id = ?`;
+    const [shopRows] = await connection.query(shopOwnerQuery, [shop_id]);
 
-            if (shopRows.length === 0) {
-              return res.status(404).send("Shop owner not found.");
-            }
+    if (shopRows.length === 0) {
+      return res.status(404).send("Shop owner not found.");
+    }
 
-            const shop_owner_id = shopRows[0].user_id;
-            const notificationMessage = `New order for ${product} is being requested.`;
-            const insertNotificationQuery = "INSERT INTO notifications (user_id, message) VALUES (?, ?)";
+    const shop_owner_id = shopRows[0].user_id;
+    const notificationMessage = `New order for ${product} is being requested.`;
 
-            connection.query(insertNotificationQuery, [shop_owner_id, notificationMessage], (err, notificationResult) => {
-              if (err) {
-                console.error("Error sending notification to shop owner:", err);
-                return res.status(500).send("Error sending notification to shop owner.");
-              }
+    // Insert notification to shop owner
+    const insertNotificationQuery = "INSERT INTO notifications (user_id, message) VALUES (?, ?)";
+    await connection.query(insertNotificationQuery, [shop_owner_id, notificationMessage]);
 
-              console.log("Notification sent to shop owner:", notificationResult);
-              return res.status(200).send("Order placed successfully!");
-            });
-          });
-        });
-      }
-    );
-  });
+    console.log("Order placed successfully!");
+    return res.status(200).send("Order placed successfully!");
+  } catch (error) {
+    console.error("Error placing order:", error);
+    return res.status(500).send("Error placing order.");
+  }
 });
 
 app.post("/orders", (req, res) => {

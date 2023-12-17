@@ -6253,26 +6253,14 @@ app.put('/updateShopLiveStatus/:shopId', (req, res) => {
 });
 
 
-app.get('/userOrders', (req, res) => {
-  const userId = req.query.user_id; // Assuming user_id is sent as a query parameter
-
-  const selectQuery = `
-    SELECT * FROM orders 
-    WHERE shop_id IN (SELECT shop_id FROM shops WHERE user_id = ?)
-  `;
-
-  connection.query(selectQuery, [userId], (error, results) => {
+app.get('/api/users/limit/3', (req, res) => {
+  const query = 'SELECT * FROM users LIMIT 3'; // Change your query accordingly
+  connection.query(query, (error, results) => {
     if (error) {
-      console.error('Error fetching user orders:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: error.message });
       return;
     }
-
-    if (results.length > 0) {
-      res.status(200).json(results);
-    } else {
-      res.status(404).json({ error: 'Orders not found for this user' });
-    }
+    res.json(results);
   });
 });
 

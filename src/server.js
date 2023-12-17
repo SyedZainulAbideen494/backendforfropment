@@ -3743,7 +3743,7 @@ app.post("/place/order", (req, res) => {
   } = req.body;
 
   const selectQuery = `SELECT user_id FROM users WHERE jwt = ?`;
-  const insertOrderQuery = `
+  const insertQuery = `
     INSERT INTO orders (
       name, Phone, Email, streetadrs, city, state, zipcode, country,
       id, product, shop_id, occupation, sender_id, age, orderDateTime
@@ -3763,7 +3763,7 @@ app.post("/place/order", (req, res) => {
     const user_id = rows[0].user_id;
 
     connection.query(
-      insertOrderQuery,
+      insertQuery,
       [
         name,
         Phone,
@@ -3787,7 +3787,8 @@ app.post("/place/order", (req, res) => {
           return res.status(500).send("Error placing order.");
         }
 
-        const updateProductQuery = `
+        // Update product quantity logic
+        const updateQuery = `
           UPDATE products 
           SET amount = CASE 
                          WHEN amount <= 1 THEN 'Sold Out'
@@ -3795,12 +3796,13 @@ app.post("/place/order", (req, res) => {
                        END 
           WHERE id = ?
         `;
-        connection.query(updateProductQuery, [id], (err, updateResult) => {
+        connection.query(updateQuery, [id], (err, updateResult) => {
           if (err) {
             console.error("Error updating product quantity:", err);
             return res.status(500).send("Error updating product quantity.");
           }
 
+          // Notify shop owner logic (replace with actual shop owner details retrieval and notification process)
           const shopOwnerQuery = `SELECT user_id FROM shops WHERE shop_id = ?`;
           connection.query(shopOwnerQuery, [shop_id], (err, shopRows) => {
             if (err) {
@@ -3808,30 +3810,15 @@ app.post("/place/order", (req, res) => {
               return res.status(500).send("Error fetching shop owner details.");
             }
 
-            if (shopRows.length === 0) {
-              return res.status(404).send("Shop owner not found.");
-            }
+            // Process notification logic here
 
-            const shop_owner_id = shopRows[0].user_id;
-            const notificationMessage = `New order for ${product} is being requested.`;
-            const insertNotificationQuery = "INSERT INTO notifications (user_id, message) VALUES (?, ?)";
-
-            connection.query(insertNotificationQuery, [shop_owner_id, notificationMessage], (err, notificationResult) => {
-              if (err) {
-                console.error("Error sending notification to shop owner:", err);
-                return res.status(500).send("Error sending notification to shop owner.");
-              }
-
-              console.log("Notification sent to shop owner:", notificationResult);
-              return res.status(200).send("Order placed successfully!");
-            });
+            return res.status(200).send("Order placed successfully!");
           });
         });
       }
     );
   });
 });
-
 
 app.post("/orders", (req, res) => {
   const name = req.body.name;

@@ -6242,6 +6242,17 @@ app.get('/api/users/limit/3', (req, res) => {
 });
 
 
+// admin dasboard
+app.get('/userCount/admin', (req, res) => {
+  connection.query('SELECT COUNT(*) AS userCount FROM users', (error, results) => {
+    if (error) {
+      res.status(500).json({ error: error.message });
+    } else {
+      res.status(200).json({ userCount: results[0].userCount });
+    }
+  });
+});
+
 app.listen(PORT, () => {
   console.log("Server started on port 8080");
 });

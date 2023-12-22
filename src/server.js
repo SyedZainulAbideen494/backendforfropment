@@ -6241,6 +6241,18 @@ app.get('/api/users/limit/3', (req, res) => {
   });
 });
 
+app.put('/updateLiveStatus/:shopId/:status', (req, res) => {
+  const { shopId, status } = req.params;
+  const sql = `UPDATE shops SET live = ? WHERE shop_id = ?`;
+  connection.query(sql, [status, shopId], (err, result) => {
+    if (err) {
+      res.status(500).send(err);
+    } else {
+      res.status(200).send('Status updated successfully');
+    }
+  });
+});
+
 
 // admin dasboard
 app.get('/userCount/admin', (req, res) => {

@@ -6264,15 +6264,18 @@ app.put('/updateLiveStatus/offline/:shopId/:status', (req, res) => {
     }
   });
 });
-
 app.get('/status/:shop_id', (req, res) => {
   const shopId = req.params.shop_id;
   connection.query('SELECT live FROM shops WHERE shop_id = ?', [shopId], (error, results, fields) => {
     if (error) {
       res.status(500).json({ error: 'Internal server error' });
     } else {
-      const status = results.length > 0 ? results[0].live : 'offline'; // Assuming default status is 'offline'
-      res.json({ status }); // Return the status as 'live' or 'offline'
+      if (results.length > 0) {
+        const status = results[0].live; // Assuming 'live' field exists in the database table
+        res.json({ status }); // Return the status as 'live' or 'offline'
+      } else {
+        res.status(404).json({ error: 'Shop not found' });
+      }
     }
   });
 });

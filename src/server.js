@@ -6265,6 +6265,22 @@ app.put('/updateLiveStatus/offline/:shopId/:status', (req, res) => {
   });
 });
 
+app.get('/getLiveStatus/:shopId', (req, res) => {
+  const { shopId } = req.params;
+  const sql = `SELECT live FROM shops WHERE shop_id = ?`; // Replace 'shops' with your table name
+  db.query(sql, [shopId], (err, result) => {
+    if (err) {
+      res.status(500).json({ error: 'Error fetching live status' });
+    } else {
+      if (result.length > 0) {
+        res.status(200).json({ live: result[0].live });
+      } else {
+        res.status(404).json({ error: 'Shop not found' });
+      }
+    }
+  });
+});
+
 
 // admin dasboard
 app.get('/userCount/admin', (req, res) => {

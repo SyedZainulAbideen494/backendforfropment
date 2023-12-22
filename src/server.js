@@ -6279,6 +6279,28 @@ app.get('/status/:shop_id', (req, res) => {
     }
   });
 });
+app.get('/api/shops/orders/:shop_id', (req, res) => {
+  const shopId = req.params.shop_id;
+
+  const query = `SELECT user_id FROM shops WHERE shop_id = ?`;
+
+  connection.query(query, [shopId], (err, results) => {
+    if (err) {
+      console.error('Error fetching data from database:', err);
+      res.status(500).json({ error: 'Error fetching data' });
+      return;
+    }
+
+    if (results.length === 0) {
+      res.status(404).json({ error: 'Shop not found' });
+      return;
+    }
+
+    const userId = results[0].user_id;
+    res.json({ user_id: userId });
+  });
+});
+
 
 // admin dasboard
 app.get('/userCount/admin', (req, res) => {

@@ -6271,8 +6271,8 @@ app.get('/status/:shop_id', (req, res) => {
     if (error) {
       res.status(500).json({ error: 'Internal server error' });
     } else {
-      const isLive = results.length > 0 ? results[0].live === 1 : false;
-      res.json({ live: isLive });
+      const status = results.length > 0 ? results[0].live : 'offline'; // Assuming default status is 'offline'
+      res.json({ status }); // Return the status as 'live' or 'offline'
     }
   });
 });

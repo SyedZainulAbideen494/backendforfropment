@@ -6339,6 +6339,54 @@ app.post('/api/orders/overview/main', (req, res) => {
   });
 });
 
+app.post('/api/orders/overview/main/gender', (req, res) => {
+  const token = req.body.token;
+
+  // Query to get user_id from users table using the token
+  connection.query('SELECT user_id FROM users WHERE jwt = ?', token, (err, userResults) => {
+    if (err) {
+      console.error('Error fetching user ID:', err);
+      res.status(500).json({ error: 'Internal server error' });
+      return;
+    }
+
+    if (userResults.length === 0) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    const userId = userResults[0].user_id;
+
+    // Query to fetch all genders from orders based on user_id
+    connection.query(
+      'SELECT gender FROM orders WHERE owner_id = ?',
+      userId,
+      (err, orderResults) => {
+        if (err) {
+          console.error('Error fetching orders:', err);
+          res.status(500).json({ error: 'Internal server error' });
+          return;
+        }
+
+        // Calculate gender distribution percentages
+        const genders = orderResults.map((order) => order.gender);
+        const totalOrders = genders.length;
+        const genderCounts = genders.reduce((acc, gender) => {
+          acc[gender] = (acc[gender] || 0) + 1;
+          return acc;
+        }, {});
+
+        const genderPercentages = Object.keys(genderCounts).map((gender) => ({
+          gender,
+          percentage: ((genderCounts[gender] / totalOrders) * 100).toFixed(2),
+        }));
+
+        // Respond with the calculated gender distribution percentages
+        res.status(200).json({ genderPercentages });
+      }
+    );
+  });
+});
 // admin dasboard
 app.get('/userCount/admin', (req, res) => {
   connection.query('SELECT COUNT(*) AS userCount FROM users', (error, results) => {

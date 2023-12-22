@@ -6304,6 +6304,38 @@ app.get('/api/shops/orders/:shop_id', (req, res) => {
 });
 
 
+app.post('/api/orders/overview/main', (req, res) => {
+  const token = req.body.token;
+
+  // Query to get user_id from users table using the token
+  connection.query('SELECT user_id FROM users WHERE jwt = ?', token, (err, userResults) => {
+    if (err) {
+      console.error('Error fetching user ID:', err);
+      res.status(500).json({ error: 'Internal server error' });
+      return;
+    }
+
+    if (userResults.length === 0) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    const userId = userResults[0].user_id;
+
+    // Query to fetch orders based on user_id
+    connection.query('SELECT * FROM orders WHERE owner_id = ?', userId, (err, orderResults) => {
+      if (err) {
+        console.error('Error fetching orders:', err);
+        res.status(500).json({ error: 'Internal server error' });
+        return;
+      }
+
+      // Respond with the fetched orders
+      res.status(200).json({ orders: orderResults });
+    });
+  });
+});
+
 // admin dasboard
 app.get('/userCount/admin', (req, res) => {
   connection.query('SELECT COUNT(*) AS userCount FROM users', (error, results) => {

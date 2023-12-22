@@ -6387,6 +6387,19 @@ app.post('/api/orders/overview/main/gender', (req, res) => {
     );
   });
 });
+
+app.get('/orders/notification/details', (req, res) => {
+  const query = 'SELECT product, name FROM orders';
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching data:', err);
+      res.status(500).json({ error: 'Error fetching data' });
+      return;
+    }
+    res.json(results);
+  });
+});
+
 // admin dasboard
 app.get('/userCount/admin', (req, res) => {
   connection.query('SELECT COUNT(*) AS userCount FROM users', (error, results) => {

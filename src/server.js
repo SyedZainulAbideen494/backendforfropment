@@ -3717,14 +3717,15 @@ app.post("/place/order", (req, res) => {
     sender_id,
     age,
     orderDateTime,
+    owner_id
   } = req.body;
 
   const selectQuery = `SELECT user_id FROM users WHERE jwt = ?`;
   const insertQuery = `
     INSERT INTO orders (
       name, Phone, Email, streetadrs, city, state, zipcode, country,
-      id, product, shop_id, occupation, sender_id, age, orderDateTime
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      id, product, shop_id, occupation, sender_id, age, orderDateTime, owner_id
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   connection.query(selectQuery, [req.headers.authorization], (err, rows) => {
@@ -3757,6 +3758,7 @@ app.post("/place/order", (req, res) => {
         user_id,
         age,
         orderDateTime,
+        owner_id
       ],
       (err, result) => {
         if (err) {

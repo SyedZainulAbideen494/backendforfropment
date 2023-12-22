@@ -6389,7 +6389,7 @@ app.post('/api/orders/overview/main/gender', (req, res) => {
 });
 
   app.get('/orders/notification/details', (req, res) => {
-    const token = req.body.token;
+    const token = req.header.authorization;
   
     // Query to get user_id from users table using the token
     connection.query('SELECT user_id FROM users WHERE jwt = ?', token, (err, userResults) => {

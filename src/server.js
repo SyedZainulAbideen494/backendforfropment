@@ -6388,18 +6388,57 @@ app.post('/api/orders/overview/main/gender', (req, res) => {
   });
 });
 
-app.get('/orders/notification/details', (req, res) => {
-  const query = 'SELECT product, name FROM orders';
-  connection.query(query, (err, results) => {
-    if (err) {
-      console.error('Error fetching data:', err);
-      res.status(500).json({ error: 'Error fetching data' });
-      return;
-    }
-    res.json(results);
+  app.get('/orders/notification/details', (req, res) => {
+    const token = req.body.token;
+  
+    // Query to get user_id from users table using the token
+    connection.query('SELECT user_id FROM users WHERE jwt = ?', token, (err, userResults) => {
+      if (err) {
+        console.error('Error fetching user ID:', err);
+        res.status(500).json({ error: 'Internal server error' });
+        return;
+      }
+  
+      if (userResults.length === 0) {
+        res.status(404).json({ error: 'User not found' });
+        return;
+      }
+  
+      const userId = userResults[0].user_id;
+  
+      // Query to fetch orders for the main overview and order details for notifications
+      const query = `
+        SELECT 
+          o.order_id,
+          o.product,
+          o.name,
+          o.owner_id
+        FROM 
+          orders o
+        WHERE 
+          o.owner_id = ?;
+          
+        SELECT 
+          product,
+          name 
+        FROM 
+          orders;
+      `;
+  
+      connection.query(query, [userId], (err, results) => {
+        if (err) {
+          console.error('Error fetching orders:', err);
+          res.status(500).json({ error: 'Internal server error' });
+          return;
+        }
+  
+        const orderResults = results[0]; // Orders for the main overview
+        const notificationDetails = results[1]; // Order details for notifications
+  
+        res.status(200).json({ orders: orderResults, notificationDetails: notificationDetails });
+      });
+    });
   });
-});
-
 // admin dasboard
 app.get('/userCount/admin', (req, res) => {
   connection.query('SELECT COUNT(*) AS userCount FROM users', (error, results) => {

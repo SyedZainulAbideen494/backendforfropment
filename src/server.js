@@ -239,6 +239,7 @@ app.post('/addUser', (req, res) => {
     age,
     unique_id,
     bio,
+    gender
   } = req.body;
 
   bcrypt.hash(password, saltRounds, (err, hash) => {
@@ -247,7 +248,7 @@ app.post('/addUser', (req, res) => {
       res.status(500).json({ error: 'Internal server error' });
     } else {
       const query =
-        'INSERT INTO users (first_name, last_name, email, password, unique_id, occupation, age, phoneno, streetadrs, city, state, zipcode, country, bio) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        'INSERT INTO users (gender, first_name, last_name, email, password, unique_id, occupation, age, phoneno, streetadrs, city, state, zipcode, country, bio) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
       const values = [
         first_name,
         last_name,
@@ -263,6 +264,7 @@ app.post('/addUser', (req, res) => {
         zipcode,
         country,
         bio,
+        gender
       ];
 
       connection.query(query, values, (error, results) => {

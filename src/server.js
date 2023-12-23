@@ -6341,7 +6341,7 @@ app.post('/api/orders/overview/main', (req, res) => {
 
 
 app.post('/api/orders/overview/shop', (req, res) => {
-  const token = req.body.token;
+  const token = req.body.shopId;
 
   // Query to get user_id from users table using the token
   connection.query('SELECT user_id FROM users WHERE jwt = ?', token, (err, userResults) => {

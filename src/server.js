@@ -5711,13 +5711,14 @@ app.post('/update/visits/shop', (req, res) => {
 
   // Assuming you have a mechanism to retrieve user_id from token
   const userQuery = `SELECT user_id FROM users WHERE jwt = '${token}'`;
-  db.query(userQuery, (err, result) => {
+  connection.query(userQuery, (err, result) => {
       if (err) throw err;
 
       if (result.length > 0) {
           const user_id = result[0].user_id;
-          const visitQuery = `INSERT INTO shop_visits (shop_id, user_id) VALUES (${shop_id}, ${user_id})`;
-          db.query(visitQuery, (err) => {
+          const visitDate = new Date().toISOString().slice(0, 19).replace('T', ' '); // Current date and time in MySQL format
+          const visitQuery = `INSERT INTO shop_visits (shop_id, user_id, visit_date) VALUES (${shop_id}, ${user_id}, '${visitDate}')`;
+          connection.query(visitQuery, (err) => {
               if (err) throw err;
               res.send('Shop visit stored successfully');
           });

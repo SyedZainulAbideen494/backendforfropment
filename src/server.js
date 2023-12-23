@@ -5728,7 +5728,7 @@ app.post('/updateVisits/:shopId', (req, res) => {
       });
     } else {
       // If shop_id doesn't exist, insert a new record with current date and time
-      const insertQuery = 'INSERT INTO shop_visits (shop_id, visit_date, visitors) VALUES (?, NOW(), 1)';
+      const insertQuery = 'INSERT INTO shop_visits (shop_id, visit_datetime, visitors) VALUES (?, NOW(), 1)';
       connection.query(insertQuery, [shopId], (insertErr, insertResults) => {
         if (insertErr) {
           console.error('Error inserting shop visits:', insertErr);
@@ -5739,6 +5739,7 @@ app.post('/updateVisits/:shopId', (req, res) => {
     }
   });
 });
+
 
 app.get('/totalMoneyMade/:shopId', (req, res) => {
   const shopId = req.params.shopId;

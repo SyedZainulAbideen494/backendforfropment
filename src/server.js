@@ -6338,22 +6338,6 @@ app.post('/api/orders/overview/shop', (req, res) => {
   });
 });
 
-app.post('/api/views/overview/shop', (req, res) => {
-  const shopId = req.body.shopId;
-
-  // Query to fetch orders based on shop ID
-  connection.query('SELECT * FROM shop_visits WHERE shop_id = ?', shopId, (err, orderResults) => {
-    if (err) {
-      console.error('Error fetching orders:', err);
-      res.status(500).json({ error: 'Internal server error' });
-      return;
-    }
-
-    // Respond with the fetched orders
-    res.status(200).json({ orders: orderResults });
-  });
-});
-
 
 
 app.post('/api/orders/overview/shop/gender', (req, res) => {
@@ -6440,6 +6424,21 @@ app.post('/api/orders/overview/main/gender', (req, res) => {
   });
 });
 
+app.post('/api/views/overview/shop', (req, res) => {
+  const shopId = req.body.shopId;
+
+  connection.query('SELECT * FROM shop_visits WHERE shop_id = ?', shopId, (err, orderResults) => {
+    if (err) {
+      console.error('Error fetching orders:', err);
+      res.status(500).json({ error: 'Internal server error' });
+      return;
+    }
+
+    console.log('Fetched orders:', orderResults); // Log fetched data
+
+    res.status(200).json({ orders: orderResults });
+  });
+});
 
 // admin dasboard
 app.get('/userCount/admin', (req, res) => {

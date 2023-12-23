@@ -5646,19 +5646,7 @@ app.get('/visitors/:shopId', (req, res) => {
   });
 });
 
-app.get('/visitors/date-time/:shopId', (req, res) => {
-  const { shopId } = req.params;
-  const query = 'SELECT visit_datetime, visitors FROM shop_visits WHERE shop_id = ?';
 
-  connection.query(query, [shopId], (err, results) => {
-    if (err) {
-      console.error('Error fetching visit date-time data: ', err);
-      res.status(500).json({ error: 'Failed to fetch visit date-time data' });
-    } else {
-      res.json({ data: results });
-    }
-  });
-});
 
 app.get('/orders/dashboard/data/:shopId', (req, res) => {
   const shopId = req.params.shopId;
@@ -6349,6 +6337,23 @@ app.post('/api/orders/overview/shop', (req, res) => {
     res.status(200).json({ orders: orderResults });
   });
 });
+
+app.post('/api/views/overview/shop', (req, res) => {
+  const shopId = req.body.shopId;
+
+  // Query to fetch orders based on shop ID
+  connection.query('SELECT * FROM shop_visits WHERE shop_id = ?', shopId, (err, orderResults) => {
+    if (err) {
+      console.error('Error fetching orders:', err);
+      res.status(500).json({ error: 'Internal server error' });
+      return;
+    }
+
+    // Respond with the fetched orders
+    res.status(200).json({ orders: orderResults });
+  });
+});
+
 
 
 app.post('/api/orders/overview/shop/gender', (req, res) => {

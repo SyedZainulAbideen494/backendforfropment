@@ -5706,40 +5706,26 @@ app.get('/mostOccurredID/shop/stats/:shopId', (req, res) => {
   });
 });
 
-app.post('/updateVisits/:shopId', (req, res) => {
-  const { shopId } = req.params;
+app.post('/update/visits/shop', (req, res) => {
+  const { shop_id, token } = req.body;
 
-  const checkQuery = 'SELECT * FROM shop_visits WHERE shop_id = ?';
-  connection.query(checkQuery, [shopId], (checkErr, checkResults) => {
-    if (checkErr) {
-      console.error('Error checking shop visits:', checkErr);
-      return res.status(500).json({ error: 'Failed to check shop visits' });
-    }
+  // Assuming you have a mechanism to retrieve user_id from token
+  const userQuery = `SELECT user_id FROM users WHERE jwt = '${token}'`;
+  db.query(userQuery, (err, result) => {
+      if (err) throw err;
 
-    if (checkResults.length > 0) {
-      // If shop_id exists, update visitors count
-      const updateQuery = 'UPDATE shop_visits SET visitors = visitors + 1 WHERE shop_id = ?';
-      connection.query(updateQuery, [shopId], (updateErr, updateResults) => {
-        if (updateErr) {
-          console.error('Error updating shop visits:', updateErr);
-          return res.status(500).json({ error: 'Failed to update shop visits' });
-        }
-        return res.json({ message: 'Shop visits updated successfully' });
-      });
-    } else {
-      // If shop_id doesn't exist, insert a new record
-      const insertQuery = 'INSERT INTO shop_visits (shop_id, visit_date, visitors) VALUES (?, CURDATE(), 1)';
-      connection.query(insertQuery, [shopId], (insertErr, insertResults) => {
-        if (insertErr) {
-          console.error('Error inserting shop visits:', insertErr);
-          return res.status(500).json({ error: 'Failed to insert shop visits' });
-        }
-        return res.json({ message: 'New shop visits record added successfully' });
-      });
-    }
+      if (result.length > 0) {
+          const user_id = result[0].user_id;
+          const visitQuery = `INSERT INTO shop_visits (shop_id, user_id) VALUES (${shop_id}, ${user_id})`;
+          db.query(visitQuery, (err) => {
+              if (err) throw err;
+              res.send('Shop visit stored successfully');
+          });
+      } else {
+          res.status(404).send('User not found');
+      }
   });
 });
-
 app.get('/totalMoneyMade/:shopId', (req, res) => {
   const shopId = req.params.shopId;
   const query = 'SELECT COUNT(id) as totalOrders FROM orders WHERE shop_id = ?';

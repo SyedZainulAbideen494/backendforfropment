@@ -5633,7 +5633,7 @@ app.put('/custom/shop/finish/api', (req, res) => {
 
 app.get('/visitors/:shopId', (req, res) => {
   const { shopId } = req.params;
-  const query = 'SELECT SUM(visitors) AS totalVisits FROM shop_visits WHERE shop_id = ?';
+  const query = 'SELECT COUNT(*) AS totalVisits FROM shop_visits WHERE shop_id = ?';
   
   connection.query(query, [shopId], (err, results) => {
     if (err) {

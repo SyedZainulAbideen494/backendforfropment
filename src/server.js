@@ -5646,6 +5646,20 @@ app.get('/visitors/:shopId', (req, res) => {
   });
 });
 
+app.get('/visitorsData/:shopId', (req, res) => {
+  const { shopId } = req.params;
+  const query = 'SELECT visit_datetime, visitors FROM shop_visits WHERE shop_id = ?';
+
+  connection.query(query, [shopId], (err, results) => {
+    if (err) {
+      console.error('Error fetching shop visits data: ', err);
+      res.status(500).json({ error: 'Failed to fetch shop visits data' });
+    } else {
+      res.json({ data: results });
+    }
+  });
+});
+
 app.get('/orders/dashboard/data/:shopId', (req, res) => {
   const shopId = req.params.shopId;
   const query = 'SELECT id FROM orders WHERE shop_id = ?';

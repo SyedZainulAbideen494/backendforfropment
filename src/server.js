@@ -5646,16 +5646,17 @@ app.get('/visitors/:shopId', (req, res) => {
   });
 });
 
-app.get('/visitorsData/:shopId', (req, res) => {
+app.get('/visitorsDate/time/:shopId', (req, res) => {
   const { shopId } = req.params;
-  const query = 'SELECT visit_datetime, visitors FROM shop_visits WHERE shop_id = ?';
+  const query = 'SELECT COUNT(*) AS totalVisitors FROM shop_visits WHERE shop_id = ?';
 
   connection.query(query, [shopId], (err, results) => {
     if (err) {
-      console.error('Error fetching shop visits data: ', err);
-      res.status(500).json({ error: 'Failed to fetch shop visits data' });
+      console.error('Error fetching total shop visits: ', err);
+      res.status(500).json({ error: 'Failed to fetch total shop visits' });
     } else {
-      res.json({ data: results });
+      const totalVisitors = results[0].totalVisitors || 0;
+      res.json({ totalVisitors });
     }
   });
 });

@@ -5727,8 +5727,8 @@ app.post('/updateVisits/:shopId', (req, res) => {
         return res.json({ message: 'Shop visits updated successfully' });
       });
     } else {
-      // If shop_id doesn't exist, insert a new record
-      const insertQuery = 'INSERT INTO shop_visits (shop_id, visit_date, visitors) VALUES (?, CURDATE(), 1)';
+      // If shop_id doesn't exist, insert a new record with current date and time
+      const insertQuery = 'INSERT INTO shop_visits (shop_id, visit_date, visitors) VALUES (?, NOW(), 1)';
       connection.query(insertQuery, [shopId], (insertErr, insertResults) => {
         if (insertErr) {
           console.error('Error inserting shop visits:', insertErr);

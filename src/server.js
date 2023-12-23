@@ -6359,7 +6359,7 @@ app.post('/api/orders/overview/shop', (req, res) => {
     const userId = userResults[0].user_id;
 
     // Query to fetch orders based on user_id
-    connection.query('SELECT * FROM orders WHERE owner_id = ?', userId, (err, orderResults) => {
+    connection.query('SELECT * FROM orders WHERE shop_id = ?', token, (err, orderResults) => {
       if (err) {
         console.error('Error fetching orders:', err);
         res.status(500).json({ error: 'Internal server error' });

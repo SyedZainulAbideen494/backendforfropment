@@ -5709,34 +5709,13 @@ app.get('/mostOccurredID/shop/stats/:shopId', (req, res) => {
 app.post('/updateVisits/:shopId', (req, res) => {
   const { shopId } = req.params;
 
-  const checkQuery = 'SELECT * FROM shop_visits WHERE shop_id = ?';
-  connection.query(checkQuery, [shopId], (checkErr, checkResults) => {
-    if (checkErr) {
-      console.error('Error checking shop visits:', checkErr);
-      return res.status(500).json({ error: 'Failed to check shop visits' });
+  const insertQuery = 'INSERT INTO shop_visits (shop_id, visit_datetime, visitors) VALUES (?, NOW(), 1)';
+  connection.query(insertQuery, [shopId], (insertErr, insertResults) => {
+    if (insertErr) {
+      console.error('Error inserting shop visits:', insertErr);
+      return res.status(500).json({ error: 'Failed to insert shop visits' });
     }
-
-    if (checkResults.length > 0) {
-      // If shop_id exists, update visitors count
-      const updateQuery = 'UPDATE shop_visits SET visitors = visitors + 1 WHERE shop_id = ?';
-      connection.query(updateQuery, [shopId], (updateErr, updateResults) => {
-        if (updateErr) {
-          console.error('Error updating shop visits:', updateErr);
-          return res.status(500).json({ error: 'Failed to update shop visits' });
-        }
-        return res.json({ message: 'Shop visits updated successfully' });
-      });
-    } else {
-      // If shop_id doesn't exist, insert a new record with current date and time
-      const insertQuery = 'INSERT INTO shop_visits (shop_id, visit_datetime, visitors) VALUES (?, NOW(), 1)';
-      connection.query(insertQuery, [shopId], (insertErr, insertResults) => {
-        if (insertErr) {
-          console.error('Error inserting shop visits:', insertErr);
-          return res.status(500).json({ error: 'Failed to insert shop visits' });
-        }
-        return res.json({ message: 'New shop visits record added successfully' });
-      });
-    }
+    return res.json({ message: 'New shop visit record added successfully' });
   });
 });
 

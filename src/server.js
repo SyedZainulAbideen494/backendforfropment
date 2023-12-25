@@ -5408,7 +5408,7 @@ app.post('/footer/data/insert', (req, res) => {
     (err, result) => {
       if (err) {
         console.error(err);
-        res.status(500).json({ message: 'Internal server error' });
+        res.status(500).json({ message: 'Failed to insert data' }); // Change the error message
       } else {
         res.json({ message: 'Data inserted successfully' });
       }

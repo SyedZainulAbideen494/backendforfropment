@@ -4489,7 +4489,7 @@ app.put('/header/data', (req, res) => {
 
   const sql = `UPDATE shops SET salestext = ?, shop_tagline = ? WHERE shop_id = ?`;
 
-  connection.query(sql, [salestext, tagline, phone, shop_id], (err, result) => {
+  connection.query(sql, [salestext, tagline, shop_id], (err, result) => {
     if (err) {
       console.error(err);
       res.status(500).json({ message: 'Internal server error' });

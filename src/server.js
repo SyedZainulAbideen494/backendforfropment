@@ -5389,7 +5389,7 @@ app.post('/footer/data/insert', (req, res) => {
     whatsapp,
   } = req.body;
 
-  const sql = `INSERT INTO footer (shop_id, companyname, slogan, insta, facebook, twitter, linkedin, email, phone, whatsapp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  const sql = `INSERT INTO footer (shop_id, companyname, slogan, insta, facebook, twitter, linkdin, email, phone, whatsapp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
   connection.query(
     sql,

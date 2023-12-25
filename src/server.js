@@ -4936,7 +4936,7 @@ app.post('/color/selection/section/6', (req, res) => {
 
   // Check if a record with the same shop_id and section '2' already exists
   const checkExistingSql = 'SELECT id FROM component_look WHERE shop_id = ? AND section = ?';
-  connection.query(checkExistingSql, [shop_id, '4'], (checkErr, checkResult) => {
+  connection.query(checkExistingSql, [shop_id, '6'], (checkErr, checkResult) => {
     if (checkErr) {
       console.error(checkErr);
       return res.status(500).json({ message: 'Internal server error' });

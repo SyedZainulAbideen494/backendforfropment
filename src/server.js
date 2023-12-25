@@ -4915,7 +4915,7 @@ app.post('/color/selection/section/4', (req, res) => {
   }
 });
 
-app.post('/color/selection/section/6', (req, res) => {
+app.put('/color/selection/section/6', (req, res) => {
   const shop_id = req.headers.authorization; // Use 'authorization' from headers
 
   const {

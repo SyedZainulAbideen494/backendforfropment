@@ -4186,7 +4186,7 @@ app.get("/user/details/send/id/details", (req, res) => {
 });
 
 app.post("/add/custom/shop", (req, res) => {
-  const {section} = req.body
+  const { section } = req.body;
   const token = req.headers.authorization;
   const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;
   const insertQuery =
@@ -4206,24 +4206,20 @@ app.post("/add/custom/shop", (req, res) => {
 
     connection.query(
       insertQuery,
-      [
-        user_id,
-        'incomplete',
-        section
-      ],
+      [user_id, 'incomplete', section],
       (err, result) => {
         if (err) {
           console.error(err);
           return res.status(500).send("Error adding shop.");
         }
 
+        const shop_id = result.insertId; // Assuming shop_id is retrieved after insertion
         console.log(result);
-        return res.status(200).send("Shop added successfully!");
+        return res.status(200).json({ shop_id: shop_id }); // Sending shop_id in the response
       }
     );
   });
 });
-
 app.put('/nav/bar/update', (req, res) => {
   const shop_id = req.headers.authorization; // Use 'authorization' instead of destructuring
   const { nav } = req.body;

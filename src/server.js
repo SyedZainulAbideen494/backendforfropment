@@ -242,44 +242,56 @@ app.post('/addUser', (req, res) => {
     gender
   } = req.body;
 
-  bcrypt.hash(password, saltRounds, (err, hash) => {
+  // Check if the email already exists in the database
+  const checkEmailQuery = 'SELECT * FROM users WHERE email = ?';
+  connection.query(checkEmailQuery, [email], (err, results) => {
     if (err) {
-      console.error('Error hashing password: ', err);
+      console.error('Error checking email:', err);
       res.status(500).json({ error: 'Internal server error' });
+    } else if (results.length > 0) {
+      // If email already exists, return a message
+      res.status(409).json({ error: 'User with this email already exists' });
     } else {
-      const query =
-        'INSERT INTO users (gender, first_name, last_name, email, password, unique_id, occupation, age, phoneno, streetadrs, city, state, zipcode, country, bio) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-      const values = [
-        first_name,
-        last_name,
-        email,
-        hash,
-        unique_id,
-        occupation,
-        age,
-        phoneno,
-        streetadrs,
-        city,
-        state,
-        zipcode,
-        country,
-        bio,
-        gender
-      ];
-
-      connection.query(query, values, (error, results) => {
-        if (error) {
-          console.error('Error inserting user: ', error);
+      // If email doesn't exist, proceed with user registration
+      bcrypt.hash(password, saltRounds, (hashErr, hash) => {
+        if (hashErr) {
+          console.error('Error hashing password: ', hashErr);
           res.status(500).json({ error: 'Internal server error' });
         } else {
-          console.log('User registration successful!');
-          res.sendStatus(200);
+          const insertQuery =
+            'INSERT INTO users (gender, first_name, last_name, email, password, unique_id, occupation, age, phoneno, streetadrs, city, state, zipcode, country, bio) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+          const values = [
+            gender,
+            first_name,
+            last_name,
+            email,
+            hash,
+            unique_id,
+            occupation,
+            age,
+            phoneno,
+            streetadrs,
+            city,
+            state,
+            zipcode,
+            country,
+            bio
+          ];
+
+          connection.query(insertQuery, values, (insertErr, insertResults) => {
+            if (insertErr) {
+              console.error('Error inserting user: ', insertErr);
+              res.status(500).json({ error: 'Internal server error' });
+            } else {
+              console.log('User registration successful!');
+              res.sendStatus(200);
+            }
+          });
         }
       });
     }
   });
 });
-
 app.get("/use/shops", (req, res) => {
   const token = req.headers.authorization;
   const selectQuery = `SELECT user_id FROM users WHERE jwt = '${token}' `;

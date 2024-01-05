@@ -2889,8 +2889,8 @@ app.post('/create-checkout-session3', async (req, res) => {
         },
       ],
       mode: 'subscription',
-      success_url: 'http://localhost:3000/', // Redirect URL after successful payment
-      cancel_url: 'http://localhost:3000/Plans',   // Redirect URL if user cancels payment
+      success_url: 'https://dropment.online/', // Redirect URL after successful payment
+      cancel_url: 'https://dropment.online/Plans',   // Redirect URL if user cancels payment
     });
 
     // Update MySQL user's premium status

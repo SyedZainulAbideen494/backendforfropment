@@ -2889,7 +2889,7 @@ app.post('/create-checkout-session3', async (req, res) => {
         },
       ],
       mode: 'subscription',
-      success_url: 'https://dropment.online/', // Redirect URL after successful payment
+      success_url: `https://apidropment.online/${}`, // Redirect URL after successful payment
       cancel_url: 'https://dropment.online/Plans',   // Redirect URL if user cancels payment
     });
 
@@ -6577,6 +6577,34 @@ app.get('/storyCount/admin', (req, res) => {
     }
   });
 });
+
+app.post('/process-payment', async (req, res) => {
+  try {
+      // Extract payment data from the request body
+      const { amount, cardNumber, expiry, cvv } = req.body;
+
+      // Simulating payment processing (replace this with actual payment gateway integration)
+      const paymentSuccessful = simulatePaymentProcessing(cardNumber, expiry, cvv, amount);
+
+      if (paymentSuccessful) {
+          res.status(200).json({ success: true, message: 'Payment successful' });
+      } else {
+          res.status(400).json({ success: false, message: 'Payment failed' });
+      }
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+// Function to simulate payment processing (replace this with actual payment gateway logic)
+function simulatePaymentProcessing(cardNumber, expiry, cvv, amount) {
+  // Simulate payment validation and processing logic
+  // Replace this with calls to your actual payment gateway API
+
+  // For demonstration purposes, let's assume any card number starting with '4' is successful
+  return cardNumber.startsWith('4');
+}
 
 app.listen(PORT, () => {
   console.log("Server started on port 8080");

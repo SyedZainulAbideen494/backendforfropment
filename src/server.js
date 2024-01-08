@@ -89,6 +89,19 @@ app.get("/products/product", (req, res) => {
   });
 });
 
+app.get("/user/users", (req, res) => {
+  const sqlget = "SELECT * FROM users";
+
+  connection.query(sqlget, (err, results) => {
+    if (err) {
+      console.error("Error fetching data from MySQL: ", err);
+      res.status(500).json({ error: "Error fetching data from MySQL" });
+    } else {
+      res.send({ users: results });
+    }
+  });
+});
+
 app.get("/users", (req, res) => {
   const token = req.headers.authorization;
   const sqlget = `SELECT * FROM users where jwt = '${token}'`;

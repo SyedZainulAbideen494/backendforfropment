@@ -102,6 +102,19 @@ app.get("/user/users", (req, res) => {
   });
 });
 
+app.get("/shop/shops", (req, res) => {
+  const sqlget = "SELECT * FROM shops";
+
+  connection.query(sqlget, (err, results) => {
+    if (err) {
+      console.error("Error fetching data from MySQL: ", err);
+      res.status(500).json({ error: "Error fetching data from MySQL" });
+    } else {
+      res.send({ shops: results });
+    }
+  });
+});
+
 app.get("/users", (req, res) => {
   const token = req.headers.authorization;
   const sqlget = `SELECT * FROM users where jwt = '${token}'`;
@@ -115,6 +128,8 @@ app.get("/users", (req, res) => {
     }
   });
 });
+
+
 
 app.post("/addProduct", upload.single("image"), (req, res) => {
   const id = req.body.id;

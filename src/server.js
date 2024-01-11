@@ -129,7 +129,27 @@ app.get("/users", (req, res) => {
   });
 });
 
+app.get('/users/get/:user_id', (req, res) => {
+  const userId = req.params.user_id;
 
+  // Use the MySQL connection pool to execute the query
+  connection.query('SELECT * FROM users WHERE user_id = ?', [userId], (error, results) => {
+    if (error) {
+      console.error('Error executing MySQL query:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+      return;
+    }
+
+    // Check if any user was found
+    if (results.length === 0) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    // Send the user data as JSON
+    res.json(results[0]); // Assuming there's only one user with the given user_id
+  });
+});
 
 app.post("/addProduct", upload.single("image"), (req, res) => {
   const id = req.body.id;

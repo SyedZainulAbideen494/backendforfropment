@@ -2960,7 +2960,7 @@ app.post('/create-checkout-session3', async (req, res) => {
 // This endpoint receives the Stripe webhook event when a payment is successful
 
 app.get("/all/users", (req, res) => {
-  const selectQuery = `SELECT * FROM users LIMIT 3`;
+  const selectQuery = `SELECT * FROM users `;
 
   connection.query(selectQuery, (err, users) => {
     if (err) {

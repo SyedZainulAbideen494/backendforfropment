@@ -12,6 +12,7 @@ const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const { verify } = require("crypto");
 const path = require("path");
+const nodemailer = require('nodemailer');
 const PORT = process.env.PORT || 8080;
 app.use(express.urlencoded({ extended: true }));
 
@@ -150,6 +151,45 @@ app.get('/users/get/:user_id', (req, res) => {
     res.json(results[0]); // Assuming there's only one user with the given user_id
   });
 });
+
+app.post('/send-email', (req, res) => {
+  const userEmail = req.body.email;
+
+  // Generate a dynamic link
+  const dynamicLink = `http://dropment.online/forgot/password/${userEmail}`;
+
+  // Send the email with the dynamic link
+  sendEmail(userEmail, dynamicLink);
+
+  return res.status(200).json({ message: 'Email sent successfully' });
+});
+
+// Function to send email using nodemailer
+function sendEmail(to, dynamicLink) {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'dropmentset@gmail.com', // replace with your email
+      pass: 'Englishps#4', // replace with your email password
+    },
+  });
+
+  const mailOptions = {
+    from: 'dropmentset@gmail.com', // replace with your email
+    to,
+    subject: 'Password Reset Link',
+    text: `Click on the following link to reset your password: ${dynamicLink}`,
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error(error);
+    } else {
+      console.log('Email sent: ' + info.response);
+    }
+  });
+}
+
 
 app.post("/addProduct", upload.single("image"), (req, res) => {
   const id = req.body.id;

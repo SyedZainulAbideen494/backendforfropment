@@ -156,7 +156,7 @@ app.post('/send-email', (req, res) => {
   const userEmail = req.body.email;
 
   // Generate a dynamic link
-  const dynamicLink = `http://dropment.online/forgot/password/${userEmail}`;
+  const dynamicLink = `https://dropment.online/forgot/password/${userEmail}`;
 
   // Send the email with the dynamic link
   sendEmail(userEmail, dynamicLink);

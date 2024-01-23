@@ -153,41 +153,53 @@ app.get('/users/get/:user_id', (req, res) => {
 });
 
 app.post('/send-email', (req, res) => {
-  const userEmail = req.body.email;
+  try {
+    const userEmail = req.body.email;
 
-  // Generate a dynamic link
-  const dynamicLink = `https://dropment.online/forgot/password/${userEmail}`;
+    if (!userEmail) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
 
-  // Send the email with the dynamic link
-  sendEmail(userEmail, dynamicLink);
+    // Generate a dynamic link
+    const dynamicLink = `https://dropment.online/forgot/password/${userEmail}`;
 
-  return res.status(200).json({ message: 'Email sent successfully' });
+    // Send the email with the dynamic link
+    sendEmail(userEmail, dynamicLink);
+
+    return res.status(200).json({ message: 'Email sent successfully' });
+  } catch (error) {
+    console.error('Error processing request:', error);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
 
-// Function to send email using nodemailer
 function sendEmail(to, dynamicLink) {
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: 'dropmentset@gmail.com', // replace with your email
-      pass: 'Englishps#4', // replace with your email password
-    },
-  });
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'dropmentset@gmail.com',
+        pass: 'Englishps#4',
+      },
+    });
 
-  const mailOptions = {
-    from: 'dropmentset@gmail.com', // replace with your email
-    to,
-    subject: 'Password Reset Link',
-    text: `Click on the following link to reset your password: ${dynamicLink}`,
-  };
+    const mailOptions = {
+      from: 'dropmentset@gmail.com',
+      to,
+      subject: 'Password Reset Link',
+      text: `Click on the following link to reset your password: ${dynamicLink}`,
+    };
 
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.error(error);
-    } else {
-      console.log('Email sent: ' + info.response);
-    }
-  });
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error sending email:', error);
+      } else {
+        console.log('Email sent:', info.response);
+      }
+    });
+  } catch (error) {
+    console.error('Error sending email:', error);
+  }
 }
 
 

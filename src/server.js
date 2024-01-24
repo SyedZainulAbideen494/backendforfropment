@@ -152,57 +152,36 @@ app.get('/users/get/:user_id', (req, res) => {
   });
 });
 
-app.post('/send-email', (req, res) => {
-  try {
-    const userEmail = req.body.email;
-
-    if (!userEmail) {
-      return res.status(400).json({ error: 'Email is required' });
-    }
-
-    // Generate a dynamic link
-    const dynamicLink = `https://dropment.online/forgot/password/${userEmail}`;
-
-    // Send the email with the dynamic link
-    sendEmail(userEmail, dynamicLink);
-
-    return res.status(200).json({ message: 'Email sent successfully' });
-  } catch (error) {
-    console.error('Error processing request:', error);
-    return res.status(500).json({ error: 'Internal Server Error' });
-  }
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'dropmentset@gmail.com',
+    pass: 'Englishps#4',
+  },
 });
 
-function sendEmail(to, dynamicLink) {
+// Route to handle sending emails
+app.post('/send-email', async (req, res) => {
+  const { email } = req.body;
+
+  const mailOptions = {
+    from: 'dropmentset@gmail.com',
+    to: email,
+    subject: 'Test Email Subject',
+    text: 'This is a test email sent from your Node.js server.',
+  };
+
   try {
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: 'dropmentset@gmail.com',
-        pass: 'Englishps#4',
-      },
-    });
+    // Send email
+    await transporter.sendMail(mailOptions);
 
-    const mailOptions = {
-      from: 'dropmentset@gmail.com',
-      to,
-      subject: 'Password Reset Link',
-      text: `Click on the following link to reset your password: ${dynamicLink}`,
-    };
-
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error('Error sending email:', error);
-      } else {
-        console.log('Email sent:', info.response);
-      }
-    });
+    console.log('Email sent successfully');
+    res.status(200).json({ message: 'Email sent successfully' });
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error('Error sending email:', error.message);
+    res.status(500).json({ error: 'Error sending email' });
   }
-}
-
-
+});
 app.post("/addProduct", upload.single("image"), (req, res) => {
   const id = req.body.id;
   const title = req.body.title;

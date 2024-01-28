@@ -186,33 +186,56 @@ app.post('/send-email', async (req, res) => {
   }
 });
 
-app.post('/api/reset-password', (req, res) => {
+app.post('/api/reset-password', async (req, res) => {
   const { email, newPassword } = req.body;
 
-  // Check if the user with the given email exists
-  connection.query('SELECT * FROM users WHERE email = ?', [email], (error, results) => {
-    if (error) {
-      console.error(error);
-      return res.status(500).json({ message: 'Internal Server Error' });
-    }
+  try {
+    const user = await getUserByEmail(email);
 
-    // If no user found with the provided email
-    if (results.length === 0) {
+    if (!user) {
       return res.status(404).json({ message: 'No user found with this email' });
     }
 
-    // Update the password for the user
-    connection.query('UPDATE users SET password = ? WHERE email = ?', [newPassword, email], (error, updateResults) => {
-      if (error) {
-        console.error(error);
-        return res.status(500).json({ message: 'Error updating password' });
-      }
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
 
-      // Assuming your server sends a success message
-      return res.status(200).json({ message: 'Password updated successfully' });
+    await updateUserPassword(email, hashedPassword);
+
+    // Assuming your server sends a success message
+    return res.status(200).json({ message: 'Password updated successfully' });
+  } catch (error) {
+    console.error('Error resetting password:', error);
+    return res.status(500).json({ message: 'Error resetting password. Please try again.' });
+  }
+});
+
+// Function to get user by email from the database
+const getUserByEmail = (email) => {
+  return new Promise((resolve, reject) => {
+    const checkEmailQuery = 'SELECT * FROM users WHERE email = ?';
+    connection.query(checkEmailQuery, [email], (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results.length > 0 ? results[0] : null);
+      }
     });
   });
-});
+};
+
+// Function to update user password in the database
+const updateUserPassword = (email, hashedPassword) => {
+  return new Promise((resolve, reject) => {
+    const updateQuery = 'UPDATE users SET password = ? WHERE email = ?';
+    connection.query(updateQuery, [hashedPassword, email], (err, updateResults) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+};
+
 app.post("/addProduct", upload.single("image"), (req, res) => {
   const id = req.body.id;
   const title = req.body.title;

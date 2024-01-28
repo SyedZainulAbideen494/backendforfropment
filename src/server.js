@@ -155,8 +155,8 @@ app.get('/users/get/:user_id', (req, res) => {
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'dropmentset@gmail.com',
-    pass: 'Englishps#4',
+    user: 'dropmentset@gmail.com ',
+    pass: 'pgpq ydgd qztt mcex',
   },
 });
 
@@ -164,22 +164,25 @@ const transporter = nodemailer.createTransport({
 app.post('/send-email', async (req, res) => {
   const { email } = req.body;
 
+  // Construct the password reset link with only the email
+  const resetLink = `https://dropment.online/resetpassword/${email}`;
+
   const mailOptions = {
     from: 'dropmentset@gmail.com',
     to: email,
-    subject: 'Test Email Subject',
-    text: 'This is a test email sent from your Node.js server.',
+    subject: 'Password Reset Request',
+    text: `You have requested a password reset. Click on the following link to reset your password: ${resetLink}`,
   };
 
   try {
     // Send email
     await transporter.sendMail(mailOptions);
 
-    console.log('Email sent successfully');
-    res.status(200).json({ message: 'Email sent successfully' });
+    console.log('Password reset email sent successfully');
+    res.status(200).json({ message: 'Password reset email sent successfully' });
   } catch (error) {
-    console.error('Error sending email:', error.message);
-    res.status(500).json({ error: 'Error sending email' });
+    console.error('Error sending password reset email:', error.message);
+    res.status(500).json({ error: 'Error sending password reset email' });
   }
 });
 app.post("/addProduct", upload.single("image"), (req, res) => {

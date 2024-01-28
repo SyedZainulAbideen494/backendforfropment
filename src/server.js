@@ -185,6 +185,34 @@ app.post('/send-email', async (req, res) => {
     res.status(500).json({ error: 'Error sending password reset email' });
   }
 });
+
+app.post('/api/reset-password', (req, res) => {
+  const { email, newPassword } = req.body;
+
+  // Check if the user with the given email exists
+  connection.query('SELECT * FROM users WHERE email = ?', [email], (error, results) => {
+    if (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Internal Server Error' });
+    }
+
+    // If no user found with the provided email
+    if (results.length === 0) {
+      return res.status(404).json({ message: 'No user found with this email' });
+    }
+
+    // Update the password for the user
+    connection.query('UPDATE users SET password = ? WHERE email = ?', [newPassword, email], (error, updateResults) => {
+      if (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Error updating password' });
+      }
+
+      // Assuming your server sends a success message
+      return res.status(200).json({ message: 'Password updated successfully' });
+    });
+  });
+});
 app.post("/addProduct", upload.single("image"), (req, res) => {
   const id = req.body.id;
   const title = req.body.title;

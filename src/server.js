@@ -575,6 +575,25 @@ app.post("/login", (req, res) => {
   );
 });
 
+app.post('/login/user/check', (req, res) => {
+  const { token } = req.body;
+
+  if (!token) {
+    res.status(401).json({ message: 'Token not provided' });
+    return;
+  }
+
+  connection.query('SELECT * FROM users WHERE jwt = ?', token, (error, results, fields) => {
+    if (error) throw error;
+
+    if (results.length === 0) {
+      res.status(401).json({ message: 'Your account has been logged in through some other device. Please login again on this device.' });
+    } else {
+      res.status(200).json({ message: 'Token matched' });
+    }
+  });
+});
+
 app.get("/Productlandingpage", (req, res) => {
   const sqlget = "SELECT * FROM products where id = 5";
 

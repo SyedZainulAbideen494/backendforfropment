@@ -6683,7 +6683,7 @@ app.delete('/shops/delete/:shopId', (req, res) => {
   const shopId = req.params.shopId;
   
   const sql = `DELETE FROM shops WHERE shop_id = ?`;
-  db.query(sql, [shopId], (err, result) => {
+  connection.query(sql, [shopId], (err, result) => {
     if (err) {
       console.error(err);
       res.status(500).json({ error: 'An error occurred while deleting the shop.' });

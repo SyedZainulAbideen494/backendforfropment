@@ -6693,6 +6693,20 @@ app.delete('/shops/delete/:shopId', (req, res) => {
   });
 });
 
+app.delete('/product/delete/:shopId', (req, res) => {
+  const shopId = req.params.shopId;
+  
+  const sql = `DELETE FROM products WHERE id = ?`;
+  connection.query(sql, [shopId], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ error: 'An error occurred while deleting the shop.' });
+    } else {
+      res.json({ message: 'Shop deleted successfully.' });
+    }
+  });
+});
+
 // admin dasboard
 app.get('/userCount/admin', (req, res) => {
   connection.query('SELECT COUNT(*) AS userCount FROM users', (error, results) => {

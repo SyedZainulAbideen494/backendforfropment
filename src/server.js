@@ -589,7 +589,7 @@ app.post('/login/user/check', (req, res) => {
     if (results.length === 0) {
       res.status(401).json({ message: 'Your account has been logged in through some other device. Please login again on this device.' });
     } else {
-      res.status(200).json({ message: 'Token matched' });
+      res.status(200).json({});
     }
   });
 });

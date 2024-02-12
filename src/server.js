@@ -14,7 +14,6 @@ const { verify } = require("crypto");
 const path = require("path");
 const nodemailer = require('nodemailer');
 const PORT = process.env.PORT || 8080;
-const socketIo = require('socket.io');
 app.use(express.urlencoded({ extended: true }));
 
 const storage = multer.diskStorage({
@@ -73,45 +72,6 @@ connection.getConnection((err) => {
     console.log("Connected to MySQL database");
   }
 });
-
-
-const io = socketIo(server);
-
-io.on('connection', (socket) => {
-  console.log('New client connected');
-
-  // Handle incoming messages
-  socket.on('message', (data) => {
-    const { chatId, sender, message } = data;
-    // Save message to the database
-    const sql = `INSERT INTO chat_${chatId} (sender, message) VALUES (?, ?)`;
-    db.query(sql, [sender, message], (err, result) => {
-      if (err) throw err;
-      console.log('Message saved to database');
-    });
-    // Broadcast the message to all connected clients
-    io.emit('message', data);
-  });
-
-  // Handle disconnection
-  socket.on('disconnect', () => {
-    console.log('Client disconnected');
-  });
-});
-
-// Add an endpoint to fetch messages for a specific chat
-app.get('/chat/:chatId', (req, res) => {
-  const chatId = req.params.chatId;
-  const sql = `SELECT * FROM chat_${chatId} ORDER BY created_at ASC`;
-  db.query(sql, (err, results) => {
-    if (err) {
-      res.status(500).json({ error: 'Internal server error' });
-    } else {
-      res.json(results);
-    }
-  });
-});
-
 
 app.get("/", (req, res) => {
   res.send("server working!!");

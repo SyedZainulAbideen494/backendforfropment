@@ -6707,6 +6707,35 @@ app.delete('/product/delete/:shopId', (req, res) => {
   });
 });
 
+app.post('/api/checkShopUser/:shopId', (req, res) => {
+  const { shopId } = req.params;
+  const { token } = req.headers;
+
+  // Fetch user_id from users table where token matches
+  connection.query('SELECT user_id FROM users WHERE jwt = ?', [token], (err, userResults) => {
+    if (err) {
+      console.error('Error querying users table:', err);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+    if (userResults.length === 0) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    const userId = userResults[0].user_id;
+
+    // Fetch user_id from shops table where shop_id matches the one from params
+    connection.query('SELECT user_id FROM shops WHERE shop_id = ?', [shopId], (err, shopResults) => {
+      if (err) {
+        console.error('Error querying shops table:', err);
+        return res.status(500).json({ error: 'Internal server error' });
+      }
+      if (shopResults.length === 0 || shopResults[0].user_id !== userId) {
+        return res.json({ match: false });
+      }
+      res.json({ match: true });
+    });
+  });
+});
+
 // admin dasboard
 app.get('/userCount/admin', (req, res) => {
   connection.query('SELECT COUNT(*) AS userCount FROM users', (error, results) => {

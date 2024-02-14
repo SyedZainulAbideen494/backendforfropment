@@ -6707,7 +6707,7 @@ app.delete('/product/delete/:shopId', (req, res) => {
   });
 });
 
-app.post('/checkMatch', (req, res) => {
+app.post('/checkMatch/redirect/shop/edit', (req, res) => {
   const { token, shop_id } = req.body;
 
   // Query to fetch user_id from shops

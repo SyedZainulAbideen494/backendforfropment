@@ -6707,46 +6707,6 @@ app.delete('/product/delete/:shopId', (req, res) => {
   });
 });
 
-app.post('/checkMatch/redirect/shop/edit', (req, res) => {
-  const { token, shop_id } = req.body;
-
-  // Query to fetch user_id from shops
-  const shopQuery = `SELECT user_id FROM shops WHERE shop_id = ?`;
-  connection.query(shopQuery, [shop_id], (error, shopResults, fields) => {
-    if (error) {
-      console.error('Error fetching user_id from shops:', error);
-      return res.status(500).json({ error: 'Internal server error' });
-    }
-
-    if (shopResults.length === 0) {
-      return res.status(404).json({ error: 'Shop not found' });
-    }
-
-    const shopUserId = shopResults[0].user_id;
-
-    // Query to fetch user_id from users
-    const userQuery = `SELECT user_id FROM users WHERE jwt = ?`;
-    connection.query(userQuery, [token], (error, userResults, fields) => {
-      if (error) {
-        console.error('Error fetching user_id from users:', error);
-        return res.status(500).json({ error: 'Internal server error' });
-      }
-
-      if (userResults.length === 0) {
-        return res.status(404).json({ error: 'User not found' });
-      }
-
-      const userUserId = userResults[0].user_id;
-
-      // Check if user_id from shops matches user_id from users
-      if (shopUserId === userUserId) {
-        return res.json({ message: 'User IDs match' });
-      } else {
-        return res.status(403).json({ error: 'User IDs do not match' });
-      }
-    });
-  });
-});
 // admin dasboard
 app.get('/userCount/admin', (req, res) => {
   connection.query('SELECT COUNT(*) AS userCount FROM users', (error, results) => {

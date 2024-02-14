@@ -6707,34 +6707,30 @@ app.delete('/product/delete/:shopId', (req, res) => {
   });
 });
 
-app.post('/api/getUserData/:shopId', (req, res) => {
-  const { shopId } = req.params;
-  const { token } = req.body;
-  
-  connection.query('SELECT user_id FROM users WHERE jwt = ?', token, (err, userResult) => {
-    if (err) {
-      console.error('Error querying users table:', err);
-      return res.status(500).json({ error: 'Internal server error' });
+app.post('/checkTokenAndShopId', (req, res) => {
+  const { token, shopId } = req.body;
+
+  // Query to check if user_id matches for the provided token and shop_id
+  const query = `
+    SELECT u.user_id
+    FROM users u
+    JOIN shops s ON u.user_id = s.user_id
+    WHERE s.shop_id = ? AND u.jwt = ?
+  `;
+
+  connection.query(query, [shopId, token], (error, results) => {
+    if (error) {
+      console.error('Error executing query: ' + error);
+      return res.status(500).json({ error: 'Internal Server Error' });
     }
 
-    if (userResult.length === 0) {
-      return res.status(404).json({ error: 'User not found' });
+    if (results.length === 0) {
+      // If no matching user_id found, redirect to /home
+      return res.redirect('/home');
     }
 
-    const userId = userResult[0].user_id;
-
-    connection.query('SELECT user_id FROM shops WHERE shop_id = ?', shopId, (err, shopResult) => {
-      if (err) {
-        console.error('Error querying shops table:', err);
-        return res.status(500).json({ error: 'Internal server error' });
-      }
-
-      if (shopResult.length === 0 || shopResult[0].user_id !== userId) {
-        return res.json({ match: false });
-      }
-
-      return res.json({ match: true });
-    });
+    // If user_id matches for the provided token and shop_id
+    res.json({ success: true, userId: results[0].user_id });
   });
 });
 

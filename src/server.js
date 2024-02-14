@@ -6747,7 +6747,6 @@ app.post('/checkMatch', (req, res) => {
     });
   });
 });
-
 // admin dasboard
 app.get('/userCount/admin', (req, res) => {
   connection.query('SELECT COUNT(*) AS userCount FROM users', (error, results) => {

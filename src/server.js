@@ -6707,30 +6707,44 @@ app.delete('/product/delete/:shopId', (req, res) => {
   });
 });
 
-app.post('/checkTokenAndShopId', (req, res) => {
-  const { token, shopId } = req.body;
+app.post('/checkMatch', (req, res) => {
+  const { token, shop_id } = req.body;
 
-  // Query to check if user_id matches for the provided token and shop_id
-  const query = `
-    SELECT u.user_id
-    FROM users u
-    JOIN shops s ON u.user_id = s.user_id
-    WHERE s.shop_id = ? AND u.jwt = ?
-  `;
-
-  connection.query(query, [shopId, token], (error, results) => {
+  // Query to fetch user_id from shops
+  const shopQuery = `SELECT user_id FROM shops WHERE shop_id = ?`;
+  connection.query(shopQuery, [shop_id], (error, shopResults, fields) => {
     if (error) {
-      console.error('Error executing query: ' + error);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      console.error('Error fetching user_id from shops:', error);
+      return res.status(500).json({ error: 'Internal server error' });
     }
 
-    if (results.length === 0) {
-      // If no matching user_id found, redirect to /home
-      return res.redirect('/home');
+    if (shopResults.length === 0) {
+      return res.status(404).json({ error: 'Shop not found' });
     }
 
-    // If user_id matches for the provided token and shop_id
-    res.json({ success: true, userId: results[0].user_id });
+    const shopUserId = shopResults[0].user_id;
+
+    // Query to fetch user_id from users
+    const userQuery = `SELECT user_id FROM users WHERE jwt = ?`;
+    connection.query(userQuery, [token], (error, userResults, fields) => {
+      if (error) {
+        console.error('Error fetching user_id from users:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+      }
+
+      if (userResults.length === 0) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      const userUserId = userResults[0].user_id;
+
+      // Check if user_id from shops matches user_id from users
+      if (shopUserId === userUserId) {
+        return res.json({ message: 'User IDs match' });
+      } else {
+        return res.status(403).json({ error: 'User IDs do not match' });
+      }
+    });
   });
 });
 

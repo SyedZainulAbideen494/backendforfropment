@@ -6809,19 +6809,39 @@ app.post('/api/user/update-privacy-setting', (req, res) => {
   });
 });
 
-app.post('/followers/user/profile', (req, res) => {
+app.post('/api/fetchData', (req, res) => {
   const userId = req.body.userId;
-  const query = `SELECT users.user_id, users.first_name, users.profile_pic
-                 FROM follows
-                 JOIN users ON follows.follower_id = users.user_id
-                 WHERE follows.following_id = ?`;
 
-  connection.query(query, [userId], (error, results) => {
-    if (error) throw error;
-    res.json(results);
-  });
+  // Fetch data from follows table
+  connection.query(
+    `SELECT * FROM follows WHERE following_id = ?`,
+    [userId],
+    (err, followsResult) => {
+      if (err) {
+        console.error('Error fetching follows: ', err);
+        res.status(500).json({ error: 'Internal server error' });
+        return;
+      }
+
+      // Extract follower ids
+      const followerIds = followsResult.map(follow => follow.follower_id);
+
+      // Fetch data from users table for follower ids
+      connection.query(
+        `SELECT user_id, first_name FROM users WHERE user_id IN (?)`,
+        [followerIds],
+        (err, usersResult) => {
+          if (err) {
+            console.error('Error fetching users: ', err);
+            res.status(500).json({ error: 'Internal server error' });
+            return;
+          }
+          res.json(usersResult);
+        }
+      );
+    }
+  );
 });
-
 
 // admin dasboard
 app.get('/userCount/admin', (req, res) => {

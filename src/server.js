@@ -6709,9 +6709,29 @@ app.delete('/product/delete/:shopId', (req, res) => {
 
 app.get('/api/users/:userId', async (req, res) => {
   const userId = req.params.userId;
-  const query = 'SELECT chat_priv FROM users WHERE id = ?';
+  const token = req.headers.authorization; // Assuming token is sent in the Authorization header
+  const query = 'SELECT user_id, chat_priv FROM users WHERE user_id = ?';
+  let loggedInUserId;
 
   try {
+    // Step 1: Retrieve the user_id based on the token
+    const [loggedInUser] = await new Promise((resolve, reject) => {
+      connection.query('SELECT user_id FROM users WHERE jwt = ?', [token], (error, results) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve(results);
+      });
+    });
+
+    if (!loggedInUser) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    loggedInUserId = loggedInUser.user_id;
+
     const [user] = await new Promise((resolve, reject) => {
       connection.query(query, [userId], (error, results) => {
         if (error) {
@@ -6730,9 +6750,13 @@ app.get('/api/users/:userId', async (req, res) => {
     const chatPrivacy = user.chat_priv;
 
     if (chatPrivacy === 'who_follow_me') {
-      const followQuery = 'SELECT * FROM follows WHERE follower_id = ? AND following_id = ?';
+      const followQuery = `
+        SELECT * FROM follows 
+        WHERE (follower_id = ? AND following_id = ?) 
+        OR (follower_id = ? AND following_id = ?)
+      `;
       const [follow] = await new Promise((resolve, reject) => {
-        connection.query(followQuery, [loggedInUserId, userId], (error, results) => {
+        connection.query(followQuery, [loggedInUserId, userId, userId, loggedInUserId], (error, results) => {
           if (error) {
             reject(error);
             return;
@@ -6753,6 +6777,7 @@ app.get('/api/users/:userId', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 
 // admin dasboard
 app.get('/userCount/admin', (req, res) => {

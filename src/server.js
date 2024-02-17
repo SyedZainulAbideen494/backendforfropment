@@ -6809,7 +6809,7 @@ app.post('/api/user/update-privacy-setting', (req, res) => {
   });
 });
 
-app.post('/api/fetchData', (req, res) => {
+app.post('/api/fetch.followers', (req, res) => {
   const userId = req.body.userId;
 
   // Fetch data from follows table
@@ -6828,7 +6828,7 @@ app.post('/api/fetchData', (req, res) => {
 
       // Fetch data from users table for follower ids
       connection.query(
-        `SELECT user_id, first_name FROM users WHERE user_id IN (?)`,
+        `SELECT user_id, first_name FROM users WHERE user_id = ?`,
         [followerIds],
         (err, usersResult) => {
           if (err) {

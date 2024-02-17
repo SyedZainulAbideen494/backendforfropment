@@ -6809,6 +6809,19 @@ app.post('/api/user/update-privacy-setting', (req, res) => {
   });
 });
 
+app.post('/followers/user/profile', (req, res) => {
+  const userId = req.body.userId;
+  const query = `SELECT users.user_id, users.first_name, users.profile_pic
+                 FROM follows
+                 JOIN users ON follows.follower_id = users.user_id
+                 WHERE follows.following_id = ?`;
+
+  connection.query(query, [userId], (error, results) => {
+    if (error) throw error;
+    res.json(results);
+  });
+});
+
 
 // admin dasboard
 app.get('/userCount/admin', (req, res) => {

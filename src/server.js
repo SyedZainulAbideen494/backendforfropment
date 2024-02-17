@@ -6809,39 +6809,6 @@ app.post('/api/user/update-privacy-setting', (req, res) => {
   });
 });
 
-app.post('/api/fetch.followers', (req, res) => {
-  const userId = req.body.userId;
-
-  // Fetch data from follows table
-  connection.query(
-    `SELECT * FROM follows WHERE following_id = ?`,
-    [userId],
-    (err, followsResult) => {
-      if (err) {
-        console.error('Error fetching follows: ', err);
-        res.status(500).json({ error: 'Internal server error' });
-        return;
-      }
-
-      // Extract follower ids
-      const followerIds = followsResult.map(follow => follow.follower_id);
-
-      // Fetch data from users table for follower ids
-      connection.query(
-        `SELECT user_id, first_name FROM users WHERE user_id = ?`,
-        [followerIds],
-        (err, usersResult) => {
-          if (err) {
-            console.error('Error fetching users: ', err);
-            res.status(500).json({ error: 'Internal server error' });
-            return;
-          }
-          res.json(usersResult);
-        }
-      );
-    }
-  );
-});
 
 // admin dasboard
 app.get('/userCount/admin', (req, res) => {

@@ -6778,6 +6778,37 @@ app.get('/api/users/:userId', async (req, res) => {
   }
 });
 
+app.get('/api/user/privacy-setting', (req, res) => {
+  const token = req.query.token;
+  // Fetch the user's current privacy setting from the database based on the token
+  connection.query('SELECT chat_priv FROM users WHERE jwt = ?', [token], (error, results) => {
+      if (error) {
+          console.error('Error fetching privacy setting:', error);
+          res.status(500).json({ error: 'Internal server error' });
+          return;
+      }
+      if (results.length === 0) {
+          res.status(404).json({ error: 'User not found' });
+          return;
+      }
+      const privacySetting = results[0].chat_priv;
+      res.json({ privacySetting });
+  });
+});
+
+app.post('/api/user/update-privacy-setting', (req, res) => {
+  const { token, privacySetting } = req.body;
+  // Update the user's privacy setting in the database based on the token
+  connection.query('UPDATE users SET chat_priv = ? WHERE jwt = ?', [privacySetting, token], (error, results) => {
+      if (error) {
+          console.error('Error updating privacy setting:', error);
+          res.status(500).json({ error: 'Internal server error' });
+          return;
+      }
+      res.json({ success: true });
+  });
+});
+
 
 // admin dasboard
 app.get('/userCount/admin', (req, res) => {

@@ -6707,6 +6707,53 @@ app.delete('/product/delete/:shopId', (req, res) => {
   });
 });
 
+app.get('/api/users/:userId', async (req, res) => {
+  const userId = req.params.userId;
+  const query = 'SELECT chat_priv FROM users WHERE id = ?';
+
+  try {
+    const [user] = await new Promise((resolve, reject) => {
+      connection.query(query, [userId], (error, results) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve(results);
+      });
+    });
+
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    const chatPrivacy = user.chat_priv;
+
+    if (chatPrivacy === 'who_follow_me') {
+      const followQuery = 'SELECT * FROM follows WHERE follower_id = ? AND following_id = ?';
+      const [follow] = await new Promise((resolve, reject) => {
+        connection.query(followQuery, [loggedInUserId, userId], (error, results) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(results);
+        });
+      });
+
+      if (!follow) {
+        res.status(403).json({ error: 'User privacy settings restrict chatting' });
+        return;
+      }
+    }
+
+    res.json({ chat_priv: chatPrivacy });
+  } catch (error) {
+    console.error('Error fetching user chat privacy:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // admin dasboard
 app.get('/userCount/admin', (req, res) => {
   connection.query('SELECT COUNT(*) AS userCount FROM users', (error, results) => {

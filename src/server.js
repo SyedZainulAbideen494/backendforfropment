@@ -299,7 +299,7 @@ app.post("/addProduct", upload.single("image"), (req, res) => {
         }
 
         console.log("Product added successfully!");
-        res.status(200).send("Product added successfully!", result);
+        res.status(200).send(result);
       }
     );
   });

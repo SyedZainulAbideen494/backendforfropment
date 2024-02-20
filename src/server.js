@@ -237,7 +237,7 @@ const updateUserPassword = (email, hashedPassword) => {
 };
 
 app.post("/addProduct", upload.single("image"), (req, res) => {
-
+  const id = req.body.id;
   const title = req.body.title;
   const price = req.body.price;
   const amount = req.body.amount;
@@ -299,7 +299,7 @@ app.post("/addProduct", upload.single("image"), (req, res) => {
         }
 
         console.log("Product added successfully!");
-        res.status(200).send(result);
+        res.status(200).send("Product added successfully!");
       }
     );
   });

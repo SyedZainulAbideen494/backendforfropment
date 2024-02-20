@@ -302,7 +302,7 @@ app.post("/addProduct", upload.single("image"), (req, res) => {
           return;
         }
 
-        const productId = result.insertId; // Get the ID of the newly inserted row
+        const productId = result.id; // Get the ID of the newly inserted row
 
         console.log("Product added successfully!");
         res.status(200).json({ id: productId }); // Send the ID back in the response

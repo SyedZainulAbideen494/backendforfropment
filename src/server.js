@@ -237,6 +237,7 @@ const updateUserPassword = (email, hashedPassword) => {
 };
 
 app.post("/addProduct", upload.single("image"), (req, res) => {
+  const id = req.body.id;
   const title = req.body.title;
   const price = req.body.price;
   const amount = req.body.amount;
@@ -268,18 +269,20 @@ app.post("/addProduct", upload.single("image"), (req, res) => {
 
   const selectQuery = `SELECT shop_id FROM shops WHERE shop_id = '${token}'`;
   const insertQuery =
-    "INSERT INTO products (title, price, amount, shop_id, images, payment, product_description,  usd, EUR, GBP, JPY, CAD, AUD, CHF, CNY, INR, BRL, RUB, KRW, SGD, NZD, MXN, HKD, TRY, ZAR, SEK, NOK) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    "INSERT INTO products (title, price, amount, shop_id, images, payment, product_description,  usd, EUR, GBP, JPY, CAD, AUD, CHF, CNY, INR, BRL, RUB, KRW, SGD, NZD, MXN, HKD, TRY, ZAR, SEK, NOK) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
   // Execute the first query to fetch the shop_id
   connection.query(selectQuery, (err, rows) => {
     if (err) {
       console.error("Error fetching shop_id:", err);
-      return res.status(500).send("Error adding product.");
+      res.status(500).send("Error adding product.");
+      return;
     }
 
     if (rows.length === 0) {
       console.error("Shop not found.");
-      return res.status(404).send("Shop not found.");
+      res.status(404).send("Shop not found.");
+      return;
     }
 
     const shop_id = rows[0].shop_id;
@@ -291,12 +294,12 @@ app.post("/addProduct", upload.single("image"), (req, res) => {
       (err, result) => {
         if (err) {
           console.error("Error inserting product:", err);
-          return res.status(500).send("Error adding product.");
+          res.status(500).send("Error adding product.");
+          return;
         }
 
-        const productId = result.insertId;
         console.log("Product added successfully!");
-        res.status(200).json({ productId }); // Send the productId in the response
+        res.status(200).send("Product added successfully!");
       }
     );
   });

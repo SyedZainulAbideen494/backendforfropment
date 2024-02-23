@@ -237,7 +237,6 @@ const updateUserPassword = (email, hashedPassword) => {
 };
 
 app.post("/addProduct", upload.single("image"), (req, res) => {
-  const id = req.body.id;
   const title = req.body.title;
   const price = req.body.price;
   const amount = req.body.amount;
@@ -269,7 +268,7 @@ app.post("/addProduct", upload.single("image"), (req, res) => {
 
   const selectQuery = `SELECT shop_id FROM shops WHERE shop_id = '${token}'`;
   const insertQuery =
-    "INSERT INTO products (title, price, amount, shop_id, images, payment, product_description,  usd, EUR, GBP, JPY, CAD, AUD, CHF, CNY, INR, BRL, RUB, KRW, SGD, NZD, MXN, HKD, TRY, ZAR, SEK, NOK) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    "INSERT INTO products (title, price, amount, shop_id, images, payment, product_description,  usd, EUR, GBP, JPY, CAD, AUD, CHF, CNY, INR, BRL, RUB, KRW, SGD, NZD, MXN, HKD, TRY, ZAR, SEK, NOK) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
   // Execute the first query to fetch the shop_id
   connection.query(selectQuery, (err, rows) => {
@@ -298,8 +297,10 @@ app.post("/addProduct", upload.single("image"), (req, res) => {
           return;
         }
 
+        const productId = result.insertId; // Get the ID of the newly inserted product
+        
         console.log("Product added successfully!");
-        res.status(200).send("Product added successfully!");
+        res.status(200).json({ productId }); // Send the productId in the response
       }
     );
   });

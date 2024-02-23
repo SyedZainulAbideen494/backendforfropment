@@ -274,14 +274,12 @@ app.post("/addProduct", upload.single("image"), (req, res) => {
   connection.query(selectQuery, (err, rows) => {
     if (err) {
       console.error("Error fetching shop_id:", err);
-      res.status(500).send("Error adding product.");
-      return;
+      return res.status(500).send("Error adding product.");
     }
 
     if (rows.length === 0) {
       console.error("Shop not found.");
-      res.status(404).send("Shop not found.");
-      return;
+      return res.status(404).send("Shop not found.");
     }
 
     const shop_id = rows[0].shop_id;
@@ -293,12 +291,10 @@ app.post("/addProduct", upload.single("image"), (req, res) => {
       (err, result) => {
         if (err) {
           console.error("Error inserting product:", err);
-          res.status(500).send("Error adding product.");
-          return;
+          return res.status(500).send("Error adding product.");
         }
 
-        const productId = result.insertId; // Get the ID of the newly inserted product
-        
+        const productId = result.insertId;
         console.log("Product added successfully!");
         res.status(200).json({ productId }); // Send the productId in the response
       }

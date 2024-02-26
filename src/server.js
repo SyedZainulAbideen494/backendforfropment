@@ -74,7 +74,7 @@ connection.getConnection((err) => {
 });
 
 app.get("/", (req, res) => {
-  res.send("server working!!");
+  res.send("You are not suppose to be here on this site get lost mf");
 });
 
 app.get("/products/product", (req, res) => {

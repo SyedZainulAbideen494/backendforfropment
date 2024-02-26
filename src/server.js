@@ -74,9 +74,8 @@ connection.getConnection((err) => {
 });
 
 app.get("/", (req, res) => {
-  res.send("You are not suppose to be here on this site get lost mf");
+  res.redirect("https://www.dropment.online/");
 });
-
 app.get("/products/product", (req, res) => {
   const sqlget = "SELECT * FROM products";
 
